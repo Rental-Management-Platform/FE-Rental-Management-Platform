@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -15,6 +16,7 @@ import {
   LOADING_STATE,
   type Session,
   type SessionActions,
+  type SessionDebug,
   type SessionState,
 } from "./create-session";
 
@@ -37,6 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     }),
   );
+
+  useEffect(() => {
+    // Finds out who is looking from the hint cookie. React StrictMode runs effects twice in
+    // development; the second call joins the restore the first one started.
+    void session.actions.restore();
+  }, [session]);
 
   return <SessionContext value={session}>{children}</SessionContext>;
 }
@@ -68,4 +76,9 @@ export function useApi(): ApiClient {
 /** Stable across renders. */
 export function useSessionActions(): SessionActions {
   return useSessionContext().actions;
+}
+
+/** For the developer lab only: undefined in a production build. Never exposes the token. */
+export function useSessionDebug(): SessionDebug | undefined {
+  return useSessionContext().debug;
 }

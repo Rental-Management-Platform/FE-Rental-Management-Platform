@@ -1,9 +1,11 @@
 import "client-only";
+import { abortError, anySignal } from "./abort";
 import {
   isApiError,
   missingTokenError,
   networkError,
   timeoutError,
+  type ApiError,
 } from "./errors";
 import { buildUrl, parseResponse, type Query } from "./http";
 
@@ -51,8 +53,25 @@ export interface SessionPort {
    * outlives the session it started under.
    */
   signal(): AbortSignal;
-  /** The access token for a call, or null when there is none. */
-  getToken(mode: Exclude<AuthMode, "none">): Promise<string | null>;
+  /**
+   * The access token for a call, or null when there is none. May wait for a restore or a
+   * refresh; `signal` only ends this caller's wait, never the refresh it shares with others.
+   */
+  getToken(
+    mode: Exclude<AuthMode, "none">,
+    signal?: AbortSignal,
+  ): Promise<string | null>;
+  /**
+   * The server answered 401 `TOKEN_EXPIRED` to `rejectedToken`: the token to resend with.
+   * That is the current token when another call has already replaced the rejected one,
+   * otherwise the result of the one shared refresh.
+   */
+  renewToken(rejectedToken: string, signal?: AbortSignal): Promise<string>;
+  /**
+   * The server proved that the session behind `rejectedToken` is over. Ignored when that
+   * token is no longer the current one (the session has moved on).
+   */
+  rejectToken(rejectedToken: string, reason: "expired"): void;
 }
 
 export interface ApiClientDeps {
@@ -78,8 +97,11 @@ export interface SessionApiClient extends ApiClient {
   ): Promise<T>;
 }
 
-const abortError = () =>
-  new DOMException("The operation was aborted.", "AbortError");
+const isTokenExpired = (error: unknown): error is ApiError =>
+  isApiError(error) && error.status === 401 && error.code === "TOKEN_EXPIRED";
+
+const bearer = (accessToken: string | null): Record<string, string> =>
+  accessToken === null ? {} : { Authorization: `Bearer ${accessToken}` };
 
 export function createApiClient(deps: ApiClientDeps): SessionApiClient {
   const { baseUrl, session, timeoutMs = REQUEST_TIMEOUT_MS } = deps;
@@ -143,16 +165,48 @@ export function createApiClient(deps: ApiClientDeps): SessionApiClient {
 
     // Taken before the token, so a call belongs to the session it started under.
     const sessionSignal = session?.signal();
-    const accessToken = session ? await session.getToken(mode) : null;
+    // Ends this call's wait for a token when the caller leaves or the session changes.
+    const waitSignal = anySignal(options.signal, sessionSignal);
+    const accessToken = session
+      ? await session.getToken(mode, waitSignal)
+      : null;
 
     // No token at all: made on the machine, no request is sent, and it never ends a session.
     if (accessToken === null && mode === "required") throw missingTokenError();
 
-    return attempt<T>(
-      options,
-      accessToken === null ? {} : { Authorization: `Bearer ${accessToken}` },
-      sessionSignal,
-    );
+    try {
+      return await attempt<T>(options, bearer(accessToken), sessionSignal);
+    } catch (error) {
+      // Optional reads never answer 401 (an expired token only turns them into the guest
+      // version, which the early refresh prevents), so only `required` has a second try.
+      if (mode !== "required" || !session || accessToken === null) throw error;
+      if (!isTokenExpired(error)) throw error;
+      return resendOnce<T>(
+        options,
+        session,
+        accessToken,
+        waitSignal,
+        sessionSignal,
+      );
+    }
+  }
+
+  // The one resend: a fresh token (never a second refresh for the same attempt), and if the
+  // server still says it is expired, the session is over and the call throws.
+  async function resendOnce<T>(
+    options: RequestOptions,
+    session: SessionPort,
+    rejectedToken: string,
+    waitSignal: AbortSignal | undefined,
+    sessionSignal: AbortSignal | undefined,
+  ): Promise<T> {
+    const renewed = await session.renewToken(rejectedToken, waitSignal);
+    try {
+      return await attempt<T>(options, bearer(renewed), sessionSignal);
+    } catch (error) {
+      if (isTokenExpired(error)) session.rejectToken(renewed, "expired");
+      throw error;
+    }
   }
 
   const requestWithToken: SessionApiClient["requestWithToken"] = (

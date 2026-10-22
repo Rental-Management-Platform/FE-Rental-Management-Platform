@@ -27,7 +27,7 @@ Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nh�
 - [ ] Build it: `/develop API client & session layer`
   - [x] M1 Luồng gọi API công khai: kiểu dữ liệu, lỗi, client chế độ `none`, trang thử `/dev/session` gọi `GET /plans` (AC-1, AC-2, AC-9, AC-10, AC-14)
   - [x] M2 Luồng đăng nhập: phiên giữ token trong closure, `signIn` và `signUp`, `AuthProvider`, `useSession`, `useApi`, chế độ `required` (AC-1, AC-3, AC-12, AC-13, AC-14)
-  - [ ] M3 Giữ phiên sống: refresh dùng chung, thử lại đúng một lần, khôi phục khi mở trang, chế độ `optional`, bảng `session.debug` cho dev (AC-4 đến AC-7)
+  - [x] M3 Giữ phiên sống: refresh dùng chung, thử lại đúng một lần, khôi phục khi mở trang, chế độ `optional`, bảng `session.debug` cho dev (AC-4 đến AC-7)
   - [ ] M4 Lỗi người dùng nhìn thấy: lỗi 400 hiện theo từng ô, thời gian chờ 429 đếm ngược, chính sách thử lại của query (AC-8 đến AC-10)
   - [ ] M5 Kết thúc phiên gọn gàng: `signOut`, `signOutAll`, lý do mất phiên, xóa cache khi đổi người (AC-11, AC-12, AC-14)
 - [ ] Verify it: `/check verify API client & session layer` (cần backend chạy với `ACCESS_TTL_SECONDS=60`)

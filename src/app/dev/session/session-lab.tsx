@@ -1,18 +1,32 @@
 "use client";
 
-import type { ComponentProps } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import {
+  useQueries,
+  useQuery,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { z } from "zod";
 import { isApiError } from "@/lib/api/errors";
-import type { MeResponse, Page, Plan, RegisterBody } from "@/lib/api/types";
+import type {
+  MeResponse,
+  Page,
+  Plan,
+  PublicListingSummary,
+  RegisterBody,
+} from "@/lib/api/types";
 import {
   useApi,
   useSession,
   useSessionActions,
+  useSessionDebug,
 } from "@/lib/session/auth-provider";
-import type { SessionState } from "@/lib/session/create-session";
+import {
+  EARLY_REFRESH_MS,
+  type SessionState,
+} from "@/lib/session/create-session";
 
 const describeCall = (error: unknown) =>
   isApiError(error)
@@ -32,6 +46,7 @@ function describeState(state: SessionState): string {
 
 function SessionPanel() {
   const state = useSession();
+  const { restore } = useSessionActions();
   return (
     <section aria-labelledby="session-state" className="flex flex-col gap-2">
       <h2 id="session-state" className="font-medium">
@@ -40,6 +55,77 @@ function SessionPanel() {
       <output aria-live="polite" className="text-sm">
         {describeState(state)}
       </output>
+      {state.status === "guest" && state.endedReason === "unavailable" && (
+        <div>
+          <button
+            type="button"
+            onClick={() => void restore()}
+            className="rounded border px-3 py-1"
+          >
+            Check session again
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// Reads the clock in an interval, never during render, so the page can still be prerendered.
+function DebugPanel() {
+  const debug = useSessionDebug();
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshOff, setRefreshOff] = useState(false);
+
+  useEffect(() => {
+    if (!debug) return;
+    const read = () => {
+      const info = debug.getInfo();
+      setRefreshCount(info.refreshCount);
+      setSecondsLeft(
+        info.expiresAt === null
+          ? null
+          : Math.round((info.expiresAt - Date.now()) / 1000),
+      );
+    };
+    const first = setTimeout(read, 0);
+    const timer = setInterval(read, 1000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(timer);
+    };
+  }, [debug]);
+
+  if (!debug) return null;
+
+  return (
+    <section aria-labelledby="debug-title" className="flex flex-col gap-2">
+      <h2 id="debug-title" className="font-medium">
+        Debug (development only)
+      </h2>
+      <output className="text-sm">
+        {secondsLeft === null
+          ? "token: none"
+          : secondsLeft >= 0
+            ? `token: ${secondsLeft} s left`
+            : `token: expired ${-secondsLeft} s ago`}
+        {" · "}
+        refreshes sent: {refreshCount}
+      </output>
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={refreshOff}
+          onChange={(event) => {
+            setRefreshOff(event.target.checked);
+            debug.setEarlyRefreshMs(
+              event.target.checked ? 0 : EARLY_REFRESH_MS,
+            );
+          }}
+        />
+        Early refresh margin 0 (an expired token is sent, to reach the 401
+        retry)
+      </label>
     </section>
   );
 }
@@ -128,6 +214,79 @@ function RequiredCall() {
         `${data.user.email} · ${data.permissions.length} permissions`
       }
     />
+  );
+}
+
+function OptionalCall() {
+  const api = useApi();
+  const listings = useQuery({
+    queryKey: ["dev", "listings"],
+    queryFn: ({ signal }) =>
+      api.get<Page<PublicListingSummary>>("/listings", {
+        auth: "optional",
+        query: { pageSize: 1 },
+        signal,
+      }),
+    enabled: false,
+    retry: false,
+  });
+  return (
+    <CallSection
+      id="optional-call"
+      title="Optional call: GET /listings?pageSize=1 (mode optional)"
+      buttonLabel="Call GET /listings"
+      query={listings}
+      summarize={(data) =>
+        data.items.length === 0
+          ? `total: ${data.total}, no listing on this page`
+          : `first isFavorite: ${String(data.items[0].isFavorite)} (null means a guest answer)`
+      }
+    />
+  );
+}
+
+const PARALLEL_CALLS = [0, 1, 2, 3, 4];
+
+// Five required calls started together. With an expired token they must send one refresh.
+function ParallelCalls() {
+  const api = useApi();
+  const calls = useQueries({
+    queries: PARALLEL_CALLS.map((index) => ({
+      queryKey: ["dev", "me-parallel", index],
+      queryFn: ({ signal }: { signal: AbortSignal }) =>
+        api.get<MeResponse>("/auth/me", { signal }),
+      enabled: false,
+      retry: false,
+    })),
+  });
+  const fetching = calls.some((call) => call.isFetching);
+  const succeeded = calls.filter((call) => call.isSuccess).length;
+  const failed = calls.find((call) => call.error);
+
+  return (
+    <section aria-labelledby="parallel-call" className="flex flex-col gap-2">
+      <h2 id="parallel-call" className="font-medium">
+        Five parallel calls: GET /auth/me (mode required)
+      </h2>
+      <div>
+        <button
+          type="button"
+          onClick={() => void Promise.allSettled(calls.map((c) => c.refetch()))}
+          disabled={fetching}
+          className="rounded border px-3 py-1 disabled:opacity-50"
+        >
+          Call GET /auth/me five times
+        </button>
+      </div>
+      <output aria-live="polite" className="text-sm">
+        {fetching ? "Calling…" : `${succeeded} of 5 succeeded`}
+      </output>
+      {failed?.error && (
+        <p role="alert" className="text-sm text-red-700">
+          {describeCall(failed.error)}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -357,10 +516,14 @@ export function SessionLab() {
       </header>
 
       <SessionPanel />
+      <DebugPanel />
       <PublicCall />
       <RequiredCall />
+      <OptionalCall />
+      <ParallelCalls />
 
-      {state.status !== "user" && (
+      {/* Not while `loading`: a reload with a session must not flash a login form. */}
+      {state.status === "guest" && (
         <>
           <SignInForm />
           <SignUpForm />
