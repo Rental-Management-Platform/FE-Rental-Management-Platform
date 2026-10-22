@@ -99,3 +99,47 @@ export const missingTokenError = () =>
     code: "TOKEN_MISSING",
     message: MESSAGES.TOKEN_MISSING,
   });
+
+/** Field path (`email`, `fees.0.price`) to the message to show under that input. */
+export type FieldErrors = Record<string, string>;
+
+// Codes the backend sends without an `errors[]` entry, but that point at exactly one input.
+const FIELD_OF_CODE: Partial<Record<ApiErrorCode, string>> = {
+  EMAIL_TAKEN: "email",
+  PHONE_TAKEN: "phone",
+  CURRENT_PASSWORD_WRONG: "currentPassword",
+};
+
+/**
+ * The first message of each `field` in `errors[]`, plus the fixed map for the codes that
+ * point at one input. A message from `errors[]` wins over the map. Anything that is not an
+ * `ApiError` gives an empty object.
+ */
+export function fieldErrors(error: unknown): FieldErrors {
+  if (!isApiError(error)) return {};
+
+  const found: FieldErrors = {};
+  for (const entry of error.errors) {
+    found[entry.field] ??= entry.message;
+  }
+
+  const mapped = FIELD_OF_CODE[error.code];
+  if (mapped !== undefined) found[mapped] ??= error.message;
+  return found;
+}
+
+/**
+ * What to show for a failed call. `requestId` comes back only for status 500 or above, as a
+ * support code: a 4xx is something the person can fix and has no use for it.
+ */
+export function describeError(error: unknown): {
+  message: string;
+  requestId: string | null;
+} {
+  if (!isApiError(error))
+    return { message: HTTP_ERROR_MESSAGE, requestId: null };
+  return {
+    message: error.message,
+    requestId: error.status >= 500 ? error.requestId : null,
+  };
+}

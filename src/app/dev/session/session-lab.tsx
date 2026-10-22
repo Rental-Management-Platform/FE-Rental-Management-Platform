@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState, type ComponentProps } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  useMutation,
   useQueries,
   useQuery,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { z } from "zod";
-import { isApiError } from "@/lib/api/errors";
+import { describeError, isApiError } from "@/lib/api/errors";
 import type {
   MeResponse,
   Page,
@@ -27,6 +28,8 @@ import {
   EARLY_REFRESH_MS,
   type SessionState,
 } from "@/lib/session/create-session";
+import { useCountdown } from "@/lib/use-countdown";
+import { FailureNotice, useFormFailure } from "./form-failure";
 
 const describeCall = (error: unknown) =>
   isApiError(error)
@@ -162,14 +165,15 @@ function CallSection<T>({
       </div>
       <output aria-live="polite" className="text-sm">
         {query.isFetching
-          ? "Calling…"
+          ? `Calling…${query.failureCount > 0 ? ` (retry ${query.failureCount})` : ""}`
           : query.data
             ? summarize(query.data)
             : !query.error && "Not called yet."}
       </output>
       {query.error && (
         <p role="alert" className="text-sm text-red-700">
-          {describeCall(query.error)}
+          {describeCall(query.error)} · tried {query.failureCount} time
+          {query.failureCount === 1 ? "" : "s"}
         </p>
       )}
     </section>
@@ -183,7 +187,6 @@ function PublicCall() {
     queryFn: ({ signal }) =>
       api.get<Page<Plan>>("/plans", { auth: "none", signal }),
     enabled: false,
-    retry: false,
   });
   return (
     <CallSection
@@ -202,7 +205,6 @@ function RequiredCall() {
     queryKey: ["dev", "me"],
     queryFn: ({ signal }) => api.get<MeResponse>("/auth/me", { signal }),
     enabled: false,
-    retry: false,
   });
   return (
     <CallSection
@@ -228,7 +230,6 @@ function OptionalCall() {
         signal,
       }),
     enabled: false,
-    retry: false,
   });
   return (
     <CallSection
@@ -256,7 +257,6 @@ function ParallelCalls() {
       queryFn: ({ signal }: { signal: AbortSignal }) =>
         api.get<MeResponse>("/auth/me", { signal }),
       enabled: false,
-      retry: false,
     })),
   });
   const fetching = calls.some((call) => call.isFetching);
@@ -285,6 +285,81 @@ function ParallelCalls() {
         <p role="alert" className="text-sm text-red-700">
           {describeCall(failed.error)}
         </p>
+      )}
+    </section>
+  );
+}
+
+const WRONG_LOGIN_ATTEMPTS = 12;
+
+// An email nobody owns, so the 15 minute block lands on nothing real. The backend counts
+// every login by the email text, whether or not the account exists.
+const LIMIT_TEST_EMAIL = "lab-limit@example.com";
+
+// Twelve wrong logins in a row. The backend allows 10 per email in 15 minutes, so the 11th
+// answers 429. It stops there and keeps that error, so the wait counts down like in a form.
+function WrongLogins() {
+  const api = useApi();
+  const [email, setEmail] = useState(LIMIT_TEST_EMAIL);
+  const [answered, setAnswered] = useState(0);
+  const attempts = useMutation({
+    mutationFn: async () => {
+      setAnswered(0);
+      for (let sent = 1; sent <= WRONG_LOGIN_ATTEMPTS; sent++) {
+        try {
+          await api.post(
+            "/auth/login",
+            { email, password: "wrong-password" },
+            { auth: "none" },
+          );
+        } catch (error) {
+          // The expected answer to a wrong password. Anything else, a 429 included, stops.
+          if (!(isApiError(error) && error.status === 401)) throw error;
+        }
+        setAnswered(sent);
+      }
+    },
+  });
+  const secondsLeft = useCountdown(attempts.error);
+
+  return (
+    <section aria-labelledby="wrong-logins" className="flex flex-col gap-2">
+      <h2 id="wrong-logins" className="font-medium">
+        Twelve wrong logins: POST /auth/login (mode none)
+      </h2>
+      <p className="text-sm text-neutral-600">
+        Leaves a 15 minute block on that email. Restarting the backend clears
+        it.
+      </p>
+      <TextField
+        id="wrong-logins-email"
+        label="Email to try"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+      />
+      <div>
+        <button
+          type="button"
+          onClick={() => attempts.mutate()}
+          disabled={attempts.isPending || secondsLeft > 0}
+          className="rounded border px-3 py-1 disabled:opacity-50"
+        >
+          Send {WRONG_LOGIN_ATTEMPTS} wrong logins
+        </button>
+      </div>
+      <output aria-live="polite" className="text-sm">
+        {attempts.isPending
+          ? `Sending… ${answered} answered`
+          : attempts.isIdle
+            ? "Not called yet."
+            : `${answered} answered 401${attempts.isError ? ", then it stopped" : ""}.`}
+      </output>
+      {attempts.isError && (
+        <FailureNotice
+          failure={attempts.error}
+          secondsLeft={secondsLeft}
+          message={describeError(attempts.error).message}
+        />
       )}
     </section>
   );
@@ -325,6 +400,8 @@ const signInSchema = z.object({
 });
 type SignInValues = z.infer<typeof signInSchema>;
 
+const SIGN_IN_FIELDS: readonly Path<SignInValues>[] = ["email", "password"];
+
 function SignInForm() {
   const { signIn } = useSessionActions();
   const {
@@ -337,13 +414,18 @@ function SignInForm() {
     resolver: zodResolver(signInSchema),
     defaultValues: { email: "", password: "" },
   });
+  const { failure, secondsLeft, report, clear } = useFormFailure(
+    setError,
+    SIGN_IN_FIELDS,
+  );
 
   const onSubmit = async (values: SignInValues) => {
+    clear();
     clearErrors("root.server");
     try {
       await signIn(values);
     } catch (error) {
-      setError("root.server", { type: "server", message: describeCall(error) });
+      report(error);
     }
   };
 
@@ -371,15 +453,15 @@ function SignInForm() {
         error={errors.password?.message}
         {...register("password")}
       />
-      {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-700">
-          {errors.root.server.message}
-        </p>
-      )}
+      <FailureNotice
+        failure={failure}
+        secondsLeft={secondsLeft}
+        message={errors.root?.server?.message}
+      />
       <div>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || secondsLeft > 0}
           className="rounded border px-3 py-1 disabled:opacity-50"
         >
           Sign in
@@ -397,6 +479,14 @@ const signUpSchema = z.object({
   phone: z.string(),
 });
 type SignUpValues = z.infer<typeof signUpSchema>;
+
+const SIGN_UP_FIELDS: readonly Path<SignUpValues>[] = [
+  "email",
+  "password",
+  "name",
+  "accountType",
+  "phone",
+];
 
 function SignUpForm() {
   const { signUp } = useSessionActions();
@@ -416,8 +506,13 @@ function SignUpForm() {
       phone: "",
     },
   });
+  const { failure, secondsLeft, report, clear } = useFormFailure(
+    setError,
+    SIGN_UP_FIELDS,
+  );
 
   const onSubmit = async ({ name, phone, ...values }: SignUpValues) => {
+    clear();
     clearErrors("root.server");
     // An empty optional box is left out, not sent as an empty string.
     const body: RegisterBody = {
@@ -428,7 +523,7 @@ function SignUpForm() {
     try {
       await signUp(body);
     } catch (error) {
-      setError("root.server", { type: "server", message: describeCall(error) });
+      report(error);
     }
   };
 
@@ -484,15 +579,15 @@ function SignUpForm() {
         error={errors.phone?.message}
         {...register("phone")}
       />
-      {errors.root?.server && (
-        <p role="alert" className="text-sm text-red-700">
-          {errors.root.server.message}
-        </p>
-      )}
+      <FailureNotice
+        failure={failure}
+        secondsLeft={secondsLeft}
+        message={errors.root?.server?.message}
+      />
       <div>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || secondsLeft > 0}
           className="rounded border px-3 py-1 disabled:opacity-50"
         >
           Register
@@ -521,6 +616,7 @@ export function SessionLab() {
       <RequiredCall />
       <OptionalCall />
       <ParallelCalls />
+      <WrongLogins />
 
       {/* Not while `loading`: a reload with a session must not flash a login form. */}
       {state.status === "guest" && (
