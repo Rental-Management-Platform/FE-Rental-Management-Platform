@@ -6,10 +6,14 @@ Next.js (App Router) + TypeScript + Tailwind CSS v4.
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:5173](http://localhost:5173). The app uses port 5173 because the API
+owns 3000 and its `ALLOWED_ORIGINS` already lists `http://localhost:5173`. Use `localhost`
+on both sides, never `127.0.0.1` (the refresh cookie is tied to the host). The API must be
+running at `NEXT_PUBLIC_API_URL`.
 
 ## Scripts
 
@@ -22,6 +26,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Structure
 
-- `src/app` — routes, layouts, global styles (`globals.css` imports Tailwind)
+- `src/app` — routes, layouts, global styles (`globals.css` imports Tailwind), and the providers mount
+- `src/lib` — shared code: `env.ts` (browser safe values), `env.server.ts` (server only)
 - `public` — static assets
 - Import alias: `@/*` → `src/*`

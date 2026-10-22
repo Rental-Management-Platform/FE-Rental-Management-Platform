@@ -19,17 +19,41 @@
       "skillPath": "skills/develop/SKILL.md",
       "computedHash": "151812557fd511f80196653d0dae0efc878558cc96e962857f2710ed98789573"
     },
+    "next-dev-loop": {
+      "source": "vercel/next.js",
+      "sourceType": "github",
+      "skillPath": "skills/next-dev-loop/SKILL.md",
+      "computedHash": "c305c83b726212e0284930c65cded2c4a4ab85f9bfccfa83b62274247fe3580e"
+    },
+    "react-hook-form": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/react-hook-form/SKILL.md",
+      "computedHash": "c32b9536b64b2bbfb26ecadac5caf9ac85697f319edffe6f77c9ecd00db51d14"
+    },
     "scope": {
       "source": "jsmastery-pro/skills",
       "sourceType": "github",
       "skillPath": "skills/scope/SKILL.md",
       "computedHash": "737c19451b3d0e08edf9560b195a864d1a4006e4f70760339ddc3b2d9b6b6447"
     },
+    "tanstack-query-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tanstack-query/SKILL.md",
+      "computedHash": "c4f52bec76935d74a0bd6bcd5017119fc05e904a4c5d425f16d6b254cb69f46a"
+    },
     "test": {
       "source": "jsmastery-pro/skills",
       "sourceType": "github",
       "skillPath": "skills/test/SKILL.md",
       "computedHash": "6b742c465b3e9cec898bf3621ec555faefb41fdcc0cbbf43ec0a6041fbdcb6be"
+    },
+    "zod": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/zod/SKILL.md",
+      "computedHash": "e15dbf6f7f4f81616843cf855cbc984ad301455c7e298d7820c02fb3280e16f3"
     }
   }
 }
