@@ -4,7 +4,9 @@ import { env, httpUrl } from "@/lib/env";
 
 // The server falls back to the browser address. In proxy mode that address is a path,
 // so API_URL must then be set to the full address of the API.
-const parsed = httpUrl.safeParse(process.env.API_URL || env.NEXT_PUBLIC_API_URL);
+const parsed = httpUrl.safeParse(
+  process.env.API_URL || env.NEXT_PUBLIC_API_URL,
+);
 
 if (!parsed.success) {
   throw new Error(

@@ -8,10 +8,12 @@ export const httpUrl = z
   .transform(withoutTrailingSlash);
 
 // Absolute http(s) URL, or a path such as /api/v1 when the API is proxied by Next.js.
-const apiAddress = z
-  .union([httpUrl, z.string().startsWith("/").transform(withoutTrailingSlash)], {
+const apiAddress = z.union(
+  [httpUrl, z.string().startsWith("/").transform(withoutTrailingSlash)],
+  {
     error: "must be an absolute http(s) URL, or a path starting with /",
-  });
+  },
+);
 
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_API_URL: apiAddress,

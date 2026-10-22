@@ -17,12 +17,16 @@ running at `NEXT_PUBLIC_API_URL`.
 
 ## Scripts
 
-| Command         | Description                |
-| --------------- | -------------------------- |
-| `npm run dev`   | Start the dev server       |
-| `npm run build` | Production build           |
-| `npm run start` | Run the production build   |
-| `npm run lint`  | Lint with ESLint           |
+| Command                | Description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| `npm run dev`          | Start the dev server                                  |
+| `npm run build`        | Production build                                      |
+| `npm run start`        | Run the production build                              |
+| `npm run lint`         | Lint with ESLint                                      |
+| `npm run typecheck`    | Generate Next.js route types, then run `tsc --noEmit` |
+| `npm run format`       | Format everything with Prettier                       |
+| `npm run format:check` | Fail if any file is not formatted                     |
+| `npm run check`        | `lint`, `typecheck`, and `format:check` in one go     |
 
 ## Structure
 

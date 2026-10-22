@@ -9,29 +9,35 @@ Conditions from the scope:
 
 The backend must be running at `http://localhost:3000/api/v1` for every step below.
 
+Run on 2026-10-23 with the backend at `http://localhost:3000/api/v1`: 12 of 15 steps passed, 3 could not be run yet (they are moved to "Waiting for later features" below). The feature was marked done on that basis.
+
 ## UI / manual
-- [ ] Open `http://localhost:5173`, run `fetch("http://localhost:3000/api/v1/auth/refresh", { method: "POST", credentials: "include" })` in the console → status 401, body code `REFRESH_TOKEN_MISSING`, no CORS error      → D3
-- [ ] In the console, `fetch("http://localhost:3000/api/v1/plans?pageSize=50")` → status 200 with `items`, `total`, `page`, `pageSize`      → D3
-- [ ] In the console, `fetch("http://localhost:3000/api/v1/listings?pageSize=1", { headers: { Authorization: "Bearer x" } })` → status 200 (the preflight for the `Authorization` header passes)      → D3
-- [ ] Open the site as `http://127.0.0.1:5173` and repeat the refresh call → blocked, `403 ORIGIN_NOT_ALLOWED` (only `localhost` is allowed on both sides)      → D3
-- [ ] Open the Network tab on `/` (or run `curl -I http://localhost:5173/`) → the response headers include `Referrer-Policy: strict-origin-when-cross-origin` and `X-Content-Type-Options: nosniff`      → Value sourcing: security headers
+- [x] Open `http://localhost:5173`, run `fetch("http://localhost:3000/api/v1/auth/refresh", { method: "POST", credentials: "include" })` in the console → status 401, body code `REFRESH_TOKEN_MISSING`, no CORS error      → D3
+- [x] In the console, `fetch("http://localhost:3000/api/v1/plans?pageSize=50")` → status 200 with `items`, `total`, `page`, `pageSize`      → D3
+- [x] In the console, `fetch("http://localhost:3000/api/v1/listings?pageSize=1", { headers: { Authorization: "Bearer x" } })` → status 200 (the preflight for the `Authorization` header passes)      → D3
+- [x] Open the site as `http://127.0.0.1:5173` and repeat the refresh call → blocked, `403 ORIGIN_NOT_ALLOWED` (only `localhost` is allowed on both sides)      → D3
+- [x] Open the Network tab on `/` (or run `curl -I http://localhost:5173/`) → the response headers include `Referrer-Policy: strict-origin-when-cross-origin` and `X-Content-Type-Options: nosniff`      → Value sourcing: security headers
 
 ## Commands
-- [ ] `npm run dev` → banner shows `Local: http://localhost:5173` and `Ready`      → D2
-- [ ] `npm run lint` → exits 0 with no warnings      → D4
-- [ ] `npm run build` (API running) → exits 0, routes `/` and `/_not-found` listed, "Cache Components enabled" and "Partial Prefetching enabled" in the banner      → D4
-- [ ] `curl -i -X OPTIONS http://localhost:3000/api/v1/auth/refresh -H "Origin: http://localhost:5173" -H "Access-Control-Request-Method: POST"` → `204`, `Access-Control-Allow-Origin: http://localhost:5173`, `Access-Control-Allow-Credentials: true`      → D3
-- [ ] With the dev server up, `curl -s -o /dev/null -w "%{http_code}" "http://localhost:5173/_next/image?url=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fv1%2Fmedia%2Fpublic%2Fx.jpg&w=640&q=75"` → `404` ("upstream response is invalid", so the pattern and the local address were accepted)      → Value sourcing: listing photo
-- [ ] Same request with `url=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fv1%2Fplans` → `400` ("url parameter is not allowed")      → Value sourcing: listing photo
-- [ ] Set `API_URL=http://localhost:3999/api/v1` in `.env.local`, restart `npm run dev`, load a server rendered page that reads the API (once one exists) → the server calls port 3999 while the browser still calls 3000. Remove the line afterwards      → Value sourcing: server read
-- [ ] Change `NEXT_PUBLIC_API_URL`, run `npm run build`, grep `.next/static` for the new address → the browser bundle carries the new value, not the old one      → Value sourcing: browser read
-- [ ] Change `NEXT_PUBLIC_SITE_URL`, reload `/` → `<link rel="canonical">` or `og:url` and `metadataBase` use the new origin      → Value sourcing: page metadata
-- [ ] Remove `NEXT_PUBLIC_API_URL` from `.env.local`, run `npm run dev` → startup fails with "NEXT_PUBLIC_API_URL is not set" instead of running with a broken address      → D4
+- [x] `npm run dev` → banner shows `Local: http://localhost:5173` and `Ready`      → D2
+- [x] `npm run lint` → exits 0 with no warnings      → D4
+- [x] `npm run build` (API running) → exits 0, routes `/` and `/_not-found` listed, "Cache Components enabled" and "Partial Prefetching enabled" in the banner      → D4
+- [x] `curl -i -X OPTIONS http://localhost:3000/api/v1/auth/refresh -H "Origin: http://localhost:5173" -H "Access-Control-Request-Method: POST"` → `204`, `Access-Control-Allow-Origin: http://localhost:5173`, `Access-Control-Allow-Credentials: true`      → D3
+- [x] With the dev server up, `curl -s -o /dev/null -w "%{http_code}" "http://localhost:5173/_next/image?url=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fv1%2Fmedia%2Fpublic%2Fx.jpg&w=640&q=75"` → `404` ("upstream response is invalid", so the pattern and the local address were accepted)      → Value sourcing: listing photo
+- [x] Same request with `url=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fv1%2Fplans` → `400` ("url parameter is not allowed")      → Value sourcing: listing photo
+- [x] Remove `NEXT_PUBLIC_API_URL` from `.env.local` (or set it empty), run `npm run dev` → startup fails with "NEXT_PUBLIC_API_URL is not set" instead of running with a broken address      → D4
+
+## Waiting for later features
+These three steps need code that does not exist yet. Carry each one into the `verify.md` of the feature named, when that feature is built.
+- [ ] (feature 3, API client) Change `NEXT_PUBLIC_API_URL`, run `npm run build`, grep `.next/static` for the new address → the browser bundle carries the new value, not the old one. On 2026-10-23 the bundle held no API address at all (0 hits, old or new), because no browser module imports `@/lib/env` yet      → Value sourcing: browser read
+- [ ] (feature 8 or 9, first page with canonical or share tags) Change `NEXT_PUBLIC_SITE_URL`, reload the page → `<link rel="canonical">` or `og:url` use the new origin. On 2026-10-23 the head of `/` carried no tag with the site address      → Value sourcing: page metadata
+- [ ] (first feature that reads the API on the server) Set `API_URL=http://localhost:3999/api/v1` in `.env.local`, restart `npm run dev`, load that server rendered page → the server calls port 3999 while the browser still calls 3000. Remove the line afterwards      → Value sourcing: server read
 
 ## Not checkable yet
 - Money, area, and date formatting (`vi-VN`, `Asia/Ho_Chi_Minh`): `src/lib/format.ts` does not exist. Check it in the first feature that shows a price or date.
 - Response types and form rules: `src/lib/api/types.ts` and the Zod schemas come with items #3 and #5. Check them there.
 - A clean build that fetches the cached catalogs (wards, amenities, plans): no page reads them yet. Check it in the first feature that adds a `use cache` read, with the backend stopped, to confirm the build fails instead of caching an empty list.
+- A real listing photo through `next/image`: the backend had no listings on 2026-10-23. Check it once the first listing exists.
 
 ## Acceptance-criteria coverage
 - D1 (decision recorded) … covered by the existence of `index.md` and `rationale.md` in this folder; `/check verify` confirms the Status line reads `In Progress` or `Accepted`.

@@ -4,20 +4,21 @@ Nền tảng kỹ thuật và thiết kế mà mọi tính năng sau dựa vào.
 
 ## Foundation
 
-### 1. Stack & architecture · in-progress
+### 1. Stack & architecture · done
 Khung `create-next-app` đã có (Next.js 16.4.2, React 19.3, Tailwind 4, TypeScript, ESLint) nhưng quyết định chưa được ghi lại. Cần chốt cách trang lấy dữ liệu và giữ phiên khi access token chỉ nằm trong bộ nhớ: trang công khai cần SEO, nhưng số điện thoại, nút tim và nút theo dõi cần biết người dùng là ai. Cũng chốt cổng chạy của FE khác cổng 3000 mặc định của API, và dùng `localhost` ở cả hai bên.
 **Done when:** quyết định được ghi vào spec, `next dev` chạy ở cổng khớp `ALLOWED_ORIGINS` của backend, trình duyệt gọi được API không bị chặn CORS, và build sạch.
 - [x] Decide the stack (spec): `/architect stack & architecture`
 - [x] Scaffold from the decision: `/develop stack & architecture`
-- [ ] Verify it: `/check verify stack & architecture`
+- [x] Verify it: `/check verify stack & architecture` (12 trên 15 bước đạt, 3 bước chờ tính năng 3, 8 và cách đọc API từ server; đã ghi trong `verify.md`, đóng `done` theo ý bạn)
 spec [0001](../specs/0001-stack-and-architecture/index.md) · code in `./`. `AGENTS.md` nhắc bản Next.js này có thay đổi lớn so với những gì bạn quen, hãy đọc docs đi kèm trong `node_modules/next/dist/docs/` trước khi viết code.
 
-### 2. Coding standards & tooling
+### 2. Coding standards & tooling · in-progress
 Ghi quy ước và công cụ kiểm tra mã vào `AGENTS.md` từ dự án thật, rồi cài đặt. Hiện `AGENTS.md` mới chỉ có lời nhắc về Next.js.
 **Done when:** `AGENTS.md` phản ánh đúng stack thật, lint và format chạy sạch.
 - [ ] Capture conventions + tooling choices: `/audit`
-- [ ] Install the tooling: `/develop tooling`
+- [x] Install the tooling: `/develop tooling` (Prettier + Tailwind class sorting, `eslint-config-prettier`, scripts `typecheck`, `format`, `format:check`, `check`; `npm run check` đạt)
 - [ ] Check it runs clean: `/check verify tooling`
+code in `./` (`.prettierrc.json`, `.prettierignore`, `.gitattributes`, `eslint.config.mjs`, `package.json`). Chưa có spec: đây là việc công cụ, không cần quyết định. Ô `/audit` còn mở vì skill `/audit` chưa được cài, nên `AGENTS.md` chưa có phần quy ước.
 
 ### 3. API client & session layer · needs a decision
 Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nhất theo `code` và `errors[].field`, giữ access token trong bộ nhớ, tự refresh đúng một lần khi gặp `TOKEN_EXPIRED` rồi gửi lại, đọc `Retry-After` khi gặp 429, lấy quyền từ `GET /auth/me`. Đây là phần tương đương mô hình dữ liệu của FE: dữ liệu thật nằm ở backend, hợp đồng là `api-for-frontend.md`.
