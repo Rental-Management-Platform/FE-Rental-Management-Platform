@@ -28,6 +28,8 @@ running at `NEXT_PUBLIC_API_URL`.
 | `npm run format:check` | Fail if any file is not formatted                     |
 | `npm run check`        | `lint`, `typecheck`, and `format:check` in one go     |
 
+A pre-commit hook (husky) runs `npm run check` and stops the commit if it fails. `npm install` sets it up through the `prepare` script. To skip it once, commit with `HUSKY=0 git commit ...`.
+
 ## Structure
 
 - `src/app` — routes, layouts, global styles (`globals.css` imports Tailwind), and the providers mount

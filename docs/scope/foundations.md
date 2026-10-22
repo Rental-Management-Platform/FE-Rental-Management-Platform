@@ -16,9 +16,9 @@ spec [0001](../specs/0001-stack-and-architecture/index.md) · code in `./`. `AGE
 Ghi quy ước và công cụ kiểm tra mã vào `AGENTS.md` từ dự án thật, rồi cài đặt. Hiện `AGENTS.md` mới chỉ có lời nhắc về Next.js.
 **Done when:** `AGENTS.md` phản ánh đúng stack thật, lint và format chạy sạch.
 - [ ] Capture conventions + tooling choices: `/audit`
-- [x] Install the tooling: `/develop tooling` (Prettier + Tailwind class sorting, `eslint-config-prettier`, scripts `typecheck`, `format`, `format:check`, `check`; `npm run check` đạt)
+- [x] Install the tooling: `/develop tooling` (Prettier + Tailwind class sorting, `eslint-config-prettier`, scripts `typecheck`, `format`, `format:check`, `check`; hook `husky` chạy `npm run check` trước mỗi commit, đã thử chặn một commit lỗi lint; `npm run check` đạt)
 - [ ] Check it runs clean: `/check verify tooling`
-code in `./` (`.prettierrc.json`, `.prettierignore`, `.gitattributes`, `eslint.config.mjs`, `package.json`). Chưa có spec: đây là việc công cụ, không cần quyết định. Ô `/audit` còn mở vì skill `/audit` chưa được cài, nên `AGENTS.md` chưa có phần quy ước.
+code in `./` (`.prettierrc.json`, `.prettierignore`, `.gitattributes`, `eslint.config.mjs`, `.husky/pre-commit`, `package.json`). Chưa có spec: đây là việc công cụ, không cần quyết định. `/audit` đã chạy và `AGENTS.md` đã có quy ước, ô của nó chờ bạn tick (hoặc `/sync` đối chiếu).
 
 ### 3. API client & session layer · needs a decision
 Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nhất theo `code` và `errors[].field`, giữ access token trong bộ nhớ, tự refresh đúng một lần khi gặp `TOKEN_EXPIRED` rồi gửi lại, đọc `Retry-After` khi gặp 429, lấy quyền từ `GET /auth/me`. Đây là phần tương đương mô hình dữ liệu của FE: dữ liệu thật nằm ở backend, hợp đồng là `api-for-frontend.md`.
