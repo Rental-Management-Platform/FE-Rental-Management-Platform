@@ -17,13 +17,21 @@ Ghi quy ước và công cụ kiểm tra mã vào `AGENTS.md` từ dự án th�
 **Done when:** `AGENTS.md` phản ánh đúng stack thật, lint và format chạy sạch.
 - [ ] Capture conventions + tooling choices: `/audit`
 - [x] Install the tooling: `/develop tooling` (Prettier + Tailwind class sorting, `eslint-config-prettier`, scripts `typecheck`, `format`, `format:check`, `check`; hook `husky` chạy `npm run check` trước mỗi commit, đã thử chặn một commit lỗi lint; `npm run check` đạt)
-- [ ] Check it runs clean: `/check verify tooling`
+- [x] Check it runs clean: `/check verify tooling` (đạt: lint, typecheck, format, build, hook, clone sạch; còn một dòng cũ trong mục Tooling của `AGENTS.md` cần `/sync`)
 code in `./` (`.prettierrc.json`, `.prettierignore`, `.gitattributes`, `eslint.config.mjs`, `.husky/pre-commit`, `package.json`). Chưa có spec: đây là việc công cụ, không cần quyết định. `/audit` đã chạy và `AGENTS.md` đã có quy ước, ô của nó chờ bạn tick (hoặc `/sync` đối chiếu).
 
-### 3. API client & session layer · needs a decision
+### 3. API client & session layer · in-progress
 Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nhất theo `code` và `errors[].field`, giữ access token trong bộ nhớ, tự refresh đúng một lần khi gặp `TOKEN_EXPIRED` rồi gửi lại, đọc `Retry-After` khi gặp 429, lấy quyền từ `GET /auth/me`. Đây là phần tương đương mô hình dữ liệu của FE: dữ liệu thật nằm ở backend, hợp đồng là `api-for-frontend.md`.
 **Done when:** một màn hình gọi được API công khai và API cần đăng nhập qua cùng một client, token hết hạn thì refresh đúng một lần dù nhiều request cùng lỗi, lỗi 400 hiện theo từng ô, 429 hiện thời gian chờ.
-- [ ] Design it (spec): `/architect API client & session layer`
+- [x] Design it (spec): `/architect API client & session layer`
+- [ ] Build it: `/develop API client & session layer`
+  - [x] M1 Luồng gọi API công khai: kiểu dữ liệu, lỗi, client chế độ `none`, trang thử `/dev/session` gọi `GET /plans` (AC-1, AC-2, AC-9, AC-10, AC-14)
+  - [ ] M2 Luồng đăng nhập: phiên giữ token trong closure, `signIn` và `signUp`, `AuthProvider`, `useSession`, `useApi`, chế độ `required` (AC-1, AC-3, AC-12, AC-13, AC-14)
+  - [ ] M3 Giữ phiên sống: refresh dùng chung, thử lại đúng một lần, khôi phục khi mở trang, chế độ `optional`, bảng `session.debug` cho dev (AC-4 đến AC-7)
+  - [ ] M4 Lỗi người dùng nhìn thấy: lỗi 400 hiện theo từng ô, thời gian chờ 429 đếm ngược, chính sách thử lại của query (AC-8 đến AC-10)
+  - [ ] M5 Kết thúc phiên gọn gàng: `signOut`, `signOutAll`, lý do mất phiên, xóa cache khi đổi người (AC-11, AC-12, AC-14)
+- [ ] Verify it: `/check verify API client & session layer` (cần backend chạy với `ACCESS_TTL_SECONDS=60`)
+spec [0002](../specs/0002-api-client-and-session-layer/index.md) · code in `src/lib/api/`, `src/app/dev/session/`. Trang `/dev/session` là trang thử tạm, xóa khi tính năng 5 có đăng nhập thật.
 
 ### 4. Design system & UI foundation · needs a decision
 Ngôn ngữ nhìn, màu, chữ (hiện đúng tiếng Việt có dấu), khoảng cách, các thành phần nền, và ba khung trang: công khai (điện thoại trước), khu chủ trọ và khu admin (máy tính trước). Thiết kế dựng trong Figma qua MCP rồi mới viết mã. Điểm xuất phát đã tra được: Simple Design System (bảng, phân trang, thẻ thống kê, thẻ bảng giá) và Material 3 Design Kit (ô tìm kiếm, chip lọc, thẻ tin, thanh dưới). Biểu đồ, bản đồ, ô tải ảnh và ô chọn ngày chưa có sẵn nên phải tự thiết kế.
