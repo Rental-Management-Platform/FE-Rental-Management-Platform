@@ -44,26 +44,55 @@ export interface ApiClient {
   delete<T>(path: string, options?: CallOptions): Promise<T>;
 }
 
+/** What the client asks of the session that holds the access token. */
+export interface SessionPort {
+  /**
+   * Aborts when the session changes (sign in, sign out, session end), so a call never
+   * outlives the session it started under.
+   */
+  signal(): AbortSignal;
+  /** The access token for a call, or null when there is none. */
+  getToken(mode: Exclude<AuthMode, "none">): Promise<string | null>;
+}
+
 export interface ApiClientDeps {
   /** `NEXT_PUBLIC_API_URL`: an absolute address, or a path such as `/api/v1`. */
   baseUrl: string;
   fetch?: typeof fetch;
   timeoutMs?: number;
+  /**
+   * The session that holds the token. Without one, a `required` call fails as a guest and
+   * an `optional` call goes out as a guest.
+   */
+  session?: SessionPort;
+}
+
+/**
+ * The client as the session sees it: the public client plus the one way to send a token the
+ * session holds itself (its own `/auth/me` calls), which never waits on the session.
+ */
+export interface SessionApiClient extends ApiClient {
+  requestWithToken<T>(
+    accessToken: string,
+    options: Omit<RequestOptions, "auth">,
+  ): Promise<T>;
 }
 
 const abortError = () =>
   new DOMException("The operation was aborted.", "AbortError");
 
-export function createApiClient(deps: ApiClientDeps): ApiClient {
-  const { baseUrl, timeoutMs = REQUEST_TIMEOUT_MS } = deps;
+export function createApiClient(deps: ApiClientDeps): SessionApiClient {
+  const { baseUrl, session, timeoutMs = REQUEST_TIMEOUT_MS } = deps;
   // `fetch` called as a method of another object throws "Illegal invocation".
   const doFetch: typeof fetch =
     deps.fetch ?? ((input, init) => globalThis.fetch(input, init));
 
-  // One send. A call aborted by the caller is rethrown as the native AbortError, unwrapped.
+  // One send. A call aborted by the caller or by the end of a session is rethrown as the
+  // native AbortError, unwrapped.
   async function attempt<T>(
     options: RequestOptions,
     headers: Record<string, string>,
+    sessionSignal?: AbortSignal,
   ): Promise<T> {
     const method = (options.method ?? "GET").toUpperCase();
     const url = buildUrl(baseUrl, options.path, options.query);
@@ -71,9 +100,11 @@ export function createApiClient(deps: ApiClientDeps): ApiClient {
     const isForm = options.body instanceof FormData;
 
     const timeout = AbortSignal.timeout(timeoutMs);
-    const signal = options.signal
-      ? AbortSignal.any([timeout, options.signal])
-      : timeout;
+    const signal = AbortSignal.any(
+      [timeout, options.signal, sessionSignal].filter(
+        (item): item is AbortSignal => item !== undefined,
+      ),
+    );
 
     try {
       const response = await doFetch(url, {
@@ -96,7 +127,7 @@ export function createApiClient(deps: ApiClientDeps): ApiClient {
       return await parseResponse<T>(response, { method, path: options.path });
     } catch (error) {
       if (isApiError(error)) throw error;
-      if (options.signal?.aborted) {
+      if (options.signal?.aborted || sessionSignal?.aborted) {
         throw error instanceof DOMException && error.name === "AbortError"
           ? error
           : abortError();
@@ -107,13 +138,31 @@ export function createApiClient(deps: ApiClientDeps): ApiClient {
   }
 
   async function request<T>(options: RequestOptions): Promise<T> {
-    // Without a session there is no token, so the caller is a guest.
-    if ((options.auth ?? "required") === "required") throw missingTokenError();
-    return attempt<T>(options, {});
+    const mode = options.auth ?? "required";
+    if (mode === "none") return attempt<T>(options, {});
+
+    // Taken before the token, so a call belongs to the session it started under.
+    const sessionSignal = session?.signal();
+    const accessToken = session ? await session.getToken(mode) : null;
+
+    // No token at all: made on the machine, no request is sent, and it never ends a session.
+    if (accessToken === null && mode === "required") throw missingTokenError();
+
+    return attempt<T>(
+      options,
+      accessToken === null ? {} : { Authorization: `Bearer ${accessToken}` },
+      sessionSignal,
+    );
   }
+
+  const requestWithToken: SessionApiClient["requestWithToken"] = (
+    accessToken,
+    options,
+  ) => attempt(options, { Authorization: `Bearer ${accessToken}` });
 
   return {
     request,
+    requestWithToken,
     get: (path, options) => request({ ...options, method: "GET", path }),
     post: (path, body, options) =>
       request({ ...options, method: "POST", path, body }),

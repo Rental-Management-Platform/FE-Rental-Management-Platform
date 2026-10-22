@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/lib/session/auth-provider";
 
 let browserQueryClient: QueryClient | undefined;
 
@@ -16,7 +17,7 @@ function getQueryClient() {
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={getQueryClient()}>
-      {children}
+      <AuthProvider>{children}</AuthProvider>
     </QueryClientProvider>
   );
 }

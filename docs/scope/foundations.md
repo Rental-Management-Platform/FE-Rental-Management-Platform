@@ -26,12 +26,12 @@ Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nh�
 - [x] Design it (spec): `/architect API client & session layer`
 - [ ] Build it: `/develop API client & session layer`
   - [x] M1 Luồng gọi API công khai: kiểu dữ liệu, lỗi, client chế độ `none`, trang thử `/dev/session` gọi `GET /plans` (AC-1, AC-2, AC-9, AC-10, AC-14)
-  - [ ] M2 Luồng đăng nhập: phiên giữ token trong closure, `signIn` và `signUp`, `AuthProvider`, `useSession`, `useApi`, chế độ `required` (AC-1, AC-3, AC-12, AC-13, AC-14)
+  - [x] M2 Luồng đăng nhập: phiên giữ token trong closure, `signIn` và `signUp`, `AuthProvider`, `useSession`, `useApi`, chế độ `required` (AC-1, AC-3, AC-12, AC-13, AC-14)
   - [ ] M3 Giữ phiên sống: refresh dùng chung, thử lại đúng một lần, khôi phục khi mở trang, chế độ `optional`, bảng `session.debug` cho dev (AC-4 đến AC-7)
   - [ ] M4 Lỗi người dùng nhìn thấy: lỗi 400 hiện theo từng ô, thời gian chờ 429 đếm ngược, chính sách thử lại của query (AC-8 đến AC-10)
   - [ ] M5 Kết thúc phiên gọn gàng: `signOut`, `signOutAll`, lý do mất phiên, xóa cache khi đổi người (AC-11, AC-12, AC-14)
 - [ ] Verify it: `/check verify API client & session layer` (cần backend chạy với `ACCESS_TTL_SECONDS=60`)
-spec [0002](../specs/0002-api-client-and-session-layer/index.md) · code in `src/lib/api/`, `src/app/dev/session/`. Trang `/dev/session` là trang thử tạm, xóa khi tính năng 5 có đăng nhập thật.
+spec [0002](../specs/0002-api-client-and-session-layer/index.md) · code in `src/lib/api/`, `src/lib/session/`, `src/app/dev/session/`. Trang `/dev/session` là trang thử tạm, xóa khi tính năng 5 có đăng nhập thật.
 
 ### 4. Design system & UI foundation · needs a decision
 Ngôn ngữ nhìn, màu, chữ (hiện đúng tiếng Việt có dấu), khoảng cách, các thành phần nền, và ba khung trang: công khai (điện thoại trước), khu chủ trọ và khu admin (máy tính trước). Thiết kế dựng trong Figma qua MCP rồi mới viết mã. Điểm xuất phát đã tra được: Simple Design System (bảng, phân trang, thẻ thống kê, thẻ bảng giá) và Material 3 Design Kit (ô tìm kiếm, chip lọc, thẻ tin, thanh dưới). Biểu đồ, bản đồ, ô tải ảnh và ô chọn ngày chưa có sẵn nên phải tự thiết kế.
