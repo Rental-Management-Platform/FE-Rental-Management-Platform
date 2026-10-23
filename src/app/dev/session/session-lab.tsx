@@ -123,7 +123,7 @@ function SessionPanel() {
             {outcome.text}
           </output>
         ) : (
-          <p role="alert" className="text-sm text-red-700">
+          <p role="alert" className="text-sm text-destructive">
             {outcome.text}
           </p>
         ))}
@@ -244,7 +244,7 @@ function CallSection<T>({
             : !query.error && "Not called yet."}
       </output>
       {query.error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {describeCall(query.error)} · tried {query.failureCount} time
           {query.failureCount === 1 ? "" : "s"}
         </p>
@@ -355,7 +355,7 @@ function ParallelCalls() {
         {fetching ? "Calling…" : `${succeeded} of 5 succeeded`}
       </output>
       {failed?.error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-destructive">
           {describeCall(failed.error)}
         </p>
       )}
@@ -400,7 +400,7 @@ function WrongLogins() {
       <h2 id="wrong-logins" className="font-medium">
         Twelve wrong logins: POST /auth/login (mode none)
       </h2>
-      <p className="text-sm text-neutral-600">
+      <p className="text-sm text-muted-foreground">
         Leaves a 15 minute block on that email. Restarting the backend clears
         it.
       </p>
@@ -458,7 +458,7 @@ function TextField({ id, label, error, ...inputProps }: TextFieldProps) {
         {...inputProps}
       />
       {error && (
-        <p id={`${id}-error`} role="alert" className="text-sm text-red-700">
+        <p id={`${id}-error`} role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}
@@ -677,7 +677,7 @@ export function SessionLab() {
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
       <header>
         <h1 className="text-xl font-semibold">Session lab</h1>
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-muted-foreground">
           Temporary developer page for the API client and the session. It
           answers 404 in a production build.
         </p>

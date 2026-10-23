@@ -60,7 +60,7 @@ export function FailureNotice({
   return (
     <div className="flex flex-col gap-1 text-sm">
       {message && (
-        <p role="alert" className="text-red-700">
+        <p role="alert" className="text-destructive">
           {message}
         </p>
       )}

@@ -24,7 +24,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 1 | Stack & architecture | Foundation | done |
 | 2 | Coding standards & tooling | Foundation | in-progress |
 | 3 | API client & session layer | Foundation | done |
-| 4 | Design system & UI foundation | Foundation | planned |
+| 4 | Design system & UI foundation | Foundation | in-progress |
 | 5 | Sign up and sign in | Slice 1 | planned |
 | 6 | First property | Slice 1 | planned |
 | 7 | Post a listing | Slice 1 | planned |
@@ -55,7 +55,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 
 Mỗi nhóm có file riêng. Số thứ tự là thứ tự xây trên toàn kế hoạch, nên trong một file các số không liền nhau.
 
-* [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4). 2 done, 1 in-progress, 1 planned.
+* [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4). 2 done, 2 in-progress.
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 3 planned.
 * [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 8 planned.
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 7 planned.
