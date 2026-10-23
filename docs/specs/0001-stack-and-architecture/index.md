@@ -188,7 +188,7 @@ src/
 - [ ] Backend, one line (recommended): add `exposedHeaders: ['Retry-After', 'X-Request-Id']` to `app.enableCors` in `src/app.factory.ts`, so the browser can read both headers across origins. The backend doc says it will update sections 2 and 3 when this is done.
 - [ ] Item #3: decide how guests avoid a useless `POST /auth/refresh` on every page load (refresh allows 60 per minute per IP). A non secret "has session" flag, set at login and cleared at logout or on a refresh 401, is the simple route. The backend suggests a `has_session=1` cookie on the frontend domain (contract section 4.1, step 5). The refresh cookie stays the real proof.
 - [ ] Items #8 and #9: Next.js streams metadata to crawlers that are not on its default bot list (Google render bots, Bingbot, Twitterbot, Slackbot). Check that Zalo and Facebook link preview crawlers get tags in `<head>`. `htmlLimitedBots` in `next.config.ts` fixes it, but setting it replaces the default list, so include the defaults you want to keep.
-- [ ] Item #4: the scaffold loads only the `latin` subset of Geist. Pick a font that covers Vietnamese. Also change the scaffold's `lang="en"` and English title to Vietnamese.
+- [x] Item #4: the scaffold loads only the `latin` subset of Geist. Pick a font that covers Vietnamese. Also change the scaffold's `lang="en"` and English title to Vietnamese.
 - [ ] Hosting: choose before any online demo. The rules are in section 8, "If hosting changes".
 - [ ] Revisit a Content Security Policy before a public launch.
 

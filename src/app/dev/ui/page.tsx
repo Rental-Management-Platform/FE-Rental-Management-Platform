@@ -1,5 +1,6 @@
 import { Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ColorsSection } from "./colors";
 import { ControlsSection } from "./controls";
 import { DataDisplaySection } from "./data-display";
 import { FeedbackSection } from "./feedback";
@@ -66,6 +67,8 @@ export default function DevUiPage() {
           ))}
         </div>
       </Section>
+
+      <ColorsSection />
 
       <Section title="Nút bấm">
         <div className="flex flex-col gap-6">

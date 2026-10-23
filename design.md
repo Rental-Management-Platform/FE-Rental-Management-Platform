@@ -3,7 +3,7 @@ name: rental-management-platform-design-system
 source: figma:cdrAcD1PywM8IWdVRt7X0o (M1 and M2 only, a frozen reference)
 character: "Deep teal on white, calm and trustworthy, friendly rather than corporate. Rounded 8 px shapes, quiet borders, one strong accent used only for the main action. Vietnamese text is the first class citizen: Be Vietnam Pro, generous line height, every diacritic intact."
 tokens: "Real values live in src/app/globals.css (:root and @theme inline). The tokens that existed at the end of M2 were copied from the Figma variables of the Tokens collection, one flat mode named Light, with the same names. A token added from M3 on lives in globals.css alone, and its contrast pair is added to the contrast script in the same change. Never copy a value into this file."
-contrast: "Verified when the tokens were chosen (spec 0003): foreground on background 17.85:1, primary-foreground on primary 5.47:1, secondary-foreground on secondary 9.09:1, muted-foreground on muted 6.92:1, accent-foreground on accent 8.41:1, destructive-foreground on destructive 6.47:1, success 5.02:1, warning 8.15:1, info 6.70:1. Control border input on white 4.76:1 (needs 3:1). Focus ring on white 5.47:1 (needs 3:1). The script that keeps this true arrives in milestone M6."
+contrast: "Kept true by scripts/check-contrast.mjs, which runs in npm run check. It reads the tokens from src/app/globals.css and fails when a text pair is under 4.5:1 or a control border, icon or focus ring pair is under 3:1. The pairs are listed in PAIRS in that file and shown, with their measured ratio, on /dev/ui. Never copy a ratio into this file."
 ---
 
 # Design system
@@ -63,7 +63,7 @@ File: `cdrAcD1PywM8IWdVRt7X0o` (https://www.figma.com/design/cdrAcD1PywM8IWdVRt7
 
 The Figma file is on the Starter plan, which allows 3 pages. So there is no `States` or `Shells` page: those frames are sections on `Screens`, named with the prefix `States /`. The shells were built in code (M4) and have no frame.
 
-The file holds M1 and M2 only. Overlays, menus, tables, pagination, shells and the sample screens are built in code and are not drawn here.
+The file holds M1 and M2 only. Overlays, menus, tables, pagination and shells are built in code and are not drawn here. `/dev/ui` is the living reference for those; there is no Figma frame to compare with.
 
 ## Component and usage notes
 
@@ -87,14 +87,15 @@ The file holds M1 and M2 only. Overlays, menus, tables, pagination, shells and t
 - **Pagination.** Build a list's page links with `ListPagination` (`src/components/list-pagination.tsx`) from `{ page, pageSize, total }`. Pass `hrefFor` when the page is in the URL (links) or `onPageChange` when it is in state (buttons). Pass `size="lg"` on public pages. It draws nothing for a single page.
 - **Card.** Use the full composition (`CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`). `CardTitle` is a plain `div`: when the card needs a heading in the outline, put the right heading element inside it.
 - **Avatar.** Always give it an `AvatarFallback` with the first letter of the name, or of the email.
-- **Contrast pairs to add in M6.** The alerts and toasts use `success` and `info` as text and icon color on `background`, so the contrast script needs those two pairs at 4.5:1 besides the ones in spec 0003. M3 adds more: `foreground` on `accent` (selected table row), `muted-foreground` on `popover` (menu labels), `destructive` on `popover` (destructive menu row), `primary` on `secondary` (current page link) at 4.5:1, and `ring` on `popover` at 3:1 (focus ring inside a menu). M4 adds `foreground` on `muted` (footer links) at 4.5:1; the other new pairs (`primary-foreground` on `primary` for the skip link, `sidebar-primary-foreground` on `sidebar-primary` for the current menu item, `muted-foreground` on `sidebar` for the group label) are already in the list.
+- **Contrast pairs.** `PAIRS` in `scripts/check-contrast.mjs` is the one list, and `npm run check` fails when a pair is under its limit. When a change puts a text or icon color on a surface that no pair covers yet (say `text-info` on `bg-muted`), add that pair in the same change. A `-foreground` token with no pair of its own fails the check, so a new token pair cannot slip in unmeasured. A tint such as `bg-destructive/10` is a pair of its own, written as `{ token, alpha, over }`. The script measures token pairs, not text over a photo, so look at those by eye.
+- **Focus ring and the sidebar.** The ring is drawn outside the control with a 2 px gap (`ring-offset-2`), in `ring` on the page and in `sidebar-ring` on the side menu. The gap color is the surface, so the ring never sits on the control's own fill, which is why `sidebar-ring` is not measured against `sidebar-primary` (same value).
 
 ## Responsive and accessibility direction
 
 - Target is WCAG AA: text 4.5:1, control borders, icons and focus rings 3:1.
 - Focus ring: 2 px ring plus 2 px offset in `ring`. A transparent outline sits under it (`outline-hidden`), so it still shows in forced colors mode.
 - Inputs are 16 px or more, so iPhone does not zoom on focus.
-- Every page has a header, nav, one `main` and a footer, plus a skip link. The auth shell is the one exception: a brand header and the `main` only.
+- Every page has a header, nav, one `main` and a footer, plus a skip link. The auth shell is the one exception: a brand header, the skip link and the `main`, with no nav and no footer.
 - Long names and addresses: one line labels use `truncate`, card titles use `line-clamp-2`, flex children get `min-w-0`.
 
 ## Approvals
