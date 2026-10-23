@@ -1,6 +1,6 @@
-# Verify: design system and UI foundation · spec 0003 · updated 2026-10-23
+# Verify: design system and UI foundation · spec 0003 · updated 2026-10-24
 
-_Steps derived from spec 0003 acceptance criteria and its Value sourcing table. `/check verify` runs these; `/test` locks the durable ones. The tag in square brackets is the milestone after which the step can run. Steps tagged M1 were self checked during the M1 build (headless Edge, Chrome DevTools Protocol, `npm run build`), but are left open here for an independent run. The Figma steps need the Figma MCP. Run the app with `npm run dev` (port 5173)._
+_Steps derived from spec 0003 acceptance criteria and its Value sourcing table. `/check verify` runs these; `/test` locks the durable ones. The tag in square brackets is the milestone after which the step can run. Steps tagged M1 were self checked during the M1 build (headless Edge, Chrome DevTools Protocol, `npm run build`), and steps tagged M2 during the M2 build (agent-browser on `next dev`, `npm run build`), but all are left open here for an independent run. The M2 Figma frames were not reviewed by the engineer (that gate was skipped), so a review in Figma is still open. The Figma steps need the Figma MCP. Run the app with `npm run dev` (port 5173)._
 
 ## UI / manual
 
@@ -15,6 +15,16 @@ _Steps derived from spec 0003 acceptance criteria and its Value sourcing table. 
 - [ ] [M1] Emulate reduced motion on `/dev/ui` → the transition duration of a button is 0.01 ms (`1e-05s`), not `none`; without it the duration is 0.15 s → AC-10
 - [ ] [M2] On `/dev/ui`, the demo form with a fake 400 (two fields), a 409 `EMAIL_TAKEN` and a 429 with 15 minutes → each message sits under its own input with `data-invalid`, `aria-invalid` and `aria-describedby`; focus lands on the first field with a server error; the 429 shows a counting down wait and disables submit → AC-6
 - [ ] [M2] On `/dev/ui`, the six shared states side by side → all Vietnamese; `ErrorState` with status 500 shows "Mã hỗ trợ: ..." and with 404 does not; the retry button works → AC-7
+- [ ] [M2] On `/dev/ui`, click "400 · hai ô lỗi" → focus is on the Email input at once, and only on it; both inputs have `aria-invalid="true"` and their own `aria-describedby` → AC-6
+- [ ] [M2] On `/dev/ui`, click "400 · ô lạ (thông báo chung)" → the message about `phone` shows in a destructive alert above the submit button and no input is marked invalid, so the message is not lost → AC-6
+- [ ] [M2] On `/dev/ui`, click "429 · chờ 10 giây" → a warning notice counts down on screen (10, 9, ...), the submit button is disabled; at 0 the notice reads "Bạn có thể thử lại ngay." and the button works again. The visually hidden sentence (`.sr-only`) changes only at the start and at the end, so a screen reader is not read a number every second → AC-6, AC-7
+- [ ] [M2] On `/dev/ui`, click "500 · có mã hỗ trợ" → a destructive alert with "Mã hỗ trợ: 7f3a2c91-4b1e"; the 404 `ErrorState` on the same page shows no code although it holds the same `requestId` → AC-7
+- [ ] [M2] On `/dev/ui`, open the Select with the mouse, then with Enter and the arrow keys → the list opens under the trigger at the same width with three rows of 40 px, the first row tinted, Esc closes it and focus returns to the trigger → AC-5, AC-10
+- [ ] [M2] On `/dev/ui`, press Tab through the controls → Input, Textarea, Select, Checkbox, Radio and Switch each show a 2 px teal ring with a 2 px white gap; an invalid input keeps its red border while focused → AC-10
+- [ ] [M2] On `/dev/ui`, press each toast button, then emulate a dark system and press again → the toast opens at the top center, 356 px wide, light, with its icon in the token color and a 14 px title → AC-4, AC-5
+- [ ] [M2] Compare the Figma sets (Components page, and the `States /` sections on Screens) with `/dev/ui` → same sizes, colors and copy. The engineer has not reviewed these frames yet → AC-1, AC-5
+- [ ] [M2] Open `/dev/ui` at 320 and 390 px wide → no horizontal scroll, the demo form and the shared states fit → AC-5, AC-7
+- [ ] [M2] On `/dev/session`, send one wrong sign in → the form shows the server message in the new destructive `FailureNotice`, so the move of `useFormFailure` did not break the session lab → AC-6
 - [ ] [M3] On `/dev/ui`, open a dialog, an alert dialog and a sheet with the keyboard → focus is trapped, Esc closes, focus returns to the trigger; with reduced motion emulated they still open and close → AC-10
 - [ ] [M4] Sign in on `/dev/session`, reload `/` → the account area shows a fixed size skeleton, then the user menu with name or email, the role links and "Đăng xuất"; "Đăng xuất" returns it to guest → AC-8
 - [ ] [M4] Open `/dev/ui/shells/public`, `/dev/ui/shells/auth` and `/dev/ui/shells/workspace` → each has one `main`, a skip link that moves focus to it, the public menu button measures 44 by 44 px and opens a sheet with the nav links and account actions → AC-8, AC-10, AC-11
@@ -32,6 +42,9 @@ _Steps derived from spec 0003 acceptance criteria and its Value sourcing table. 
 - [ ] [M1] Read the `Foundations/Tokens` frame with `get_variable_defs` and compare every name and value with `src/app/globals.css` (colors as hex, radius 8 px = 0.5rem) → no difference → AC-2
 - [ ] [M1] `grep -nE "prefers-color-scheme|\.dark|chart-" src/app/globals.css` → nothing; `grep -n "color-scheme: light" src/app/globals.css` → one match; `@custom-variant dark` is still there → AC-4
 - [ ] [M1] `grep -rnE "Previous|Next|More pages|Close|Toggle Sidebar|Loading" src/components/ui` → prints nothing; `grep -rn "dark:" src/components/ui` → prints nothing → AC-5
+- [ ] [M2] `ls src/app/dev/session/form-failure.tsx` → no such file, and `grep -rn "from \"./form-failure\"" src` → prints nothing, so the lab uses `src/components/form/failure-notice.tsx` and `src/lib/forms/use-form-failure.ts` → AC-6
+- [ ] [M2] `grep -rnE "ring-3|ring-ring/50|ring-\[3px\]|bg-black/50" src/components` → prints nothing (no half transparent focus ring) → AC-10
+- [ ] [M2] `grep -n "next-themes" package.json` → prints nothing; `grep -n "position=\"top-center\"\|theme=\"light\"" src/components/ui/sonner.tsx` → both found → AC-4
 - [ ] [M6] Change `--primary` to a pale teal, run `npm run check` → it fails and names the failing pair; revert → passes → AC-10
 - [ ] [M6] Open `/` and `/dev/ui` with the browser console open → no hydration warning and no console error → AC-13
 - [ ] [M6] Spec 0001 follow up item about the Vietnamese font, `lang` and title is ticked → AC-13
@@ -57,3 +70,4 @@ _Steps derived from spec 0003 acceptance criteria and its Value sourcing table. 
 ## Acceptance-criteria coverage
 
 - AC-1 covered by the Figma tokens step, the Approvals step, the header comparison step · AC-2 by the grep step and the `get_variable_defs` step · AC-3 by the 320 px line step, the page source step, the font step, the title template step · AC-4 by the dark system step and the grep step · AC-5 by the Button matrix step and the English strings grep · AC-6 by the demo form step, the field id step, the rate limit step · AC-7 by the shared states step, the unknown URL step, the error and placeholder value steps · AC-8 by the header comparison step, the account area step, the shell previews step · AC-9 by the build step and the curl HTML step · AC-10 by the focus, reduced motion, dialog, keyboard pass and contrast failure steps · AC-11 by the Button matrix step, the shell previews step and the production 404 step · AC-12 by the Approvals step · AC-13 by `npm run check`, `npm run build`, the console step and the follow up step · AC-14 by the sample screens step
+- Added after the M2 build: AC-4 also by the toast and `next-themes` steps · AC-5 also by the Select, toast, Figma comparison and 320 px steps · AC-6 also by the focus on first error, unplaced message, 429 countdown, session lab and `form-failure` steps · AC-7 also by the 500 code step and the 320 px step · AC-10 also by the Select, Tab ring and half transparent ring steps

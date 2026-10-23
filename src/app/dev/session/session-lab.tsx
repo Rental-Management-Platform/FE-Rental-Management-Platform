@@ -29,8 +29,9 @@ import {
   EARLY_REFRESH_MS,
   type SessionState,
 } from "@/lib/session/create-session";
+import { FailureNotice } from "@/components/form/failure-notice";
+import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useCountdown } from "@/lib/use-countdown";
-import { FailureNotice, useFormFailure } from "./form-failure";
 
 const describeCall = (error: unknown) =>
   isApiError(error)
@@ -430,7 +431,6 @@ function WrongLogins() {
       {attempts.isError && (
         <FailureNotice
           failure={attempts.error}
-          secondsLeft={secondsLeft}
           message={describeError(attempts.error).message}
         />
       )}
@@ -526,11 +526,7 @@ function SignInForm() {
         error={errors.password?.message}
         {...register("password")}
       />
-      <FailureNotice
-        failure={failure}
-        secondsLeft={secondsLeft}
-        message={errors.root?.server?.message}
-      />
+      <FailureNotice failure={failure} message={errors.root?.server?.message} />
       <div>
         <button
           type="submit"
@@ -652,11 +648,7 @@ function SignUpForm() {
         error={errors.phone?.message}
         {...register("phone")}
       />
-      <FailureNotice
-        failure={failure}
-        secondsLeft={secondsLeft}
-        message={errors.root?.server?.message}
-      />
+      <FailureNotice failure={failure} message={errors.root?.server?.message} />
       <div>
         <button
           type="submit"

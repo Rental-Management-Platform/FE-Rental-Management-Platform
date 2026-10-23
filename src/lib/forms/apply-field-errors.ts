@@ -13,6 +13,9 @@ const isKnown = (known: readonly string[], field: string) =>
  *
  * React Hook Form cannot tell which inputs exist, so `fields` lists the form's own paths
  * (for example `["email", "password"]`).
+ *
+ * Focus moves to the first input that got a message, and only that one, so a screen reader
+ * hears that input's label and message and the person is not sent past the others.
  */
 export function applyFieldErrors<T extends FieldValues>(
   setError: UseFormSetError<T>,
@@ -20,10 +23,16 @@ export function applyFieldErrors<T extends FieldValues>(
   fields: readonly Path<T>[],
 ): void {
   const unplaced: string[] = [];
+  let focused = false;
 
   for (const [field, message] of Object.entries(fieldErrors(error))) {
     if (isKnown(fields, field)) {
-      setError(field as Path<T>, { type: "server", message });
+      setError(
+        field as Path<T>,
+        { type: "server", message },
+        { shouldFocus: !focused },
+      );
+      focused = true;
     } else {
       unplaced.push(message);
     }

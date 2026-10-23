@@ -45,21 +45,37 @@ Rules for any new screen or component:
 
 File: `cdrAcD1PywM8IWdVRt7X0o` (https://www.figma.com/design/cdrAcD1PywM8IWdVRt7X0o). Libraries attached for layout ideas only: Material 3 Design Kit, Simple Design System.
 
-| Page        | Frame or component                           | What it holds                                                               |
-| ----------- | -------------------------------------------- | --------------------------------------------------------------------------- |
-| Foundations | `Foundations/Tokens`                         | One swatch bound to each of the 36 variables of the `Tokens` collection     |
-| Foundations | `Foundations/Type`                           | Text styles `text-xs` to `text-4xl` plus medium, semibold and bold variants |
-| Foundations | `Foundations/Shape`                          | Radius, the two shadows, spacing steps                                      |
-| Components  | `Button` (set)                               | 5 variants by 3 sizes, with hover, focus and disabled states                |
-| Components  | `Icon Button`, `Brand/Mark`, `Nav Link`      | The header parts                                                            |
-| Screens     | `Shells/Public/Header 1280` and `Header 390` | The public header, guest account area                                       |
+| Page        | Frame or component                                                                                                             | What it holds                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Foundations | `Foundations/Tokens`                                                                                                           | One swatch bound to each of the 36 variables of the `Tokens` collection                       |
+| Foundations | `Foundations/Type`                                                                                                             | Text styles `text-xs` to `text-4xl` plus medium, semibold and bold variants                   |
+| Foundations | `Foundations/Shape`                                                                                                            | Radius, the two shadows, spacing steps                                                        |
+| Components  | `Button` (set)                                                                                                                 | 5 variants by 3 sizes, with hover, focus and disabled states                                  |
+| Components  | `Icon Button`, `Brand/Mark`, `Nav Link`                                                                                        | The header parts                                                                              |
+| Screens     | `Shells/Public/Header 1280` and `Header 390`                                                                                   | The public header, guest account area                                                         |
+| Components  | `Input`, `Textarea`, `Select`, `Select Menu`                                                                                   | Sizes 32, 40 and 44 px; default, filled, focus, invalid, disabled                             |
+| Components  | `Checkbox`, `Radio`, `Switch`                                                                                                  | 20 px box, 20 px circle, 44 by 24 px track; focus, invalid, disabled                          |
+| Components  | `Field`                                                                                                                        | Label, control, then help text or the error, for input, textarea, select, checkbox            |
+| Components  | `Alert`, `Badge`, `Toast`                                                                                                      | Alert: default, info, success, warning, destructive. Badge: seven variants. Toast: five types |
+| Components  | `Skeleton`, `Spinner`, `Separator`                                                                                             | Skeleton shapes line, block, circle; spinner 16, 20, 24 px                                    |
+| Screens     | `States / EmptyState`, `ErrorState`, `RateLimitNotice`, `NotFoundState and ForbiddenState`, `ImagePlaceholder`, `LoadingState` | The shared states                                                                             |
+| Screens     | `States / Server errors in a form`, `States / Toast in context`                                                                | The AC-6 demo (400, 409, 429, 500) and a toast on a 390 wide phone                            |
 
-More frames are added by later milestones (form controls, states, overlays, shells, sample screens).
+The Figma file is on the Starter plan, which allows 3 pages. So there is no `States` or `Shells` page: those frames are sections on `Screens`, named with the prefix `States /` (and `Shells /` for the shell milestone).
+
+More frames are added by later milestones (overlays, shells, sample screens).
 
 ## Component and usage notes
 
 - Filled buttons (`default`, `destructive`) have no hover change in Figma today. A darker hover color needs a new token pair and an entry in the contrast script before it can be used.
 - The public header below `md` shows only the brand until the menu sheet is built in milestone M4.
+- **Forms.** Build a field with `FormField` (`src/components/form/form-field.tsx`), never by hand. It gives the label, control, help text and error their ids, sets `aria-invalid` and `aria-describedby`, and lets a server error move focus to the input. After a failed submit, `useFormFailure` places the messages and `FailureNotice` shows what belongs to no input. A field label stays in the foreground color when the field is invalid; only the message is destructive.
+- **Alert or toast.** A toast (`toast()` from `sonner`) is for a short result such as "Đã lưu". Anything the person must read and act on (quota, trial ended, test payment) is an `Alert` that stays on the page. Only the `destructive` alert uses `role="alert"`; the others are a quiet `status`.
+- **Shared states.** Use `EmptyState`, `LoadingState`, `ErrorState`, `RateLimitNotice`, `NotFoundState`, `ForbiddenState` and `ImagePlaceholder` from `src/components/states`. The copy for an empty state comes from the feature. `ErrorState` shows the support code only for a 5xx answer.
+- **Sizes.** Checkbox and radio are 20 px, with an invisible 44 px tap area around them. Inside a `Button`, a `Spinner` takes `size="sm"`.
+- **Skeleton** uses the `accent` tint, because `muted` is almost invisible on white.
+- Figma has one more text style than the type scale: `text-xs-medium`, used by badges.
+- **Contrast pairs to add in M6.** The alerts and toasts use `success` and `info` as text and icon color on `background`, so the contrast script needs those two pairs at 4.5:1 besides the ones in spec 0003.
 
 ## Responsive and accessibility direction
 
@@ -74,3 +90,4 @@ More frames are added by later milestones (form controls, states, overlays, shel
 One dated line for each gate the engineer approved in Figma before its code was written.
 
 - 2026-10-23: **M1** approved. Foundations (`Tokens`, `Type`, `Shape`), `Button` and `Icon Button` sets, `Brand/Mark`, `Nav Link`, and `Shells/Public/Header` at 1280 and 390.
+- 2026-10-24: **M2** gate skipped. The engineer asked to write the code right after the frames were drawn ("thực hiện viết code luôn"), so these frames were not reviewed in Figma before the code: form controls, `Field`, `Alert`, `Badge`, `Skeleton`, `Spinner`, `Separator`, `Toast`, the shared states and the server error forms. The code follows them. If a later review changes a frame, Figma wins and the code is changed to match.

@@ -1,6 +1,11 @@
 import { Menu, Search } from "lucide-react";
-import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { ControlsSection } from "./controls";
+import { FeedbackSection } from "./feedback";
+import { FormDemo } from "./form-demo";
+import { Section } from "./section";
+import { StatesSection } from "./states";
+import { ToastDemo } from "./toast-demo";
 
 // The line from AC-3: stacked marks must show whole at heading and body sizes.
 const VIETNAMESE_TEST_LINE =
@@ -25,15 +30,6 @@ const TYPE_SCALE = [
   { token: "text-sm", className: "text-sm" },
   { token: "text-xs", className: "text-xs" },
 ] as const;
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="flex flex-col gap-4">
-      <h2>{title}</h2>
-      {children}
-    </section>
-  );
-}
 
 // A development only gallery of the design system (spec 0003). The /dev layout answers
 // 404 in a production build.
@@ -108,6 +104,12 @@ export default function DevUiPage() {
           </Button>
         </div>
       </Section>
+
+      <ControlsSection />
+      <FeedbackSection />
+      <StatesSection />
+      <FormDemo />
+      <ToastDemo />
     </main>
   );
 }
