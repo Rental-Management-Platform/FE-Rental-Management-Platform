@@ -7,6 +7,7 @@ import {
   useMutation,
   useQueries,
   useQuery,
+  useQueryClient,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { z } from "zod";
@@ -49,7 +50,26 @@ function describeState(state: SessionState): string {
 
 function SessionPanel() {
   const state = useSession();
-  const { restore } = useSessionActions();
+  const { restore, signOut, signOutAll, reload } = useSessionActions();
+  const [busy, setBusy] = useState(false);
+  const [outcome, setOutcome] = useState<{ ok: boolean; text: string } | null>(
+    null,
+  );
+
+  // Shows what an action answered. A failed sign out of all devices keeps the session.
+  const run = async (name: string, action: () => Promise<void>) => {
+    setBusy(true);
+    setOutcome(null);
+    try {
+      await action();
+      setOutcome({ ok: true, text: `${name}: done.` });
+    } catch (error) {
+      setOutcome({ ok: false, text: `${name}: ${describeCall(error)}` });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section aria-labelledby="session-state" className="flex flex-col gap-2">
       <h2 id="session-state" className="font-medium">
@@ -69,6 +89,44 @@ function SessionPanel() {
           </button>
         </div>
       )}
+      {state.status === "user" && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => void run("Sign out", signOut)}
+            disabled={busy}
+            className="rounded border px-3 py-1 disabled:opacity-50"
+          >
+            Sign out
+          </button>
+          <button
+            type="button"
+            onClick={() => void run("Sign out of all devices", signOutAll)}
+            disabled={busy}
+            className="rounded border px-3 py-1 disabled:opacity-50"
+          >
+            Sign out of all devices
+          </button>
+          <button
+            type="button"
+            onClick={() => void run("Reload profile", reload)}
+            disabled={busy}
+            className="rounded border px-3 py-1 disabled:opacity-50"
+          >
+            Reload profile
+          </button>
+        </div>
+      )}
+      {outcome &&
+        (outcome.ok ? (
+          <output aria-live="polite" className="text-sm">
+            {outcome.text}
+          </output>
+        ) : (
+          <p role="alert" className="text-sm text-red-700">
+            {outcome.text}
+          </p>
+        ))}
     </section>
   );
 }
@@ -76,12 +134,15 @@ function SessionPanel() {
 // Reads the clock in an interval, never during render, so the page can still be prerendered.
 function DebugPanel() {
   const debug = useSessionDebug();
+  const queryClient = useQueryClient();
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [cachedWithData, setCachedWithData] = useState(0);
   const [refreshOff, setRefreshOff] = useState(false);
 
   useEffect(() => {
     if (!debug) return;
+    const cache = queryClient.getQueryCache();
     const read = () => {
       const info = debug.getInfo();
       setRefreshCount(info.refreshCount);
@@ -90,14 +151,24 @@ function DebugPanel() {
           ? null
           : Math.round((info.expiresAt - Date.now()) / 1000),
       );
+      // Only queries that hold data: a mounted `useQuery` puts an empty one back right after
+      // the cache is cleared, and an empty query holds nothing of the previous person.
+      setCachedWithData(
+        cache.getAll().filter((query) => query.state.data !== undefined).length,
+      );
     };
     const first = setTimeout(read, 0);
     const timer = setInterval(read, 1000);
+    // The cache changes the moment a session ends, so show that without waiting for the tick.
+    // TanStack tells listeners while a component may still be rendering (a `useQuery` adds its
+    // query during render), and React forbids updating another component then: wait a microtask.
+    const unsubscribe = cache.subscribe(() => queueMicrotask(read));
     return () => {
       clearTimeout(first);
       clearInterval(timer);
+      unsubscribe();
     };
-  }, [debug]);
+  }, [debug, queryClient]);
 
   if (!debug) return null;
 
@@ -114,6 +185,8 @@ function DebugPanel() {
             : `token: expired ${-secondsLeft} s ago`}
         {" · "}
         refreshes sent: {refreshCount}
+        {" · "}
+        cached queries with data: {cachedWithData}
       </output>
       <label className="flex items-center gap-2 text-sm">
         <input

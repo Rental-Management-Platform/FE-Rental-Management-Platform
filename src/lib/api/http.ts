@@ -135,7 +135,12 @@ export async function parseResponse<T>(
   response: Response,
   request: RequestTarget,
 ): Promise<T> {
-  if (response.ok && response.status === 204) return undefined as T;
+  if (response.ok && response.status === 204) {
+    // Nothing to parse, but an unread body makes the browser report the finished request as
+    // "canceled" (net::ERR_ABORTED in the Network tab), which looks like a failed logout.
+    await response.text();
+    return undefined as T;
+  }
 
   const parsed = tryParseJson(await response.text());
 

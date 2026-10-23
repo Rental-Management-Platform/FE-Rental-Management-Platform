@@ -68,10 +68,12 @@ export interface SessionPort {
    */
   renewToken(rejectedToken: string, signal?: AbortSignal): Promise<string>;
   /**
-   * The server proved that the session behind `rejectedToken` is over. Ignored when that
-   * token is no longer the current one (the session has moved on).
+   * The server answered a call that carried `rejectedToken` with `error`. The session decides
+   * whether that answer proves it is over, and ignores it when `rejectedToken` is no longer
+   * the current token (the session has moved on). A `TOKEN_EXPIRED` here means the one
+   * resend failed too.
    */
-  rejectToken(rejectedToken: string, reason: "expired"): void;
+  rejectToken(rejectedToken: string, error: ApiError): void;
 }
 
 export interface ApiClientDeps {
@@ -180,7 +182,12 @@ export function createApiClient(deps: ApiClientDeps): SessionApiClient {
       // Optional reads never answer 401 (an expired token only turns them into the guest
       // version, which the early refresh prevents), so only `required` has a second try.
       if (mode !== "required" || !session || accessToken === null) throw error;
-      if (!isTokenExpired(error)) throw error;
+      if (!isApiError(error)) throw error;
+      if (!isTokenExpired(error)) {
+        // Some answers prove the session is over (an invalid token, a locked account).
+        session.rejectToken(accessToken, error);
+        throw error;
+      }
       return resendOnce<T>(
         options,
         session,
@@ -191,8 +198,9 @@ export function createApiClient(deps: ApiClientDeps): SessionApiClient {
     }
   }
 
-  // The one resend: a fresh token (never a second refresh for the same attempt), and if the
-  // server still says it is expired, the session is over and the call throws.
+  // The one resend: a fresh token (never a second refresh for the same attempt). If the server
+  // still says it is expired, or answers with anything that ends a session, the session
+  // decides and the call throws.
   async function resendOnce<T>(
     options: RequestOptions,
     session: SessionPort,
@@ -204,7 +212,7 @@ export function createApiClient(deps: ApiClientDeps): SessionApiClient {
     try {
       return await attempt<T>(options, bearer(renewed), sessionSignal);
     } catch (error) {
-      if (isTokenExpired(error)) session.rejectToken(renewed, "expired");
+      if (isApiError(error)) session.rejectToken(renewed, error);
       throw error;
     }
   }

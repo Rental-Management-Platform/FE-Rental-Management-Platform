@@ -44,6 +44,20 @@ export interface SessionActions {
   signIn(input: LoginBody): Promise<void>;
   signUp(body: RegisterBody): Promise<void>;
   /**
+   * Leaves on this machine first: the token, the hint and the query cache are gone before this
+   * returns its promise. Then it tells the server. Never rejects: if the server cannot be
+   * told, its session simply lingers until it expires.
+   */
+  signOut(): Promise<void>;
+  /**
+   * Ends the session on every device. Needs a login. Rejects with the `ApiError` and keeps
+   * the session when the answer is a network error, a 5xx or a 429, because the other devices
+   * are still signed in. A 401 ends the session like for any other call.
+   */
+  signOutAll(): Promise<void>;
+  /** Replaces `user` and `permissions` from `GET /auth/me`. Does nothing unless `user`. */
+  reload(): Promise<void>;
+  /**
    * Finds out who is looking from the hint cookie. Runs only while the state is `loading`
    * or `guest('unavailable')`, and joins the restore that is already running. Never rejects.
    */
@@ -118,6 +132,12 @@ export function createSession(config: SessionConfig): Session {
   // Set by a 429 on refresh: a retry only lengthens the block, so later attempts fail at
   // once with the same error until the time has passed.
   let refreshBlock: { until: number; error: ApiError } | null = null;
+  // The refresh answer that ended the session, and the epoch it ended. Ending a session aborts
+  // every call waiting on that refresh; they should hear why, not just that they were aborted.
+  let refreshEnd: { epoch: number; error: ApiError } | null = null;
+  // The logout request in flight. A login waits for it, so the answer that clears the `rt`
+  // cookie cannot arrive after the login has set a new one.
+  let loggingOut: Promise<void> | null = null;
   let refreshCount = 0;
   let earlyRefreshMs = EARLY_REFRESH_MS;
   const listeners = new Set<() => void>();
@@ -139,9 +159,10 @@ export function createSession(config: SessionConfig): Session {
     }
   }
 
-  // A logged in person lost the session. In this order: abort what carries the old token,
-  // drop the token and the hint, empty the cache, and only then tell subscribers, so the
-  // cache is already empty when any component sees the new state.
+  // Every path that leaves `user` ends here: the person signed out, or the server proved the
+  // session is over. In this order: abort what carries the old token, drop the token and the
+  // hint, empty the cache, and only then tell subscribers, so the cache is already empty
+  // when any component sees the new state.
   function endSession(reason: EndedReason | null) {
     startEpoch();
     token = null;
@@ -188,7 +209,9 @@ export function createSession(config: SessionConfig): Session {
     }
     if (state.status !== "user") return;
     const reason = endReasonForRefresh(error, true);
-    if (reason !== undefined) endSession(reason);
+    if (reason === undefined) return;
+    refreshEnd = { epoch, error };
+    endSession(reason);
   }
 
   function startRefresh(): Promise<TokenRecord> {
@@ -219,6 +242,21 @@ export function createSession(config: SessionConfig): Session {
 
   // ---------- Tokens for the client ----------
 
+  // Waits for the shared refresh, starting it if none runs. `signal` only ends this caller's
+  // wait. If that refresh is what ended the session, its own error is the answer, not the
+  // abort it caused.
+  async function waitForRefresh(signal?: AbortSignal): Promise<TokenRecord> {
+    const startedIn = epoch;
+    try {
+      return await raceSignal(joinRefresh(), signal);
+    } catch (error) {
+      if (isAbortError(error) && refreshEnd?.epoch === startedIn) {
+        throw refreshEnd.error;
+      }
+      throw error;
+    }
+  }
+
   async function getToken(
     mode: "required" | "optional",
     signal?: AbortSignal,
@@ -234,7 +272,7 @@ export function createSession(config: SessionConfig): Session {
     }
 
     try {
-      return (await raceSignal(joinRefresh(), signal)).accessToken;
+      return (await waitForRefresh(signal)).accessToken;
     } catch (error) {
       // The caller left or the session changed: that is not a refresh failure.
       if (isAbortError(error)) throw error;
@@ -256,11 +294,43 @@ export function createSession(config: SessionConfig): Session {
     if (current === null) throw abortError();
     // Another call has already replaced the rejected token: use it, no second refresh.
     if (current.accessToken !== rejectedToken) return current.accessToken;
-    return (await raceSignal(joinRefresh(), signal)).accessToken;
+    return (await waitForRefresh(signal)).accessToken;
   }
 
-  function rejectToken(rejectedToken: string, reason: "expired") {
-    if (token?.accessToken === rejectedToken) endSession(reason);
+  // The server answered a call that carried `rejectedToken` with an error. Only an answer that
+  // proves the session is over ends it (the list is in `end-reasons.ts`); a 5xx, a 429, a 403
+  // `PERMISSION_DENIED` or a network error never does.
+  function rejectToken(rejectedToken: string, error: ApiError) {
+    // The session has moved on (a sign in, a sign out): this answer is about someone else.
+    if (token?.accessToken !== rejectedToken) return;
+
+    // A `TOKEN_EXPIRED` only gets here after its one resend failed too.
+    const reason =
+      error.code === "TOKEN_EXPIRED" ? "expired" : endReasonForTokenCall(error);
+    if (reason === undefined) return;
+
+    endSession(reason);
+    // The refresh cookie may still be alive on the server. Not awaited: the person is already
+    // out on this machine and the caller has its error to deal with.
+    if (error.code === "TOKEN_INVALID" || error.code === "UNAUTHORIZED") {
+      void logoutOnServer();
+    }
+  }
+
+  // Tells the server to drop the session behind the `rt` cookie. It never rejects: the person
+  // is already out on this machine, and a server session that lingers expires on its own.
+  function logoutOnServer(): Promise<void> {
+    const promise: Promise<void> = client
+      // `none`: it carries no token, and no session signal, so ending a session cannot abort it.
+      .post<void>("/auth/logout", undefined, { auth: "none" })
+      .catch((error: unknown) => {
+        console.warn("The server could not be told about the sign out.", error);
+      })
+      .finally(() => {
+        if (loggingOut === promise) loggingOut = null;
+      });
+    loggingOut = promise;
+    return promise;
   }
 
   const client = createApiClient({
@@ -363,8 +433,16 @@ export function createSession(config: SessionConfig): Session {
     path: "/auth/login" | "/auth/register",
     body: LoginBody | RegisterBody,
   ): Promise<void> {
+    // Signing in as someone else while logged in: the old server session would otherwise stay
+    // alive and count toward the limit of 10, and the cache must hold nothing of the old person.
+    if (state.status === "user") await signOut();
+
     const startedIn = startEpoch();
     const signal = sessionAbort.signal;
+
+    // `loggingOut` never rejects. Another action may have started while we waited.
+    if (loggingOut !== null) await loggingOut;
+    assertCurrent(startedIn);
 
     const { accessToken, expiresIn } = await client.post<TokenResponse>(
       path,
@@ -397,11 +475,44 @@ export function createSession(config: SessionConfig): Session {
     config.onUserChange();
   }
 
+  // ---------- Sign out, sign out everywhere, reload ----------
+
+  async function signOut(): Promise<void> {
+    // A refresh in flight belongs to the session being left. Its result is dropped (the epoch
+    // moves on), but the server may still rotate the `rt` cookie, so the logout waits for it
+    // and sends the newest one.
+    const pending = refreshing?.promise;
+    endSession(null);
+    await pending?.catch(() => undefined);
+    await logoutOnServer();
+  }
+
+  async function signOutAll(): Promise<void> {
+    const startedIn = epoch;
+    // A required call, so an expired token is renewed like for any other. Any error leaves the
+    // session as it is: the other devices are still signed in, so say so instead of pretending.
+    await client.post<void>("/auth/logout-all");
+    // The answer cleared the `rt` cookie, so there is no second logout to send. If the session
+    // ended meanwhile, whoever ended it has already set the state.
+    if (epoch === startedIn) endSession(null);
+  }
+
+  async function reload(): Promise<void> {
+    if (state.status !== "user") return;
+    const startedIn = epoch;
+    const me = await client.get<MeResponse>("/auth/me");
+    assertCurrent(startedIn);
+    setState({ status: "user", user: me.user, permissions: me.permissions });
+  }
+
   return {
     api: client,
     actions: {
       signIn: (input) => authenticate("/auth/login", input),
       signUp: (body) => authenticate("/auth/register", body),
+      signOut,
+      signOutAll,
+      reload,
       restore,
     },
     getState: () => state,
