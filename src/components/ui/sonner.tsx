@@ -18,6 +18,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme="light"
       position="top-center"
+      // The region's accessible name; Sonner's default is the English "Notifications".
+      containerAriaLabel="Thông báo"
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-5 text-success" />,

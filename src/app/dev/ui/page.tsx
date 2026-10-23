@@ -6,6 +6,7 @@ import { FeedbackSection } from "./feedback";
 import { FormDemo } from "./form-demo";
 import { OverlaysSection } from "./overlays";
 import { Section } from "./section";
+import { ShellsSection } from "./shells-section";
 import { StatesSection } from "./states";
 import { ToastDemo } from "./toast-demo";
 
@@ -114,6 +115,7 @@ export default function DevUiPage() {
       <ToastDemo />
       <OverlaysSection />
       <DataDisplaySection />
+      <ShellsSection />
     </main>
   );
 }

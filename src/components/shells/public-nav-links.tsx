@@ -1,25 +1,29 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { PUBLIC_NAV } from "./nav-config";
+import { useSession } from "@/lib/session/auth-provider";
+import { currentHrefOf } from "./nav-current";
+import type { PublicNavItem } from "./nav-config";
 import { NavLink } from "./nav-link";
+import { visibleNavItems } from "./visible-nav-items";
 
-// "/" matches only itself; any other item also owns the pages below it.
-const isCurrent = (pathname: string, href: string) =>
-  href === "/"
-    ? pathname === "/"
-    : pathname === href || pathname.startsWith(`${href}/`);
-
-// Reads the path, so the shell wraps it in <Suspense> with a plain fallback.
-export function PublicNavLinks() {
+// Reads the path, so the shell wraps it in <Suspense> with a plain fallback. Items that need a
+// permission appear once the session says the person has it.
+export function PublicNavLinks({ items }: { items: readonly PublicNavItem[] }) {
   const pathname = usePathname();
+  const state = useSession();
+  const visible = visibleNavItems(items, state);
+  const current = currentHrefOf(
+    pathname,
+    visible.map((item) => item.href),
+  );
   return (
     <>
-      {PUBLIC_NAV.map((item) => (
+      {visible.map((item) => (
         <NavLink
           key={item.href}
           href={item.href}
-          current={isCurrent(pathname, item.href)}
+          current={item.href === current}
         >
           {item.label}
         </NavLink>

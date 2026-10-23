@@ -6,10 +6,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Be Vietnam Pro loads through next/font in layout.tsx as --font-be-vietnam-pro. */
+  /* Be Vietnam Pro loads through next/font in layout.tsx as --font-be-vietnam-pro. The
+     var() fallback keeps the whole list valid where that class is missing (global-error.tsx):
+     an undefined variable without one would void the declaration and show Times New Roman. */
   --font-sans:
-    var(--font-be-vietnam-pro), ui-sans-serif, system-ui, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+    var(--font-be-vietnam-pro, ui-sans-serif), ui-sans-serif, system-ui,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --font-heading: var(--font-sans);

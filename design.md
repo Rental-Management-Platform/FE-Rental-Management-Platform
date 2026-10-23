@@ -61,14 +61,17 @@ File: `cdrAcD1PywM8IWdVRt7X0o` (https://www.figma.com/design/cdrAcD1PywM8IWdVRt7
 | Screens     | `States / EmptyState`, `ErrorState`, `RateLimitNotice`, `NotFoundState and ForbiddenState`, `ImagePlaceholder`, `LoadingState` | The shared states                                                                             |
 | Screens     | `States / Server errors in a form`, `States / Toast in context`                                                                | The AC-6 demo (400, 409, 429, 500) and a toast on a 390 wide phone                            |
 
-The Figma file is on the Starter plan, which allows 3 pages. So there is no `States` or `Shells` page: those frames are sections on `Screens`, named with the prefix `States /` (and `Shells /` for the shell milestone).
+The Figma file is on the Starter plan, which allows 3 pages. So there is no `States` or `Shells` page: those frames are sections on `Screens`, named with the prefix `States /`. The shells were built in code (M4) and have no frame.
 
 The file holds M1 and M2 only. Overlays, menus, tables, pagination, shells and the sample screens are built in code and are not drawn here.
 
 ## Component and usage notes
 
 - Filled buttons (`default`, `destructive`) have no hover change in Figma today. A darker hover color needs a new token pair and an entry in the contrast script before it can be used.
-- The public header below `md` shows only the brand until the menu sheet is built in milestone M4.
+- **Shells.** Never draw a page frame by hand. Public pages sit in `PublicShell`, sign in and register in `AuthShell` (the shell gives the `Card`, the page gives `CardHeader` and `CardContent`), landlord pages in `LandlordShell` and admin pages in `AdminShell` (both built on `WorkspaceShell`). A shell owns the one `main` (`id="main"`, the skip link jumps to it), so a page never renders its own `<main>`. Below `md` the public header shows the brand and a 44 by 44 px menu button that opens a sheet with the nav links and the account actions. The workspace side menu is 256 px, collapses to 64 px (icons, with the label kept for screen readers) and becomes a sheet below `lg`.
+- **Nav links.** A feature adds its item to `src/components/shells/nav-config.ts` in the same change that ships its page, so no link points at a page that does not exist. Within one list only the item with the longest matching address is the current page. An icon cannot cross from a server component to a client one as a prop, so the workspace shells are client components (`workspace-shells.tsx`) that read the arrays themselves.
+- **Account area.** `AccountMenu` reads the session and `AccountMenuView` only draws a state, so the gallery shows loading, guest and user without a backend. A feature adds its link to `ACCOUNT_LINKS` in the change that ships its page.
+- **Error and not found.** Every route group has an `error.tsx` and a `not-found.tsx` built on `RouteError` and `NotFoundState`, and an unknown address renders inside `PublicShell`. `global-error.tsx` brings its own `<html>` and `<body>`, so it has no web font and uses the system font.
 - **Forms.** Build a field with `FormField` (`src/components/form/form-field.tsx`), never by hand. It gives the label, control, help text and error their ids, sets `aria-invalid` and `aria-describedby`, and lets a server error move focus to the input. After a failed submit, `useFormFailure` places the messages and `FailureNotice` shows what belongs to no input. A field label stays in the foreground color when the field is invalid; only the message is destructive.
 - **Alert or toast.** A toast (`toast()` from `sonner`) is for a short result such as "Đã lưu". Anything the person must read and act on (quota, trial ended, test payment) is an `Alert` that stays on the page. Only the `destructive` alert uses `role="alert"`; the others are a quiet `status`.
 - **Shared states.** Use `EmptyState`, `LoadingState`, `ErrorState`, `RateLimitNotice`, `NotFoundState`, `ForbiddenState` and `ImagePlaceholder` from `src/components/states`. The copy for an empty state comes from the feature. `ErrorState` shows the support code only for a 5xx answer.
@@ -84,14 +87,14 @@ The file holds M1 and M2 only. Overlays, menus, tables, pagination, shells and t
 - **Pagination.** Build a list's page links with `ListPagination` (`src/components/list-pagination.tsx`) from `{ page, pageSize, total }`. Pass `hrefFor` when the page is in the URL (links) or `onPageChange` when it is in state (buttons). Pass `size="lg"` on public pages. It draws nothing for a single page.
 - **Card.** Use the full composition (`CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`). `CardTitle` is a plain `div`: when the card needs a heading in the outline, put the right heading element inside it.
 - **Avatar.** Always give it an `AvatarFallback` with the first letter of the name, or of the email.
-- **Contrast pairs to add in M6.** The alerts and toasts use `success` and `info` as text and icon color on `background`, so the contrast script needs those two pairs at 4.5:1 besides the ones in spec 0003. M3 adds more: `foreground` on `accent` (selected table row), `muted-foreground` on `popover` (menu labels), `destructive` on `popover` (destructive menu row), `primary` on `secondary` (current page link) at 4.5:1, and `ring` on `popover` at 3:1 (focus ring inside a menu).
+- **Contrast pairs to add in M6.** The alerts and toasts use `success` and `info` as text and icon color on `background`, so the contrast script needs those two pairs at 4.5:1 besides the ones in spec 0003. M3 adds more: `foreground` on `accent` (selected table row), `muted-foreground` on `popover` (menu labels), `destructive` on `popover` (destructive menu row), `primary` on `secondary` (current page link) at 4.5:1, and `ring` on `popover` at 3:1 (focus ring inside a menu). M4 adds `foreground` on `muted` (footer links) at 4.5:1; the other new pairs (`primary-foreground` on `primary` for the skip link, `sidebar-primary-foreground` on `sidebar-primary` for the current menu item, `muted-foreground` on `sidebar` for the group label) are already in the list.
 
 ## Responsive and accessibility direction
 
 - Target is WCAG AA: text 4.5:1, control borders, icons and focus rings 3:1.
 - Focus ring: 2 px ring plus 2 px offset in `ring`. A transparent outline sits under it (`outline-hidden`), so it still shows in forced colors mode.
 - Inputs are 16 px or more, so iPhone does not zoom on focus.
-- Every page has a header, nav, one `main` and a footer, plus a skip link (the skip link and footer arrive in M4).
+- Every page has a header, nav, one `main` and a footer, plus a skip link. The auth shell is the one exception: a brand header and the `main` only.
 - Long names and addresses: one line labels use `truncate`, card titles use `line-clamp-2`, flex children get `min-w-0`.
 
 ## Approvals
