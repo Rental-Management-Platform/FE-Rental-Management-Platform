@@ -15,12 +15,12 @@ spec [0001](../specs/0001-stack-and-architecture/index.md) · code in `./`. `AGE
 ### 2. Coding standards & tooling · in-progress
 Ghi quy ước và công cụ kiểm tra mã vào `AGENTS.md` từ dự án thật, rồi cài đặt. Hiện `AGENTS.md` mới chỉ có lời nhắc về Next.js.
 **Done when:** `AGENTS.md` phản ánh đúng stack thật, lint và format chạy sạch.
-- [ ] Capture conventions + tooling choices: `/audit`
+- [x] Capture conventions + tooling choices: `/audit`
 - [x] Install the tooling: `/develop tooling` (Prettier + Tailwind class sorting, `eslint-config-prettier`, scripts `typecheck`, `format`, `format:check`, `check`; hook `husky` chạy `npm run check` trước mỗi commit, đã thử chặn một commit lỗi lint; `npm run check` đạt)
 - [x] Check it runs clean: `/check verify tooling` (đạt: lint, typecheck, format, build, hook, clone sạch; còn một dòng cũ trong mục Tooling của `AGENTS.md` cần `/sync`)
 code in `./` (`.prettierrc.json`, `.prettierignore`, `.gitattributes`, `eslint.config.mjs`, `.husky/pre-commit`, `package.json`). Chưa có spec: đây là việc công cụ, không cần quyết định. `/audit` đã chạy và `AGENTS.md` đã có quy ước, ô của nó chờ bạn tick (hoặc `/sync` đối chiếu).
 
-### 3. API client & session layer · in-progress
+### 3. API client & session layer · done
 Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nhất theo `code` và `errors[].field`, giữ access token trong bộ nhớ, tự refresh đúng một lần khi gặp `TOKEN_EXPIRED` rồi gửi lại, đọc `Retry-After` khi gặp 429, lấy quyền từ `GET /auth/me`. Đây là phần tương đương mô hình dữ liệu của FE: dữ liệu thật nằm ở backend, hợp đồng là `api-for-frontend.md`.
 **Done when:** một màn hình gọi được API công khai và API cần đăng nhập qua cùng một client, token hết hạn thì refresh đúng một lần dù nhiều request cùng lỗi, lỗi 400 hiện theo từng ô, 429 hiện thời gian chờ.
 - [x] Design it (spec): `/architect API client & session layer`
@@ -30,7 +30,7 @@ Một lớp gọi API duy nhất cho cả ứng dụng: đọc lỗi thống nh�
   - [x] M3 Giữ phiên sống: refresh dùng chung, thử lại đúng một lần, khôi phục khi mở trang, chế độ `optional`, bảng `session.debug` cho dev (AC-4 đến AC-7)
   - [x] M4 Lỗi người dùng nhìn thấy: lỗi 400 hiện theo từng ô, thời gian chờ 429 đếm ngược, chính sách thử lại của query (AC-8 đến AC-10)
   - [x] M5 Kết thúc phiên gọn gàng: `signOut`, `signOutAll`, lý do mất phiên, xóa cache khi đổi người (AC-11, AC-12, AC-14)
-- [ ] Verify it: `/check verify API client & session layer` (cần backend chạy với `ACCESS_TTL_SECONDS=60`)
+- [x] Verify it: `/check verify API client & session layer` (cần backend chạy với `ACCESS_TTL_SECONDS=60`; 52 trên 54 bước đạt, 2 bước cũ đã được bước khác thay thế có chủ ý; đã ghi trong `verify.md`, đóng `done` theo ý bạn)
 spec [0002](../specs/0002-api-client-and-session-layer/index.md) · code in `src/lib/api/`, `src/lib/session/`, `src/app/dev/session/`. Trang `/dev/session` là trang thử tạm, xóa khi tính năng 5 có đăng nhập thật.
 
 ### 4. Design system & UI foundation · needs a decision

@@ -1,7 +1,7 @@
 # 0002. API client and session layer for the web frontend
 
 **Date**: 2026-10-23
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
