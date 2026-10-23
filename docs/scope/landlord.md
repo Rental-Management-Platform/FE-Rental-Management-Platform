@@ -10,8 +10,8 @@ Biểu mẫu tạo nhà trọ ở mức mỏng nhất: tên, số nhà và tên 
 - [ ] Build it: `/develop first property`
 
 ### 7. Post a listing · needs a decision
-Đăng tin từ một nhà trọ: tiêu đề, mô tả, giá, diện tích, tiền cọc và ngày vào ở (hai ô sau không bắt buộc). Tin hiện ngay, đăng xong mở được trang công khai. Việc chặn theo hạn mức làm ở Slice 4.
-**Done when:** chủ trọ đăng được tin, tin xuất hiện ngay ở trang tìm tin của khách, lỗi từng ô hiện đúng, chưa có nhà trọ thì dẫn đi tạo nhà trọ trước.
+Đăng tin từ một nhà trọ: tiêu đề, mô tả, giá, diện tích, tiền cọc và ngày vào ở (hai ô sau không bắt buộc). Tin hiện ngay, đăng xong mở được trang công khai. Cùng biểu mẫu này dùng để sửa tin (mở bằng `GET /me/listings/:id`, chỉ gửi ô đã đổi, sửa được ở mọi trạng thái kể cả tin bị admin ẩn; bỏ tiền cọc hoặc ngày vào ở thì gửi `null`). Việc chặn theo hạn mức làm ở Slice 4.
+**Done when:** chủ trọ đăng được tin và sửa được tin, tin xuất hiện ngay ở trang tìm tin của khách, lỗi từng ô hiện đúng, chưa có nhà trọ thì dẫn đi tạo nhà trọ trước.
 - [ ] Design it (spec): `/architect post a listing`
 
 ## Slice 2: Tin phong phú hơn
@@ -27,7 +27,7 @@ Thêm vào biểu mẫu nhà trọ: tối đa 6 khoản phí (mỗi loại một
 - [ ] Build it: `/develop property fees and amenities`
 
 ### 12. Manage my properties and listings · needs a decision
-Khu chủ trọ đầu tiên, cũng là khung trang cho cả khu này. Danh sách nhà trọ (sửa, xóa, `PROPERTY_HAS_LISTINGS`) và danh sách tin của tôi lọc theo trạng thái, với nhãn rõ cho tin bị ẩn bởi chủ trọ, tin bị admin ẩn kèm lý do, và tin đang `visible` nhưng `isPublic` là false. Có nút ẩn, hiện, sửa, xóa.
+Khu chủ trọ đầu tiên, cũng là khung trang cho cả khu này. Danh sách nhà trọ (sửa, xóa, `PROPERTY_HAS_LISTINGS`) và danh sách tin của tôi lọc theo trạng thái, với nhãn rõ cho tin bị ẩn bởi chủ trọ, tin bị admin ẩn kèm lý do, và tin đang `visible` nhưng `isPublic` là false. Có nút ẩn, hiện, sửa, xóa; sửa nhà trọ và sửa tin mở lại biểu mẫu của #6, #11 và #7.
 **Done when:** tin bị admin ẩn không có nút Hiện nhưng hiện lý do, tin `isPublic` false có nhãn khác tin chạy bình thường, xóa có hỏi xác nhận, `LISTING_STATE_INVALID` thì tải lại tin.
 - [ ] Design it (spec): `/architect manage my properties and listings`
 
@@ -39,6 +39,6 @@ Dải trạng thái đầu khu quản lý tin từ `GET /me/membership`: còn ba
 - [ ] Build it: `/develop membership status and quota notices`
 
 ### 19. Checkout and order history
-Bước xác nhận đơn (bản chốt của gói, nút "Thanh toán thử" và "Hủy đơn", nhắc kỳ mới nối vào cuối khi đang có gói), lịch sử đơn có phân trang, đơn chờ có "Tiếp tục thanh toán". Ghi rõ đây là thanh toán thử.
+Bước xác nhận đơn (bản chốt của gói, nút "Thanh toán thử" và "Hủy đơn", nhắc kỳ mới nối vào cuối khi đang có gói), lịch sử đơn có phân trang và lọc theo trạng thái (chờ, đã trả, đã hủy), đơn chờ có "Tiếp tục thanh toán". Ghi rõ đây là thanh toán thử.
 **Done when:** chọn gói, tạo đơn, thanh toán thử thì `GET /me/membership` thành `plan` và chủ trọ đăng được ngay, `PLAN_INACTIVE` cho chọn lại gói, hủy đơn đã trả báo `ORDER_STATE_INVALID`.
 - [ ] Build it: `/develop checkout and order history`

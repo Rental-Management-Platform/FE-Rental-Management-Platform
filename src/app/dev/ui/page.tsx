@@ -1,8 +1,10 @@
 import { Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ControlsSection } from "./controls";
+import { DataDisplaySection } from "./data-display";
 import { FeedbackSection } from "./feedback";
 import { FormDemo } from "./form-demo";
+import { OverlaysSection } from "./overlays";
 import { Section } from "./section";
 import { StatesSection } from "./states";
 import { ToastDemo } from "./toast-demo";
@@ -110,6 +112,8 @@ export default function DevUiPage() {
       <StatesSection />
       <FormDemo />
       <ToastDemo />
+      <OverlaysSection />
+      <DataDisplaySection />
     </main>
   );
 }

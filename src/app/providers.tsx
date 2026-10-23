@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { shouldRetryQuery } from "@/lib/api/query-retry";
 import { AuthProvider } from "@/lib/session/auth-provider";
 
@@ -30,7 +31,7 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={getQueryClient()}>
       <AuthProvider>
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>

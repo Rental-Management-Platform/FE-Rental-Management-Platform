@@ -5,7 +5,7 @@ Phần dành cho khách và người tìm trọ: tìm tin, xem tin, lưu tin, h�
 ## Slice 1: Vòng lặp lõi
 
 ### 8. Find listings · needs a decision
-Trang danh sách tin công khai, điện thoại trước: ô tìm kiếm theo từ khóa, thẻ tin (ảnh bìa, tiêu đề, giá, diện tích, `fullAddress`), phân trang. Là nơi khách vào đầu tiên, tạm làm trang gốc cho tới khi có trang chủ. Có metadata cho SEO.
+Trang danh sách tin công khai, điện thoại trước: ô tìm kiếm theo từ khóa, thẻ tin (ảnh bìa, tiêu đề, giá, diện tích, `fullAddress`), phân trang. Là nơi khách vào đầu tiên và là trang gốc của trang web (hợp đồng không có trang chủ riêng). Có metadata cho SEO.
 **Done when:** khách tìm theo từ khóa và chuyển trang được, địa chỉ URL phản ánh tìm kiếm, trạng thái trống, lỗi và 429 hiển thị đúng, trang có metadata SEO và dùng mượt trên điện thoại.
 - [ ] Design it (spec): `/architect find listings`
 
@@ -31,7 +31,8 @@ Hồ sơ công khai của chủ trọ, mở từ tên chủ trọ: tên (không 
 **Done when:** hồ sơ và danh sách tin hiện cùng lúc, bấm theo dõi thì trạng thái và số người theo dõi đổi ngay, khách bấm thì dẫn tới đăng nhập, nút ẩn với chủ trọ, admin và hồ sơ của chính mình, `LANDLORD_NOT_FOUND` báo "không tìm thấy chủ trọ".
 - [ ] Build it: `/develop landlord profile and follow`
 
-### 16. Home page
+### 16. Home page · dropped
+Bỏ ngày 2026-10-24: `api-for-frontend.md` không mô tả trang chủ, nên trang tìm tin (#8) là trang gốc. Nội dung cũ giữ lại để có lịch sử.
 Trang chủ giới thiệu đặt trước ô tìm kiếm: lời giới thiệu ngắn, ô tìm kiếm nổi bật, tin mới đăng, lời mời đăng ký cho chủ trọ. Khi có trang này, nó thay trang gốc tạm.
 **Done when:** trang gốc hiện phần giới thiệu, ô tìm kiếm đưa vào trang kết quả, có lối đi rõ cho khách, người tìm trọ và chủ trọ, tải nhanh trên điện thoại.
 - [ ] Build it: `/develop home page`
@@ -45,7 +46,8 @@ Bảng giá công khai từ `GET /plans`: mỗi gói một thẻ (tên, giá, s�
 
 ## Slice 6: Tài khoản và hoàn thiện
 
-### 29. Location pin on listing detail · needs a decision
+### 29. Location pin on listing detail · dropped
+Bỏ ngày 2026-10-24: `api-for-frontend.md` không mô tả bản đồ. Hợp đồng chỉ có hai ô tọa độ không bắt buộc ở biểu mẫu nhà trọ (làm ở #11), và việc tìm quanh một địa điểm đã bị backend bỏ. Nội dung cũ giữ lại để có lịch sử.
 Bản đồ nhỏ ở trang chi tiết, hiện đúng một điểm từ tọa độ của nhà trọ. Backend chưa có tìm quanh một vị trí, nên chỉ một điểm, không có bản đồ tìm kiếm. Ẩn cả khối khi nhà trọ chưa có tọa độ. Cần chọn cách hiện bản đồ.
 **Done when:** có tọa độ thì hiện bản đồ một điểm, không có thì ẩn cả khối, bản đồ không làm chậm việc tải trang trên điện thoại.
 - [ ] Design it (spec): `/architect location pin on listing detail`

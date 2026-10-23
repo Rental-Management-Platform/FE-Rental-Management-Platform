@@ -5,7 +5,7 @@
 
 ## Summary
 
-Every screen of this site is drawn first in Figma, then copied into code as design tokens (named values for color, text, spacing and corner radius) and a set of ready made components from shadcn/ui (copy in components built on Radix, a library of accessible parts). The look is a deep teal on white, in the Be Vietnam Pro font, light mode only. Four page frames (public, sign in, landlord, admin) wrap every later page, and shared empty, loading, error, rate limit, not found and forbidden states keep screens consistent. A color contrast check inside `npm run check` keeps text readable at WCAG AA (the accessibility level this project targets), and a development only page, `/dev/ui`, shows everything for review.
+The first two milestones (M1 and M2) draw the design tokens (named values for color, text, spacing and corner radius), the button, the form controls and the shared states in Figma, then copy them into code with a set of ready made components from shadcn/ui (copy in components built on Radix, a library of accessible parts). From M3 on there is no more Figma: everything is built directly in code on that design system, and `/develop` decides the layout of each screen. The Figma file stays as a frozen reference. The look is a deep teal on white, in the Be Vietnam Pro font, light mode only. Four page frames (public, sign in, landlord, admin) wrap every later page, and shared empty, loading, error, rate limit, not found and forbidden states keep screens consistent. A color contrast check inside `npm run check` keeps text readable at WCAG AA (the accessibility level this project targets), and a development only page, `/dev/ui`, shows everything for review, with seven sample screens built in code at `/dev/ui/screens`.
 
 ## Requirements
 
@@ -15,12 +15,12 @@ Seeded from the scope row for #4 and refined with the engineer. Contract for the
 - As the developer of a later feature, I want tokens, base components, page frames and shared states ready, so that I never invent a look or solve accessibility a second time.
 - As a visitor on a phone, I want pages that read well in Vietnamese with every diacritic (accent mark) intact and controls that are easy to tap.
 - As a landlord or admin on a computer, I want a steady workspace (side menu, top bar) that I can scan quickly.
-- As the engineer, I want to approve the design in Figma before any code is written, and see the code match it.
+- As the engineer, I want the tokens and base components of M1 and M2 approved in Figma before their code (or a skipped gate on record), and from M3 on to see new components and screens built directly in code on that system, with no Figma step.
 - As someone using a keyboard or a screen reader, I want visible focus, labels, and announcements for changes.
 
 **Acceptance criteria** (the contract; each is checkable on its own):
-- **AC-1**: Figma is the source. The file `cdrAcD1PywM8IWdVRt7X0o` holds a `Foundations/Tokens` frame with one swatch bound to each variable (one flat mode named `Light`, variable names equal to the CSS token names), base components bound to those variables with the variants listed under "Components", and the shell frames (public at 390 and 1280, sign in at 390 and 1280, workspace at 1440, plus the account area states). The engineer approves each gate of the Build plan before the matching code is written, and each approval is recorded as a dated line in the `Approvals` section of `design.md`.
-- **AC-2**: Tokens match Figma. Every token in `src/app/globals.css` has a Figma variable with the same name and value, read from the `Foundations/Tokens` frame with `get_variable_defs`; colors are compared as hex and radius as px (rem times 16). No raw color appears in the code: `grep -rnE "#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|oklch\(|\b(bg|text|border|ring|fill|stroke|outline|divide|from|via|to|accent|caret|decoration|shadow|placeholder)-(white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(-[0-9]+)?(/[0-9]+)?\b" src --include="*.ts" --include="*.tsx" --exclude=globals.css` prints nothing. The search covers all of `src` because `src/features` does not exist yet.
+- **AC-1**: Figma is the source for M1 and M2 only. The file `cdrAcD1PywM8IWdVRt7X0o` holds a `Foundations/Tokens` frame with one swatch bound to each variable (one flat mode named `Light`, variable names equal to the CSS token names), the M1 and M2 base components bound to those variables (button, form controls, `Field`, `Alert`, `Badge`, `Skeleton`, `Spinner`, `Separator`, toast, the shared states), and the public header frame at 390 and 1280. The engineer approves the gate of M1 and the gate of M2 (build plan steps 1 and 5) before the matching code is written, or skips a gate and says so, and each outcome is recorded as a dated line in the `Approvals` section of `design.md`. From M3 on there is no Figma frame and no gate: components, shells and screens are built directly in code on the existing tokens and components, and the layout of each screen is decided by `/develop`. The Figma file is not updated for M3 and later work.
+- **AC-2**: Tokens match Figma, for the tokens that existed at the end of M2. Every variable in the Figma `Tokens` collection (read from the `Foundations/Tokens` frame with `get_variable_defs`) has a token in `src/app/globals.css` with the same name and value; colors are compared as hex and radius as px (rem times 16). The check runs in that one direction only: a token added from M3 on lives in `globals.css` alone, needs no Figma variable, and gets its contrast pair in the script of AC-10. No raw color appears in the code: `grep -rnE "#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(|oklch\(|\b(bg|text|border|ring|fill|stroke|outline|divide|from|via|to|accent|caret|decoration|shadow|placeholder)-(white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(-[0-9]+)?(/[0-9]+)?\b" src --include="*.ts" --include="*.tsx" --exclude=globals.css` prints nothing. The search covers all of `src` because `src/features` does not exist yet.
 - **AC-3**: Vietnamese text is correct. The root layout has `lang="vi"`, a Vietnamese description and a title template. Be Vietnam Pro loads through `next/font/google` with the `vietnamese` and `latin` subsets, and the Geist fonts are gone. On `/`, the `<html>` tag has `lang="vi"`, the title is the site name and the description is the Vietnamese constant. On `/dev/ui` at 320 px wide, the line "Nguyễn Thị Hồng Nhung, đường Lê Văn Việt, phường Hiệp Phú" shows with no missing glyph and no clipped mark at heading and body sizes.
 - **AC-4**: Light only. No `prefers-color-scheme` rule remains in the CSS, no `.dark` block and no `chart-*` token remains, and `color-scheme: light` is set on the root. The `@custom-variant dark` line stays, keyed to a class that is never set, so the `dark:` classes inside generated files stay off (their default would follow the system). With the browser emulating a dark system the pages stay light. Token names are semantic (`background`, `primary`), so dark mode can be added later with one more set of values.
 - **AC-5**: Base components exist and are consistent. The components listed under "Components" are in `src/components/ui`, styled only through tokens, and `/dev/ui` shows each with its variants, sizes, disabled state and invalid state. A search of `src/components/ui` for the English labels the generator ships (`Previous`, `Next`, `More pages`, `Close`, `Toggle Sidebar`, `Loading`) finds none: every visible and `sr-only` string is Vietnamese.
@@ -30,15 +30,15 @@ Seeded from the scope row for #4 and refined with the engineer. Contract for the
 - **AC-9**: The shell stays static. The server HTML of every public route already contains the brand, nav links and footer with scripts off (the `<Suspense>` fallback of the active link leaf holds the same links without `aria-current`), `npm run build` shows no "uncached data outside Suspense" error, and no shell layout calls `cookies()` or `headers()`.
 - **AC-10**: Accessibility baseline (WCAG AA). `npm run check` runs a contrast script that fails when any text and background token pair is under 4.5:1, or any control border, icon or focus ring pair is under 3:1. Every interactive component shows a visible focus ring from the keyboard. Dialog, alert dialog and sheet trap focus, close on Esc and return focus to the trigger. Public pages use the `lg` control size (44 px high) at every width and the header menu button is 44 by 44 px; dense desktop rows are at least 32 px. Pages have header, nav, one `main` and footer landmarks and a skip link, and `prefers-reduced-motion` sets animation and transition durations to 0.01 ms (not `none`, which can leave Radix components stuck).
 - **AC-11**: Development gallery. `/dev/ui` renders every component state, the type scale, the contrast pairs and the shared states (the account area in its loading, guest and user views), and `/dev/ui/shells/public`, `/dev/ui/shells/auth` and `/dev/ui/shells/workspace` preview the shells with sample content. `src/app/dev/layout.tsx` calls `notFound()` in a production build, so everything under `/dev` (`/dev/session` too) answers 404.
-- **AC-12**: `design.md`. A `design.md` at the project root records the character (deep teal, trustworthy, friendly), a build mandate for later UI work, the Figma file and frame names, and points at `globals.css` for token values, so `/develop` builds new pages inside this system. Its `Approvals` section lists each approved gate with a date.
+- **AC-12**: `design.md`. A `design.md` at the project root records the character (deep teal, trustworthy, friendly), a build mandate for later UI work, the Figma file and the frame names of M1 and M2 (a frozen reference), and points at `globals.css` for token values, so `/develop` builds new pages inside this system. The build mandate says what AC-1 says: from M3 on, build directly in code on the existing design system, with no Figma frame or gate, and the layout of each screen is decided by `/develop`. Its `Approvals` section lists the gate of M1 and the gate of M2 with a date each (approved, or skipped with the engineer's reason). No line is added after M2, because no gate exists after M2.
 - **AC-13**: Clean build. `npm run check` and `npm run build` pass, with no hydration warning and no console error on `/` and `/dev/ui`, and the scaffold items in spec 0001's follow up (Vietnamese font subset, `lang`, Vietnamese title) are closed.
-- **AC-14**: Sample screens. The Figma file also holds seven sample screens: listing list, listing detail, landlord "my listings", admin users table, sign in, home page, post listing form. Public screens are drawn at 390 and 1280 wide, landlord and admin screens at 1440. The list screen and the users table also show empty, loading, error and rate limited states. The engineer approves them (recorded in `design.md`). This is the one criterion that can be moved or dropped without touching AC-1 to AC-13.
+- **AC-14**: Sample screens, built in code. Seven sample screens run at `/dev/ui/screens`, each reachable from that page: listing list, listing detail, landlord "my listings", admin users table, sign in, pricing page, post listing form. They are built from the existing tokens, `src/components/ui`, the shared states and the shells, with fake data and no network call, and `/develop` decides the layout of each one. Public screens work at 390 and 1280 wide, landlord and admin screens at 1440, and none scrolls sideways at 320. The listing list and the users table can also be shown in their empty, loading, error and rate limited states. There is no Figma frame and no engineer gate for these screens. This is the one criterion that can be moved or dropped without touching AC-1 to AC-13.
 
 ## Decision
 
-**Chosen option**: Option 1: Figma variables as the source of truth, a CSS token layer in Tailwind 4, shadcn/ui (Radix base) components copied into the repo, and four shells built by us
+**Chosen option**: Option 1: Figma variables as the source of truth for M1 and M2, then code only; a CSS token layer in Tailwind 4, shadcn/ui (Radix base) components copied into the repo, and four shells built by us
 
-The design is drawn and approved in Figma first; its variables are copied into `globals.css`; shadcn/ui supplies accessible, restyled components; our own shells, shared states and a contrast gate keep every later page consistent.
+The tokens, the button, the form controls and the shared states (M1 and M2) are drawn in Figma first, and their variables are copied into `globals.css`. From M3 on there is no Figma frame and no gate: `/develop` builds directly in code on the existing design system and decides the layout of each screen, and a token added from M3 on lives in `globals.css` alone. The Figma file stays as a frozen reference. shadcn/ui supplies accessible, restyled components; our own shells, shared states and a contrast gate keep every later page consistent.
 
 **Implementation skills**: `shadcn` (`shadcn-ui/ui`, `.agents/skills/shadcn/`) · `tailwind-design-system` (`wshobson/agents`, `.agents/skills/tailwind-design-system/`) · `react-hook-form` (`pproenca/dot-skills`, `.agents/skills/react-hook-form/`) · `next-dev-loop` (`vercel/next.js`, `.agents/skills/next-dev-loop/`)
 
@@ -52,31 +52,38 @@ The Next.js docs in `node_modules/next/dist/docs/` win over these skills where t
 
 | In #4 | Left to another item |
 |---|---|
-| Figma variables, base components and seven sample screens | Domain components in code: listing card (#8, #15, #14), stat card (#25, #26), plan card (#18) |
+| Figma variables and base components for M1 and M2 only; from M3 on, code only | Domain components in code: listing card (#8, #15, #14), stat card (#25, #26), plan card (#18). The cards on the sample screens are sample markup inside `src/app/dev/ui/screens/`, which those items may lift |
+| Seven sample screens built in code at `/dev/ui/screens` with fake data | Real data fetching, routes and logic of those screens: sign in (#5), pricing page (#18), post listing form (#7) and the listing and admin screens of their own items |
 | Tokens, Be Vietnam Pro, `lang="vi"`, metadata template, site icon | Charts (#26), map (#29), photo uploader (#10), date picker (#25) |
 | shadcn base components, toast, state components, list pagination | Money, area and date formatting in `format.ts`: the first feature that shows a price |
 | Four shells, account menu, nav configs, `error.tsx` and `not-found.tsx` per group | The route gate with `?next=`, real login and register pages, what to show for `guest('unavailable')`: #5 |
 | Contrast script in `npm run check`, `design.md`, `/dev/ui` | Dark mode (scope Deferred), default share image (#9) |
 | Moving `useFormFailure` and `FailureNotice` out of the session lab | Deleting `/dev/session`: #5 |
 
-### Figma file
+### Design source: Figma for M1 and M2, code from M3
 
-- File `cdrAcD1PywM8IWdVRt7X0o` (today one empty page; the libraries Material 3 Design Kit and Simple Design System are already attached). Design source: Figma through its MCP, chosen by the engineer.
-- Pages: `Foundations` (a `Tokens` frame with one swatch bound to each variable, in one flat mode named `Light`, plus type, spacing, radius, elevation), `Components` (every base component with its variants and states), `Shells` (public, auth, workspace, account area states), `Screens` (the seven sample screens, AC-14), `States` (empty, loading, error, rate limited, not found, forbidden).
-- The two kits are references for layout ideas only (tables, pagination, stat cards from Simple Design System; search field, chips, cards from Material 3). Our own components are drawn on our variables, with variant names that match the shadcn props: `default`, `secondary`, `outline`, `ghost`, `destructive` and sizes `sm`, `default`, `lg`.
-- Sample photos in the screens come from the running demo API (`/api/v1/media/public/...`), pulled in with `upload_assets`. The backend must be running and seeded while drawing.
-- Sample screen contents come from the scope text and the API contract:
-  - Listing list (390 and 1280): search field, listing cards (cover image, title, price, area, `fullAddress`), pagination. Also empty, loading, error and rate limited states.
-  - Listing detail (390 and 1280): photo, title, price, area, address, property and landlord block, a "Đăng nhập để xem số điện thoại" button for guests.
-  - My listings (1440): status filter, table of listings with labels for hidden by landlord, hidden by admin (with reason) and `visible` but not public, action buttons, delete confirmation.
-  - Admin users (1440): search, filters by account type and status, table, lock and unlock dialog with a required reason.
-  - Sign in (390 and 1280): email and password fields, field errors, rate limit notice.
-  - Home (390 and 1280): short introduction, prominent search, newest listings, an invitation for landlords.
-  - Post listing form (1440): title, description, price, area, deposit, available from, with field errors.
+- File `cdrAcD1PywM8IWdVRt7X0o` (the libraries Material 3 Design Kit and Simple Design System are attached). Figma through its MCP was the design source for M1 and M2 only, chosen by the engineer. From M3 on the engineer builds directly in code on the existing design system: no new Figma frame, no gate, and the file is not kept in step with later work. It stays as a frozen reference.
+- What the file holds, as built in M1 and M2: the file is on the Starter plan (3 pages), so it has `Foundations` (the `Tokens` frame with one swatch bound to each variable, in one flat mode named `Light`, plus type, shape and spacing), `Components` (the M1 and M2 base components with their variants and states) and `Screens` (the public header at 390 and 1280, and sections named `States /` for the shared states and the server error forms). There is no `Shells` or `States` page and nothing for overlays, tables, shells or sample screens.
+- The two kits were references for layout ideas only. Our own components were drawn on our variables, with variant names that match the shadcn props: `default`, `secondary`, `outline`, `ghost`, `destructive` and sizes `sm`, `default`, `lg`. From M3 on, the same names are used in code only.
+- From M3 on, `/develop` decides the layout of each screen and shell from this spec, the scope text, the API contract and `design.md`, and the engineer reviews the result in the browser (and through `/check verify`), not on a drawing.
+
+### Sample screens (AC-14)
+
+Seven screens in code at `/dev/ui/screens`, with fake data. What each shows comes from the scope text and the API contract; how it is laid out is `/develop`'s call.
+
+- Listing list: search field, listing cards (cover image, title, price, area, `fullAddress`), pagination. Also empty, loading, error and rate limited states.
+- Listing detail: photo, title, price, area, address, property and landlord block, a "Đăng nhập để xem số điện thoại" button for guests.
+- My listings (landlord): status filter, table of listings with labels for hidden by landlord, hidden by admin (with reason) and `visible` but not public, action buttons, delete confirmation.
+- Admin users: search, filters by account type and status, table, lock and unlock dialog with a required reason. Also empty, loading, error and rate limited states.
+- Sign in: email and password fields, field errors, rate limit notice.
+- Pricing page: one card per plan (name, price, maximum listings, days per period) from the `GET /plans` shape, and a "Mua" button only for a signed in landlord; a guest is led to sign in; a seeker and an admin see no button (scope item #18).
+- Post listing form: title, description, price, area, deposit, available from, with field errors. "Available from" is a plain date input, because the date picker waits for #25.
+
+Sample data rules (decided here): the data is fixed objects in code under `src/app/dev/ui/screens/`, shaped like the answers in `api-for-frontend.md`, with no network call, so no backend is needed. Photos are not used: `coverImageUrl` is `null` in the sample data, so `ImagePlaceholder` shows. Prices, areas and dates use a small helper in that folder built on `Intl` with `vi-VN` and `Asia/Ho_Chi_Minh`, until the first item that shows a price adds `format.ts`, and then the screens switch to it.
 
 ### Tokens
 
-Names follow shadcn/ui so its components work unchanged. The same names are used for Figma variables. The values below are the starting palette (WCAG ratios computed, all pass); after the engineer approves Figma, **Figma wins** and `globals.css` copies it.
+Names follow shadcn/ui so its components work unchanged. The same names are used for Figma variables. The values below are the starting palette (WCAG ratios computed, all pass); for the tokens that existed at the end of M2, **Figma wins** and `globals.css` copies it (AC-2). A token added from M3 on is decided in `globals.css` only, and its contrast pair is added to the script in the same change.
 
 | Token | Start value | Role | Pair checked |
 |---|---|---|---|
@@ -140,6 +147,8 @@ src/
     dev/layout.tsx         notFound() in production (also covers /dev/session)
     dev/ui/                page.tsx + client parts
     dev/ui/shells/public|auth|workspace/page.tsx   shell previews
+    dev/ui/screens/        index page plus the seven sample screens, fake data and the sample
+                           format helper (AC-14); how the screens are split into files is /develop's call
   components/
     ui/                    shadcn components (generated, then edited)
     states/                empty-state, loading-state, error-state, rate-limit-notice,
@@ -193,7 +202,7 @@ design.md
 
 ### `/dev/ui`
 
-A client page (the shadcn skill calls it the design system page) with sections: colors with their contrast pairs, type specimens including the Vietnamese line, every component state, the shared states side by side, a demo form with fake `ApiError` objects, toasts, and links to the three shell previews. `src/app/dev/layout.tsx` calls `notFound()` when `process.env.NODE_ENV === 'production'`, so the whole `/dev` tree (the shell previews and the existing `/dev/session`, whose own `page.tsx` check stays) answers 404 in production. The shell previews use a local `SAMPLE_NAV`, because the real arrays are empty. The account area appears as `AccountMenuView` in its loading, guest and user views with fixed sample data. The name `dev` is already reserved (spec 0001). Unlike `/dev/session`, `/dev/ui` stays after #5.
+A client page (the shadcn skill calls it the design system page) with sections: colors with their contrast pairs, type specimens including the Vietnamese line, every component state, the shared states side by side, a demo form with fake `ApiError` objects, toasts, and links to the three shell previews and to `/dev/ui/screens`. `src/app/dev/layout.tsx` calls `notFound()` when `process.env.NODE_ENV === 'production'`, so the whole `/dev` tree (the shell previews and the existing `/dev/session`, whose own `page.tsx` check stays) answers 404 in production. The shell previews use a local `SAMPLE_NAV`, because the real arrays are empty. The account area appears as `AccountMenuView` in its loading, guest and user views with fixed sample data. The name `dev` is already reserved (spec 0001). Unlike `/dev/session`, `/dev/ui` stays after #5.
 
 ### Value sourcing
 
@@ -209,7 +218,12 @@ A client page (the shadcn skill calls it the design system page) with sections: 
 | Form fields | Error element id | `useId()` inside `FormField` |
 | Nav | Active link | `usePathname()` in a client leaf inside `<Suspense>` |
 | Nav | Which items exist | The three arrays in `nav-config.ts` |
-| Everything | Colors, radius, type | Figma variables, copied by `get_variable_defs` into `globals.css` |
+| Everything | Colors, radius, type | Tokens that existed at the end of M2: Figma variables, copied by `get_variable_defs` into `globals.css`. A token added from M3 on: decided in `globals.css` |
+| Sample screens | Listing, user and plan rows | Fixed objects in `src/app/dev/ui/screens/`, shaped like `GET /listings`, `GET /me/listings`, `GET /users` and `GET /plans` in `api-for-frontend.md`; no network call |
+| Sample screens | Cover photo | None: `coverImageUrl` is `null`, so `ImagePlaceholder` (decided here) |
+| Sample screens | Price, area, date text | A small helper in the screens folder on `Intl` with `vi-VN` and `Asia/Ho_Chi_Minh`, replaced by `format.ts` when that exists (decided here) |
+| Sample screens | Empty, loading, error, rate limited views | The shared state components, with fake `ApiError` objects as on `/dev/ui` |
+| Pricing screen | Who sees the "Mua" button | A fixed sample viewer (guest, landlord, seeker or admin) set on the screen, not the real session; the rule is scope item #18 |
 | Body | Font | `Be_Vietnam_Pro` from `next/font/google`, variable `--font-sans` |
 | `ErrorState` | Message and support code | `describeError(error)` (spec 0002); code only for status 500 or more |
 | `RateLimitNotice` | Wait text and seconds | `formatWait` and `useCountdown` (spec 0002); "khoảng" only when `retryAfterExact` is false |
@@ -244,7 +258,7 @@ A client page (the shadcn skill calls it the design system page) with sections: 
 | System dark mode | Page stays light; `color-scheme: light` keeps scrollbars and native controls light |
 | Windows forced colors | The focus ring keeps a transparent outline under it |
 | Reduced motion | Durations set to 0.01 ms by one global rule, never `none` |
-| A change in Figma after code | Read again with `get_variable_defs`; `/check verify` compares names and values (AC-2) |
+| A token that existed at the end of M2 is changed in code (or in Figma) later | The Figma file is no longer kept in step, so change both, or `/check verify` flags the mismatch (AC-2). Tokens added from M3 on are never compared with Figma |
 | shadcn CLI cannot work with the project's Tailwind setup | The project loads Tailwind through a Turbopack rule (`next.config.ts`), not `postcss.config`. Task 2 proves `init` works. If it does not, set `components.json` by hand; if the CSS imports fail, stop and route to `/architect` (a stack change) |
 | A person has no photo on a listing | `ImagePlaceholder` |
 
@@ -261,12 +275,12 @@ A client page (the shadcn skill calls it the design system page) with sections: 
 - No environment variable.
 - New dependencies, with the versions the shadcn CLI pins at install: `radix-ui`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`, `tw-animate-css`, and `shadcn` if `init` asks for it. `next-themes` is not installed (the toaster theme is pinned to light).
 - Files created: `components.json`, `scripts/check-contrast.mjs` (wired into the `check` script in `package.json`), `design.md`.
-- For drawing the sample screens, the backend must be running and seeded (demo photos).
+- The sample screens use fake data in code, so no backend has to run for them.
 
 ### Critical test scenarios
 
 - Happy path: open `/dev/ui` and see every component and state; compare the public header at 390 and 1280 with the Figma frames, verifies **AC-1**, **AC-5**, **AC-8**, **AC-11**.
-- Token match: read the `Foundations/Tokens` frame with `get_variable_defs` and compare with `globals.css`; run the search from AC-2 and expect no output, verifies **AC-2**.
+- Token match: read the `Foundations/Tokens` frame with `get_variable_defs` and check that every variable has a token of the same name and value in `globals.css` (a token that exists only in `globals.css` is fine); run the search from AC-2 and expect no output, verifies **AC-2**.
 - Vietnamese: the test line at 320 px shows every mark; `<html lang>`, the title and the description on `/` are right, verifies **AC-3**.
 - Light only: emulate a dark system in the browser; the page and a generated component with `dark:` classes stay light, verifies **AC-4**.
 - English strings: search `src/components/ui` for the English labels; none, verifies **AC-5**.
@@ -278,13 +292,13 @@ A client page (the shadcn skill calls it the design system page) with sections: 
 - Keyboard: Tab through the public header, open the menu sheet with Enter, close with Esc and land back on the button; the same for a dialog and an alert dialog on `/dev/ui`, verifies **AC-10**.
 - Landmarks and targets: each shell has one `main`, a skip link that moves focus to it, and the header menu button measures 44 by 44 px; with reduced motion emulated, a dialog still opens and closes, verifies **AC-10**.
 - Permission: `next build` then `next start`, `/dev/ui`, `/dev/ui/shells/public` and `/dev/session` all answer 404, verifies **AC-11**.
-- Design record: `design.md` has the character, the build mandate, the Figma file and frame names and an `Approvals` section with a dated line for each gate passed; the Figma file holds the `Foundations/Tokens` frame, verifies **AC-1**, **AC-12**.
-- Sample screens: the seven frames exist at the stated sizes, with the extra states for the list and the users table, and each approval is dated, verifies **AC-14**.
+- Design record: `design.md` has the character, a build mandate that says "from M3 on, build in code on the existing design system, no Figma frame or gate, layout decided by `/develop`", the Figma file and the frame names of M1 and M2, and an `Approvals` section with a dated line for the M1 gate and the M2 gate (approved, or skipped with the reason) and none after; the Figma file holds the `Foundations/Tokens` frame, verifies **AC-1**, **AC-12**.
+- Sample screens: open `/dev/ui/screens` and reach all seven screens from it; check the public ones at 390 and 1280 and the landlord and admin ones at 1440, with no sideways scroll at 320; the listing list and the users table show their empty, loading, error and rate limited states; the pricing page shows the "Mua" button only for the sample landlord; no network request is made, verifies **AC-14**.
 - Build: `npm run check` and `npm run build` pass, no console error, verifies **AC-13**.
 
 ## Build plan
 
-Tracer Bullet (your project default): a thin thread first, from a Figma variable to a visible button in the public header, then each milestone thickens it. Each milestone is one `/develop` pass. Figma comes before code inside each milestone, and `/develop` stops for your approval at the marked gates.
+Tracer Bullet (your project default): a thin thread first, from a Figma variable to a visible button in the public header, then each milestone thickens it. Each milestone is one `/develop` pass. Figma came before code in M1 and M2, and `/develop` stopped for your approval at the gates of steps 1 and 5 (M2's gate was skipped at your request). From M3 on there is no Figma step and no gate: `/develop` builds directly in code on the existing design system and decides the layout of each screen.
 
 **M1. Thin thread: Figma to screen**
 1. In Figma, create the variables (colors, radius, font; one flat mode `Light`) with the token names above, a `Foundations/Tokens` frame with one bound swatch per variable, a `Button` component (variants and sizes, bound to the variables) and the public header frame at 390 and 1280. **Gate: engineer approves** (recorded in `design.md` once it exists), satisfies **AC-1**, **AC-2**
@@ -297,19 +311,19 @@ Tracer Bullet (your project default): a thin thread first, from a Figma variable
 6. Add `input`, `textarea`, `select`, `checkbox`, `radio-group`, `switch`, `label`, `field`, `alert`, `skeleton`, `spinner`, `badge`, `separator`, `empty`, `sonner`, and apply "Edits after adding shadcn files" to each (focus ring, sizes, `text-base`, translations, Sonner theme). Build `FormField` and the state components and `ImagePlaceholder`. Move `useFormFailure` and `FailureNotice` out of the session lab, recompose `FailureNotice` as described under Shared states, and update the lab's imports. Make `applyFieldErrors` focus the first field it places. Mount the `Toaster` in `Providers`. Extend `/dev/ui` with the demo form, satisfies **AC-5**, **AC-6**, **AC-7**
 
 **M3. Overlays and data display**
-7. In Figma: dialog, alert dialog, sheet, dropdown menu, tabs, table, pagination, tooltip, avatar, card, badge variants. **Gate: engineer approves**, satisfies **AC-1**
+7. No Figma step and no gate. Change `design.md` so its build mandate says what AC-1 says (from M3 on, build directly in code on the existing design system, no Figma frame or gate, the layout of each screen is decided by `/develop`) instead of "Figma first", and so its `Approvals` section ends at M2. `/develop` then decides how the dialog, alert dialog, sheet, dropdown menu, tabs, table, pagination, tooltip, avatar, card and badge variants look, in code, on the existing tokens, while building step 8, satisfies **AC-12**
 8. Add `card`, `dialog`, `alert-dialog`, `sheet`, `dropdown-menu`, `tabs`, `table`, `pagination`, `tooltip`, `avatar`, `breadcrumb`, applying the same edits (overlay token, `text-destructive-foreground`, translations, focus ring). Build `ListPagination`. Extend `/dev/ui`, satisfies **AC-5**, **AC-10**
 
 **M4. Shells**
-9. In Figma: auth shell, workspace shell (side menu expanded and collapsed, top bar, account menu), public shell with the menu sheet and footer, the account area states. **Gate: engineer approves**, satisfies **AC-1**
+9. No Figma step and no gate. `/develop` decides the layout of the auth shell, the workspace shell (side menu expanded and collapsed, top bar, account menu), the public shell with the menu sheet and footer, and the account area states, inside the behavior fixed under "Shells". It checks them in the browser at 390, 1280 and 1440 through the previews of step 10, satisfies **AC-8**
 10. Add `sidebar` (apply `SIDEBAR_WIDTH_ICON` 4rem, the `use-mobile` breakpoint 1024 and the other edits). Finish `PublicShell` (menu sheet that also holds the account actions, footer, skip link, the `<Suspense>` fallback with plain links), `AuthShell`, `WorkspaceShell`, `AccountMenu` and `AccountMenuView`, and `nav-config.ts` with `PUBLIC_NAV`, `LANDLORD_NAV`, `ADMIN_NAV` and `ACCOUNT_LINKS`. Create the `(auth)`, `(landlord)` and `(admin)` groups with their layouts, `error.tsx` and `not-found.tsx` for every group and the root, `global-error.tsx`, and `src/app/dev/layout.tsx` with the production 404. In Next 16 an `error.tsx` receives `error` and `retry` (use `retry()`, not `reset()`, per the Next.js docs); it shows the generic message and the `digest` as the support code, as spec 0001 says. Add the three previews under `/dev/ui/shells/` (with a local `SAMPLE_NAV`) and show `AccountMenuView` in its three views on `/dev/ui`. Confirm `npm run build` shows no Suspense error, satisfies **AC-7**, **AC-8**, **AC-9**, **AC-11**
 
-**M5. Seven sample screens (Figma only)**
-11. Pull a few demo photos from the API into Figma and draw the seven sample screens at the sizes in AC-14, plus the empty, loading, error and rate limited frames for the list and the users table. **Gate: engineer approves.** This is the first thing to cut if time runs short: sign in, home and the post listing form belong to #5, #16 and #7, which can draw them later. Cutting or moving this milestone affects only AC-14, satisfies **AC-14**
+**M5. Seven sample screens (in code)**
+11. No Figma step and no gate. Build the seven sample screens in code at `/dev/ui/screens` with fake data, as described under "Sample screens (AC-14)": an index page that reaches all seven (listing list, listing detail, landlord "my listings", admin users table, sign in, pricing page, post listing form), the sample format helper, and the empty, loading, error and rate limited states for the listing list and the users table. `/develop` decides the layout of each screen, and checks it at the widths in AC-14. This is the first thing to cut if time runs short: sign in, the pricing page and the post listing form belong to #5, #18 and #7, which can build them later. Cutting or moving this milestone affects only AC-14, satisfies **AC-14**
 
 **M6. Accessibility gate and finish**
-12. Write `scripts/check-contrast.mjs` with the `PAIRS` list under Accessibility rules and wire it into `npm run check`. Fix any failing pair in Figma first, then in the CSS. Run the search from AC-2, satisfies **AC-2**, **AC-10**
-13. Write `design.md` (character, build mandate, Figma file and frames, pointer to `globals.css`, and the `Approvals` section with one dated line for every gate passed so far). Finish `/dev/ui` (contrast table, type specimens, state matrix). Do the keyboard pass and the landmark and target checks. Run `npm run check` and `npm run build`. Tick the font and `lang` item in spec 0001's follow up, satisfies **AC-1**, **AC-10**, **AC-11**, **AC-12**, **AC-13**
+12. Write `scripts/check-contrast.mjs` with the `PAIRS` list under Accessibility rules and wire it into `npm run check`. Fix any failing pair in the CSS, and in the Figma variable too when the token existed at the end of M2. Run the search from AC-2, satisfies **AC-2**, **AC-10**
+13. Finish `design.md` (character, the build mandate from step 7, the Figma file and the frames of M1 and M2, pointer to `globals.css`, and the `Approvals` section with the dated lines for the M1 and M2 gates). Finish `/dev/ui` (contrast table, type specimens, state matrix). Do the keyboard pass and the landmark and target checks. Run `npm run check` and `npm run build`. Tick the font and `lang` item in spec 0001's follow up, satisfies **AC-1**, **AC-10**, **AC-11**, **AC-12**, **AC-13**
 
 Every AC appears in at least one task and every task names an AC.
 
@@ -317,13 +331,14 @@ Every AC appears in at least one task and every task names an AC.
 
 **Positive**:
 - Later features get tokens, accessible components, shells and shared states for free, and `/develop` has a `design.md` to build inside.
-- The design is approved before code, so rework happens in Figma where it is cheap.
+- The tokens and base components of M1 and M2 were drawn in Figma before their code, and from M3 on there is no Figma step, so each milestone goes straight to visible code.
 - A failing contrast pair stops the build, so accessibility does not erode with later color tweaks.
 - Components are source in the repo: the engineer owns and can edit them.
 
 **Negative / tradeoffs**:
-- Figma first delays visible code: the first real pages come after M1 and the approvals.
-- Seven sample screens is a large amount of design work; three of them belong to later items. M5 is the cut line, and it carries only AC-14, so cutting it does not fail the rest.
+- The Figma file stops at M2 and drifts from the code as later components and screens are added; only the M1 and M2 tokens are compared with it (AC-2).
+- From M3 on nothing is approved on a drawing: the layout of each screen is `/develop`'s call, so a layout the engineer dislikes is found in the browser and reworked in code.
+- Seven sample screens is still a large amount of work, and three of them (sign in, pricing page, post listing form) belong to later items. M5 is the cut line, and it carries only AC-14, so cutting it does not fail the rest.
 - Generated shadcn code must be kept in line with the repo's lint and strict TypeScript rules, and upstream updates must be merged by hand with `--diff`.
 - The CLI and its presets change quickly, and the project's Tailwind through Turbopack setup is unusual; task 2 may need a manual fallback.
 - The contrast script checks token pairs, not every real combination (text over photos, or over an image overlay still needs a look).
@@ -345,7 +360,10 @@ Every AC appears in at least one task and every task names an AC.
 - [ ] Spec 0001 follow up: tick the item "Pick a font that covers Vietnamese. Also change `lang`" when this ships.
 - [ ] Item #5: use `useFormFailure`, `FailureNotice` and the `Field` pattern for the real forms, delete `/dev/session`, add the route gate, and decide what `guest('unavailable')` shows in the header.
 - [ ] Items #8, #12 and #20: each adds its nav item in the same change that ships its page. #14 adds the tenant item "Tin đã lưu" to `ACCOUNT_LINKS.tenant`, #12 "Khu chủ trọ" to `.landlord`, #20 "Quản trị" to `.admin`, #28 "Tài khoản" to `.all`.
-- [ ] Items #8, #15, #14, #18, #25: build the listing card, plan card and stat card from the approved Figma frames.
+- [ ] Items #8, #15, #14 and #18: build the listing card and the plan card starting from the sample markup on `/dev/ui/screens` (lift it into the feature, do not redraw it). Item #25: build the stat card in code on the tokens and `card`; no sample screen has one.
+- [ ] `design.md` still says "Figma first" in its build mandate and its Approvals intro. Step 7 of the Build plan changes that when M3 starts (`/develop` owns the file).
+- [ ] The first item that shows a price adds `src/lib/format.ts`; the sample format helper in the screens folder then switches to it.
+- [ ] `verify.md` for this spec was written before this update. `/check verify` rereads AC-1, AC-2, AC-12 and AC-14 and replaces the steps that ask for Figma frames from M3 on.
 - [ ] Item #26 (revenue) and #29 (map) pick their chart and map libraries; #26 adds the `chart` tokens.
 - [ ] Optional later: dark mode as a second token set plus a contrast pass; persist the sidebar state.
 - [ ] Optional later: `/test` can lock the contrast script and the `describeError` driven states with a component test.

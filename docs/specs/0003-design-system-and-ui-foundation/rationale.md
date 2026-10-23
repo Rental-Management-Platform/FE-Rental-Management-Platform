@@ -89,6 +89,22 @@ Decisions made here without being asked (RECOMMEND items):
 - `error.tsx` keeps showing the `digest` as the support code, as spec 0001 already says (the cross check suggested dropping it).
 - Seven sample screens split into their own criterion, AC-14, so cutting milestone M5 does not fail the foundation criteria.
 
+## Update 2026-10-24: Figma stops after M2
+
+The engineer decided that from M3 on the work is built directly in code on the existing design system, with no Figma frames or gates, and that `/develop` decides the layout of each screen. This replaces "Figma first" for M3 to M6 in the Rationale above. M1 and M2 stay as they were built.
+
+What the repo showed when this was decided:
+- The M1 gate was approved on 2026-10-23. The M2 gate was skipped on 2026-10-24 at the engineer's request, who asked to write the code right after the frames were drawn (`design.md`, Approvals). So the approval step had already stopped paying for itself.
+- The Figma file is on the Starter plan, which allows 3 pages, so the `Shells` and `States` pages in the first plan could not exist; the frames went into sections on `Screens`.
+- Scope item #16 (the home page) is dropped, so the seventh sample screen is the pricing page of item #18 instead.
+
+Options weighed:
+- **Keep Figma and its gates for every milestone (the first plan).** Pros: one visual source of truth, rework while it is cheap. Cons: the engineer already skipped a gate, the page cap forces workarounds, and drawing shells and seven screens is slow work that `/develop` would repeat in code.
+- **Stop after M2, keep the file as a frozen reference (chosen).** Pros: M3 to M5 go straight to visible code; the tokens and base components that need an exact match are still checked (AC-2, only for tokens that existed at the end of M2). Cons: the file drifts, and a layout is first seen in the browser, not on a drawing.
+- **Drop Figma completely, including the M1 and M2 frames.** Pros: no second place to keep in step. Cons: the approved tokens and button would lose their source, and AC-2 would have nothing to compare with.
+
+The seven sample screens stay as a criterion, now built in code with fake data (no network call, no photos, a local `Intl` helper), so they need no backend. They are still the first thing to cut, and cutting them touches only AC-14.
+
 ## Evidence
 
 ### Figma file today

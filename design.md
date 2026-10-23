@@ -1,8 +1,8 @@
 ---
 name: rental-management-platform-design-system
-source: figma:cdrAcD1PywM8IWdVRt7X0o
+source: figma:cdrAcD1PywM8IWdVRt7X0o (M1 and M2 only, a frozen reference)
 character: "Deep teal on white, calm and trustworthy, friendly rather than corporate. Rounded 8 px shapes, quiet borders, one strong accent used only for the main action. Vietnamese text is the first class citizen: Be Vietnam Pro, generous line height, every diacritic intact."
-tokens: "Real values live in src/app/globals.css (:root and @theme inline). They are copied from the Figma variables of the Tokens collection, one flat mode named Light, and the names are the same in both places. Never copy a value into this file."
+tokens: "Real values live in src/app/globals.css (:root and @theme inline). The tokens that existed at the end of M2 were copied from the Figma variables of the Tokens collection, one flat mode named Light, with the same names. A token added from M3 on lives in globals.css alone, and its contrast pair is added to the contrast script in the same change. Never copy a value into this file."
 contrast: "Verified when the tokens were chosen (spec 0003): foreground on background 17.85:1, primary-foreground on primary 5.47:1, secondary-foreground on secondary 9.09:1, muted-foreground on muted 6.92:1, accent-foreground on accent 8.41:1, destructive-foreground on destructive 6.47:1, success 5.02:1, warning 8.15:1, info 6.70:1. Control border input on white 4.76:1 (needs 3:1). Focus ring on white 5.47:1 (needs 3:1). The script that keeps this true arrives in milestone M6."
 ---
 
@@ -16,7 +16,7 @@ You are a senior product designer. Every page ships as a complete, professional 
 
 Rules for any new screen or component:
 
-- **Figma first.** A new component or screen is drawn in the Figma file below and approved before its code is written. Code copies Figma; when they differ, Figma wins.
+- **Code directly, no Figma.** From M3 on, build in code on the existing design system: no new Figma frame and no approval gate. The layout of each screen is decided by `/develop` from the spec, the scope text, the API contract and this file, and the engineer reviews it in the browser. Figma was the source for M1 and M2 only, and it stays as a frozen reference.
 - **Tokens only.** Colors, radius, type and shadows come from `src/app/globals.css` through semantic classes (`bg-primary`, `text-muted-foreground`). No raw color, no `bg-red-700`, no hex in a `.tsx` file.
 - **Components from `src/components/ui`.** Add them with the shadcn CLI (`npx shadcn@latest add <name>`), one at a time, never `add --all`, never `--overwrite` without approval. After adding, review the file and edit it to match the rules in spec 0003 ("Edits after adding shadcn files").
 - **`className` is for layout.** Do not restyle a component from outside. Use its variants (`default`, `secondary`, `outline`, `ghost`, `destructive`) and sizes (`sm`, `default`, `lg`).
@@ -63,7 +63,7 @@ File: `cdrAcD1PywM8IWdVRt7X0o` (https://www.figma.com/design/cdrAcD1PywM8IWdVRt7
 
 The Figma file is on the Starter plan, which allows 3 pages. So there is no `States` or `Shells` page: those frames are sections on `Screens`, named with the prefix `States /` (and `Shells /` for the shell milestone).
 
-More frames are added by later milestones (overlays, shells, sample screens).
+The file holds M1 and M2 only. Overlays, menus, tables, pagination, shells and the sample screens are built in code and are not drawn here.
 
 ## Component and usage notes
 
@@ -75,7 +75,16 @@ More frames are added by later milestones (overlays, shells, sample screens).
 - **Sizes.** Checkbox and radio are 20 px, with an invisible 44 px tap area around them. Inside a `Button`, a `Spinner` takes `size="sm"`.
 - **Skeleton** uses the `accent` tint, because `muted` is almost invisible on white.
 - Figma has one more text style than the type scale: `text-xs-medium`, used by badges.
-- **Contrast pairs to add in M6.** The alerts and toasts use `success` and `info` as text and icon color on `background`, so the contrast script needs those two pairs at 4.5:1 besides the ones in spec 0003.
+- **Dialog or alert dialog.** A `Dialog` is for a task that needs its own frame (a short form, something to read). An `AlertDialog` is only for confirming something that cannot be undone: the first focus lands on its safe button and a click outside does not close it. A dialog, alert dialog and sheet always have a title (`sr-only` if hidden). The destructive action is `AlertDialogAction variant="destructive"` with words that name the action ("Xóa tin"), never a bare "OK".
+- **Sheet.** The phone menu, filters and side details. A dialog or sheet taller than the window scrolls inside itself, never the page behind it.
+- **Dropdown menu.** Rows are 40 px high with 16 px text, like the Select menu. Keep the items inside a `DropdownMenuGroup`. A row that deletes or locks uses `variant="destructive"` and a label that says what it does. A button that only has an icon gets an `aria-label` in Vietnamese.
+- **Tooltip.** Only a reminder for mouse and keyboard users, never the only place where something is said. `TooltipProvider` is mounted once in `Providers`.
+- **Table.** `Table` brings its own rounded, scrolling container, so a wide table scrolls inside it and the page never scrolls sideways. Header cells are muted, rows are about 44 px, numbers are right aligned with `tabular-nums`, a selected row uses `data-state="selected"`. Give a table a `TableCaption` (`sr-only` if the page already has a heading). Long text in a cell uses `truncate` with a `title`, or `whitespace-normal`.
+- **Tabs.** `variant="line"` (an underline in the primary color on a hairline) for filters above a list, `default` (a pill on a muted track) for switching small panels. A row that is wider than the window scrolls inside itself.
+- **Pagination.** Build a list's page links with `ListPagination` (`src/components/list-pagination.tsx`) from `{ page, pageSize, total }`. Pass `hrefFor` when the page is in the URL (links) or `onPageChange` when it is in state (buttons). Pass `size="lg"` on public pages. It draws nothing for a single page.
+- **Card.** Use the full composition (`CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`). `CardTitle` is a plain `div`: when the card needs a heading in the outline, put the right heading element inside it.
+- **Avatar.** Always give it an `AvatarFallback` with the first letter of the name, or of the email.
+- **Contrast pairs to add in M6.** The alerts and toasts use `success` and `info` as text and icon color on `background`, so the contrast script needs those two pairs at 4.5:1 besides the ones in spec 0003. M3 adds more: `foreground` on `accent` (selected table row), `muted-foreground` on `popover` (menu labels), `destructive` on `popover` (destructive menu row), `primary` on `secondary` (current page link) at 4.5:1, and `ring` on `popover` at 3:1 (focus ring inside a menu).
 
 ## Responsive and accessibility direction
 
@@ -87,7 +96,7 @@ More frames are added by later milestones (overlays, shells, sample screens).
 
 ## Approvals
 
-One dated line for each gate the engineer approved in Figma before its code was written.
+One dated line for each Figma gate of M1 and M2. The list ends here: from M3 on there is no gate, so no line is added.
 
 - 2026-10-23: **M1** approved. Foundations (`Tokens`, `Type`, `Shape`), `Button` and `Icon Button` sets, `Brand/Mark`, `Nav Link`, and `Shells/Public/Header` at 1280 and 390.
 - 2026-10-24: **M2** gate skipped. The engineer asked to write the code right after the frames were drawn ("thực hiện viết code luôn"), so these frames were not reviewed in Figma before the code: form controls, `Field`, `Alert`, `Badge`, `Skeleton`, `Spinner`, `Separator`, `Toast`, the shared states and the server error forms. The code follows them. If a later review changes a frame, Figma wins and the code is changed to match.

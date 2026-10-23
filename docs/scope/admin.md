@@ -5,8 +5,8 @@ Khu quản trị: người dùng, kiểm duyệt tin, gói, danh mục, quyền,
 ## Slice 5: Khu admin
 
 ### 20. Admin shell and users · needs a decision
-Khung khu admin và trang người dùng đầu tiên, nơi định ra mẫu bảng, bộ lọc và hộp nhập lý do để các màn sau dùng lại. Bảng từ `GET /users` (tìm theo email, tên, số điện thoại; lọc theo loại tài khoản và trạng thái), khóa và mở khóa kèm lý do bắt buộc.
-**Done when:** admin tìm và lọc được, khóa rồi mở khóa kèm lý do được, nút khóa ẩn ở dòng của chính mình (`CANNOT_LOCK_SELF`), trạng thái dòng cập nhật sau thao tác, 403 `ACCOUNT_LOCKED` hay 401 thì đưa về trang đăng nhập.
+Khung khu admin và trang người dùng đầu tiên, nơi định ra mẫu bảng, bộ lọc và hộp nhập lý do để các màn sau dùng lại. Bảng từ `GET /users` (tìm theo email, tên, số điện thoại; lọc theo loại tài khoản và trạng thái), khóa và mở khóa kèm lý do bắt buộc, và thu hồi mọi phiên của một người (`POST /users/:id/revoke-sessions`, quyền `user:revoke`): nút ở mỗi dòng, hỏi xác nhận, buộc người đó đăng nhập lại mà không đổi trạng thái tài khoản.
+**Done when:** admin tìm và lọc được, khóa rồi mở khóa kèm lý do được, thu hồi phiên có hỏi xác nhận và báo `USER_NOT_FOUND` nếu người đó không còn, nút khóa ẩn ở dòng của chính mình (`CANNOT_LOCK_SELF`), trạng thái dòng cập nhật sau thao tác, 403 `ACCOUNT_LOCKED` hay 401 thì đưa về trang đăng nhập.
 - [ ] Design it (spec): `/architect admin shell and users`
 
 ### 21. Listing moderation
