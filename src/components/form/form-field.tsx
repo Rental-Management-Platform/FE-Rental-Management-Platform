@@ -27,8 +27,11 @@ export interface FormFieldAria {
 interface FormFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
+  TTransformed,
 > {
-  control: Control<TFieldValues>;
+  // `TTransformed` is the third `useForm` generic: what the submit handler gets when the
+  // resolver turns the typed text into numbers. It stays the same type when nothing is changed.
+  control: Control<TFieldValues, unknown, TTransformed>;
   name: TName;
   label: string;
   /** Help text. It gives way to the error message while the field is invalid. */
@@ -58,6 +61,7 @@ interface FormFieldProps<
 export function FormField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
+  TTransformed = TFieldValues,
 >({
   control,
   name,
@@ -67,7 +71,7 @@ export function FormField<
   orientation = "vertical",
   className,
   children,
-}: FormFieldProps<TFieldValues, TName>) {
+}: FormFieldProps<TFieldValues, TName, TTransformed>) {
   const id = useId();
   const descriptionId = `${id}-description`;
   const errorId = `${id}-error`;

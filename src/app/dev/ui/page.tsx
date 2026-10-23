@@ -1,4 +1,5 @@
 import { Menu, Search } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ColorsSection } from "./colors";
 import { ControlsSection } from "./controls";
@@ -119,6 +120,17 @@ export default function DevUiPage() {
       <OverlaysSection />
       <DataDisplaySection />
       <ShellsSection />
+
+      <Section
+        title="Màn hình mẫu"
+        description="Bảy màn hình dựng bằng mã từ các thành phần ở trên, với dữ liệu giả và không gọi mạng."
+      >
+        <div>
+          <Button asChild size="lg">
+            <Link href="/dev/ui/screens">Mở các màn hình mẫu</Link>
+          </Button>
+        </div>
+      </Section>
     </main>
   );
 }
