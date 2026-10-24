@@ -3,11 +3,13 @@ import { cn } from "cn";
 
 // The container scrolls sideways on its own, so a wide table never widens the page (320 px).
 // Rows are about 44 px high with one line of text, well over the 32 px dense desktop minimum.
+// Inside a zone (a `Card`) the card is the frame, so the container drops its own border and
+// radius (spec 0004).
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto rounded-lg border"
+      className="relative w-full overflow-x-auto rounded-lg border in-data-[slot=card]:rounded-none in-data-[slot=card]:border-0"
     >
       <table
         data-slot="table"

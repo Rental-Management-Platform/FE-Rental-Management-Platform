@@ -3,7 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "cn";
 import { Slot } from "radix-ui";
 
-// Sizes, radius and states follow the Figma Button set (Components page, spec 0003).
+// Sizes, radius and states follow the Figma Button set (Components page, spec 0003). `lg` is the
+// public size and takes `text-base` (spec 0004), so the main action reads well on a phone.
 // `outline-hidden` keeps a transparent outline under the ring, so focus still shows in
 // Windows forced colors mode.
 const buttonVariants = cva(
@@ -22,7 +23,7 @@ const buttonVariants = cva(
       size: {
         default: "h-10 px-4",
         sm: "h-8 px-3",
-        lg: "h-11 px-6",
+        lg: "h-11 px-6 text-base",
         icon: "size-10 [&_svg:not([class*='size-'])]:size-5",
         "icon-sm": "size-8 [&_svg:not([class*='size-'])]:size-5",
         "icon-lg": "size-11 [&_svg:not([class*='size-'])]:size-5",

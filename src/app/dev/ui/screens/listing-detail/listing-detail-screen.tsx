@@ -115,7 +115,7 @@ export function ListingDetailScreen() {
               {listing.fullAddress}
             </p>
           </div>
-          <p className="text-3xl font-bold text-primary">
+          <p className="text-2xl font-semibold text-primary">
             {formatMoney(listing.price)}
             <span className="text-base font-normal text-muted-foreground">
               {" "}

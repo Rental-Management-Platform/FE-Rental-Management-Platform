@@ -178,7 +178,7 @@ function CardsSection() {
               <CardDescription>Tối đa 5 tin, 30 ngày</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{VND.format(99_000)}</p>
+              <p className="text-2xl font-semibold">{VND.format(99_000)}</p>
             </CardContent>
             <CardFooter>
               <Button size="sm" className="w-full">

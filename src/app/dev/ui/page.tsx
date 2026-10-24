@@ -50,7 +50,9 @@ export default function DevUiPage() {
       </header>
 
       <Section title="Chữ tiếng Việt">
-        <p className="text-3xl font-bold md:text-4xl">{VIETNAMESE_TEST_LINE}</p>
+        <p className="text-3xl font-semibold md:text-4xl">
+          {VIETNAMESE_TEST_LINE}
+        </p>
         <p className="text-base">{VIETNAMESE_TEST_LINE}</p>
         <div className="flex flex-col gap-2 border-t pt-4">
           {TYPE_SCALE.map(({ token, className }) => (

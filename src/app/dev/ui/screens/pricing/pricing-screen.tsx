@@ -83,7 +83,7 @@ export function PricingScreen() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-5">
-                <p className="text-3xl font-bold tabular-nums">
+                <p className="text-3xl font-semibold tabular-nums">
                   {formatMoney(plan.price)}
                   <span className="text-base font-normal text-muted-foreground">
                     {" "}
