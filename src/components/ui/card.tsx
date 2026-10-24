@@ -1,6 +1,9 @@
 import * as React from "react";
 import { cn } from "cn";
 
+// A zone on the canvas (spec 0004): white, a 1 px border, 12 px radius, no shadow. A zone that
+// holds a table lets it run edge to edge, so it drops the gap under the title row and the
+// bottom padding, and the table draws the rows right up to the border.
 function Card({
   className,
   size = "default",
@@ -11,7 +14,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border bg-card py-(--card-spacing) text-card-foreground [--card-spacing:--spacing(5)] has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border bg-card py-(--card-spacing) text-card-foreground [--card-spacing:--spacing(5)] has-data-[slot=table-container]:gap-0 has-data-[slot=table-container]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className,
       )}
       {...props}

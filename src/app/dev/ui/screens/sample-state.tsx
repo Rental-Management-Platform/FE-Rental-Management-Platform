@@ -139,7 +139,7 @@ function RateLimitedPanel({
 }) {
   const secondsLeft = useCountdown(error);
   return (
-    <div className="flex flex-col items-start gap-4">
+    <div className="flex flex-col items-start gap-4 in-data-[slot=card]:px-(--card-spacing)">
       <RateLimitNotice error={error} className="w-full" />
       <Button
         type="button"

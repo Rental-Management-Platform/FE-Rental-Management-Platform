@@ -30,7 +30,7 @@ function CardsSkeleton() {
 
 function TableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border bg-card">
+    <div className="overflow-hidden rounded-xl border bg-card in-data-[slot=card]:rounded-none in-data-[slot=card]:border-0">
       <div className="flex items-center gap-6 px-4 py-4">
         {FOUR.map((i) => (
           <Skeleton key={i} className="h-3 flex-1" />

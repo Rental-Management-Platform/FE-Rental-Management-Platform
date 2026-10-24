@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/states/empty-state";
 import { ImagePlaceholder } from "@/components/states/image-placeholder";
 import { WorkspaceShell } from "@/components/shells/workspace-shell";
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -271,9 +273,9 @@ function ListingsTable({
   );
 }
 
-// Landlord screen (desktop first, checked at 1440): the table behind "Tin của tôi". Hide, show
-// and delete change the sample rows in state, so the labels follow, including which listings
-// are public once one slot is freed.
+// Landlord screen (desktop first, checked at 1440): the table behind "Tin của tôi", in one zone
+// on the canvas under the quota notice. Hide, show and delete change the sample rows in state,
+// so the labels follow, including which listings are public once one slot is freed.
 export function MyListingsScreen() {
   const [listings, setListings] =
     useState<readonly OwnerListingSummary[]>(OWNER_LISTINGS);
@@ -327,47 +329,53 @@ export function MyListingsScreen() {
           </Button>
         </SampleControls>
 
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <h1>Tin của tôi</h1>
-            <p className="max-w-2xl text-muted-foreground">
-              Quản lý các tin đã đăng: ẩn khi hết phòng, hiện lại khi còn phòng.
-            </p>
-          </div>
-          <Button asChild size="lg">
-            <Link href={POST_HREF}>
-              <PlusIcon data-icon="inline-start" />
-              Đăng tin mới
-            </Link>
-          </Button>
-        </header>
+        <PageHeader
+          title="Tin của tôi"
+          description="Quản lý các tin đã đăng: ẩn khi hết phòng, hiện lại khi còn phòng."
+          actions={
+            <Button asChild size="lg">
+              <Link href={POST_HREF}>
+                <PlusIcon data-icon="inline-start" />
+                Đăng tin mới
+              </Link>
+            </Button>
+          }
+        />
 
         <QuotaNotice visible={visible} />
 
+        {/* One table zone: the status tabs are its title row, and the tab list draws the hairline
+            under it. The table runs edge to edge below, with no frame of its own. */}
         <Tabs
           value={filter}
           onValueChange={(value) => setFilter(value as Filter)}
         >
-          <TabsList variant="line">
-            {FILTERS.map(({ value, label }) => (
-              <TabsTrigger key={value} value={value}>
-                {label}
-                <span className="text-muted-foreground tabular-nums">
-                  ({rowsFor(value).length})
-                </span>
-              </TabsTrigger>
+          <Card>
+            <TabsList variant="line" className="px-(--card-spacing)">
+              {FILTERS.map(({ value, label }) => (
+                <TabsTrigger key={value} value={value}>
+                  {label}
+                  <span className="text-muted-foreground tabular-nums">
+                    ({rowsFor(value).length})
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {FILTERS.map(({ value }) => (
+              <TabsContent
+                key={value}
+                value={value}
+                className="focus-visible:ring-offset-0 focus-visible:ring-inset"
+              >
+                <ListingsTable
+                  rows={rowsFor(value)}
+                  onToggle={toggle}
+                  onEdit={() => toast("Trang sửa tin chưa có trong bản mẫu.")}
+                  onDelete={askDelete}
+                />
+              </TabsContent>
             ))}
-          </TabsList>
-          {FILTERS.map(({ value }) => (
-            <TabsContent key={value} value={value} className="pt-4">
-              <ListingsTable
-                rows={rowsFor(value)}
-                onToggle={toggle}
-                onEdit={() => toast("Trang sửa tin chưa có trong bản mẫu.")}
-                onDelete={askDelete}
-              />
-            </TabsContent>
-          ))}
+          </Card>
         </Tabs>
       </div>
 

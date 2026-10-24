@@ -29,6 +29,11 @@ const SURFACES = [
     className: "bg-background text-foreground",
   },
   {
+    name: "canvas",
+    foreground: "foreground",
+    className: "bg-canvas text-foreground",
+  },
+  {
     name: "card",
     foreground: "card-foreground",
     className: "bg-card text-card-foreground",
@@ -269,7 +274,7 @@ export function ColorsSection() {
       </ul>
 
       <div className="flex flex-col gap-3">
-        <h3 className="text-lg md:text-xl">Chữ, cần {TEXT_MIN}:1</h3>
+        <h3>Chữ, cần {TEXT_MIN}:1</h3>
         <PairsTable
           caption="Các cặp màu chữ và nền, cần tỉ lệ tương phản từ 4,5 trên 1"
           results={texts}
@@ -277,9 +282,7 @@ export function ColorsSection() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <h3 className="text-lg md:text-xl">
-          Viền ô nhập và vòng lấy nét, cần {CONTROL_MIN}:1
-        </h3>
+        <h3>Viền ô nhập và vòng lấy nét, cần {CONTROL_MIN}:1</h3>
         <PairsTable
           caption="Các cặp màu viền hoặc vòng lấy nét và nền, cần tỉ lệ tương phản từ 3 trên 1"
           results={controls}

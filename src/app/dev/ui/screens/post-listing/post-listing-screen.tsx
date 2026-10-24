@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
+import { PageHeader } from "@/components/layout/page-header";
 import { WorkspaceShell } from "@/components/shells/workspace-shell";
 import {
   Breadcrumb,
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -192,8 +193,9 @@ const TIPS = [
 const MY_LISTINGS_HREF = `${SCREENS_HOME}/my-listings`;
 const PRICING_HREF = `${SCREENS_HOME}/pricing`;
 
-// Landlord screen: the post listing form. The date is a plain date input, because the date
-// picker waits for the item that needs it.
+// Landlord screen: the post listing form, as two zones on the canvas with the notice and the
+// submit row under them, and a tips zone at the side from `xl`. The date is a plain date input,
+// because the date picker waits for the item that needs it.
 export function PostListingScreen() {
   const {
     control,
@@ -260,160 +262,174 @@ export function PostListingScreen() {
           </div>
         </SampleControls>
 
-        <header className="flex flex-col gap-2">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href={MY_LISTINGS_HREF}>Tin của tôi</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Đăng tin mới</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <h1>Đăng tin mới</h1>
-          <p className="max-w-2xl text-muted-foreground">
-            Điền thông tin phòng cho thuê. Tin hiện ngay khi đăng, không có bước
-            duyệt.
-          </p>
-        </header>
+        <PageHeader
+          breadcrumb={
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href={MY_LISTINGS_HREF}>Tin của tôi</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Đăng tin mới</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          }
+          title="Đăng tin mới"
+          description="Điền thông tin phòng cho thuê. Tin hiện ngay khi đăng, không có bước duyệt."
+        />
 
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <form
             noValidate
             aria-label="Đăng tin mới"
             onSubmit={handleSubmit(onSubmit, clearFailure)}
-            className="flex flex-col gap-8 rounded-xl border bg-card p-6 shadow-sm"
+            className="flex flex-col gap-6"
           >
-            <FieldSet>
-              <FieldLegend>Thông tin chính</FieldLegend>
-              <FieldGroup>
-                <FormField
-                  control={control}
-                  name="propertyId"
-                  label="Nhà trọ"
-                  description="Địa chỉ, phí và tiện ích lấy từ nhà trọ bạn chọn."
-                >
-                  {({ field, aria }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger
-                        ref={field.ref}
-                        size="lg"
-                        className="w-full"
-                        onBlur={field.onBlur}
-                        {...aria}
+            {/* Each zone is a labelled group, like the fieldset it replaces. The hairline under
+                the title row is there because a form follows it. */}
+            <Card role="group" aria-labelledby="main-info-title">
+              <CardHeader className="border-b">
+                <CardTitle id="main-info-title">Thông tin chính</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FieldGroup>
+                  <FormField
+                    control={control}
+                    name="propertyId"
+                    label="Nhà trọ"
+                    description="Địa chỉ, phí và tiện ích lấy từ nhà trọ bạn chọn."
+                  >
+                    {({ field, aria }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
                       >
-                        <SelectValue placeholder="Chọn nhà trọ" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SAMPLE_PROPERTIES.map((property) => (
-                          <SelectItem key={property.id} value={property.id}>
-                            {property.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </FormField>
-                <FormField
-                  control={control}
-                  name="title"
-                  label="Tiêu đề"
-                  description="Từ 5 đến 120 ký tự."
-                >
-                  {({ field, aria }) => (
-                    <Input
-                      size="lg"
-                      placeholder="Phòng đẹp có gác gần chợ Bến Thành"
-                      {...field}
-                      {...aria}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={control}
-                  name="description"
-                  label="Mô tả"
-                  description="Từ 10 đến 5.000 ký tự, văn bản thường."
-                >
-                  {({ field, aria }) => (
-                    <Textarea
-                      rows={6}
-                      placeholder="Giờ giấc, chỗ để xe, nội thất, quy định chung"
-                      {...field}
-                      {...aria}
-                    />
-                  )}
-                </FormField>
-              </FieldGroup>
-            </FieldSet>
+                        <SelectTrigger
+                          ref={field.ref}
+                          size="lg"
+                          className="w-full"
+                          onBlur={field.onBlur}
+                          {...aria}
+                        >
+                          <SelectValue placeholder="Chọn nhà trọ" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SAMPLE_PROPERTIES.map((property) => (
+                            <SelectItem key={property.id} value={property.id}>
+                              {property.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </FormField>
+                  <FormField
+                    control={control}
+                    name="title"
+                    label="Tiêu đề"
+                    description="Từ 5 đến 120 ký tự."
+                  >
+                    {({ field, aria }) => (
+                      <Input
+                        size="lg"
+                        placeholder="Phòng đẹp có gác gần chợ Bến Thành"
+                        {...field}
+                        {...aria}
+                      />
+                    )}
+                  </FormField>
+                  <FormField
+                    control={control}
+                    name="description"
+                    label="Mô tả"
+                    description="Từ 10 đến 5.000 ký tự, văn bản thường."
+                  >
+                    {({ field, aria }) => (
+                      <Textarea
+                        rows={6}
+                        placeholder="Giờ giấc, chỗ để xe, nội thất, quy định chung"
+                        {...field}
+                        {...aria}
+                      />
+                    )}
+                  </FormField>
+                </FieldGroup>
+              </CardContent>
+            </Card>
 
-            <FieldSet>
-              <FieldLegend>Giá, diện tích và ngày vào ở</FieldLegend>
-              <FieldGroup className="md:grid md:grid-cols-2">
-                <FormField
-                  control={control}
-                  name="price"
-                  label="Giá thuê (đồng mỗi tháng)"
-                  description="Từ 100.000 đến 100.000.000."
-                >
-                  {({ field, aria }) => (
-                    <Input
-                      size="lg"
-                      inputMode="numeric"
-                      placeholder="3500000"
-                      {...field}
-                      {...aria}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={control}
-                  name="areaM2"
-                  label="Diện tích (m²)"
-                  description="Tối đa một chữ số sau dấu phẩy."
-                >
-                  {({ field, aria }) => (
-                    <Input
-                      size="lg"
-                      inputMode="decimal"
-                      placeholder="22,5"
-                      {...field}
-                      {...aria}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={control}
-                  name="deposit"
-                  label="Tiền cọc (đồng)"
-                  description="Để trống nếu không thu cọc."
-                >
-                  {({ field, aria }) => (
-                    <Input
-                      size="lg"
-                      inputMode="numeric"
-                      placeholder="3500000"
-                      {...field}
-                      {...aria}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={control}
-                  name="availableFrom"
-                  label="Ngày vào ở"
-                  description="Để trống nếu có thể vào ở ngay."
-                >
-                  {({ field, aria }) => (
-                    <Input type="date" size="lg" {...field} {...aria} />
-                  )}
-                </FormField>
-              </FieldGroup>
-            </FieldSet>
+            <Card role="group" aria-labelledby="price-info-title">
+              <CardHeader className="border-b">
+                <CardTitle id="price-info-title">
+                  Giá, diện tích và ngày vào ở
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FieldGroup className="md:grid md:grid-cols-2">
+                  <FormField
+                    control={control}
+                    name="price"
+                    label="Giá thuê (đồng mỗi tháng)"
+                    description="Từ 100.000 đến 100.000.000."
+                  >
+                    {({ field, aria }) => (
+                      <Input
+                        size="lg"
+                        inputMode="numeric"
+                        placeholder="3500000"
+                        {...field}
+                        {...aria}
+                      />
+                    )}
+                  </FormField>
+                  <FormField
+                    control={control}
+                    name="areaM2"
+                    label="Diện tích (m²)"
+                    description="Tối đa một chữ số sau dấu phẩy."
+                  >
+                    {({ field, aria }) => (
+                      <Input
+                        size="lg"
+                        inputMode="decimal"
+                        placeholder="22,5"
+                        {...field}
+                        {...aria}
+                      />
+                    )}
+                  </FormField>
+                  <FormField
+                    control={control}
+                    name="deposit"
+                    label="Tiền cọc (đồng)"
+                    description="Để trống nếu không thu cọc."
+                  >
+                    {({ field, aria }) => (
+                      <Input
+                        size="lg"
+                        inputMode="numeric"
+                        placeholder="3500000"
+                        {...field}
+                        {...aria}
+                      />
+                    )}
+                  </FormField>
+                  <FormField
+                    control={control}
+                    name="availableFrom"
+                    label="Ngày vào ở"
+                    description="Để trống nếu có thể vào ở ngay."
+                  >
+                    {({ field, aria }) => (
+                      <Input type="date" size="lg" {...field} {...aria} />
+                    )}
+                  </FormField>
+                </FieldGroup>
+              </CardContent>
+            </Card>
 
             <div className="flex flex-col gap-4">
               <FailureNotice
@@ -444,7 +460,7 @@ export function PostListingScreen() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  <h2 className="text-lg">Mẹo để tin được xem nhiều</h2>
+                  <h2 className="text-base">Mẹo để tin được xem nhiều</h2>
                 </CardTitle>
               </CardHeader>
               <CardContent>

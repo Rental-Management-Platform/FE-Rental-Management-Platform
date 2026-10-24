@@ -177,7 +177,7 @@ export function WorkspaceShell({
         <main
           id="main"
           tabIndex={-1}
-          className="flex flex-1 flex-col p-4 outline-hidden md:p-6"
+          className="flex flex-1 flex-col px-4 py-6 outline-hidden md:px-6 md:py-8"
         >
           {children}
         </main>

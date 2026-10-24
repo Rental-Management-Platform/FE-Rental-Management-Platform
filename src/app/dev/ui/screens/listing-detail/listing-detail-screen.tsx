@@ -3,6 +3,7 @@
 import { CheckIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { PageHeader } from "@/components/layout/page-header";
 import { ImagePlaceholder } from "@/components/states/image-placeholder";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -59,8 +60,10 @@ const detailFor = (viewer: Viewer) =>
 
 const NOT_SET = "Chưa ghi";
 
-// Public screen: a listing in full. On a phone the contact card comes right after the headline,
-// so the call to action is near the top; from `lg` it moves to a sticky column on the right.
+// Public screen: a listing in full, in zones on the canvas (spec 0004). The gallery image stands
+// on the canvas; the price and facts, the description, the property and the contact are white
+// zones. On a phone the contact zone comes right after the facts, so the call to action is near
+// the top; from `lg` it moves to a sticky column on the right.
 export function ListingDetailScreen() {
   const [viewer, setViewer] = useState<Viewer>("guest");
   const listing = detailFor(viewer);
@@ -68,7 +71,7 @@ export function ListingDetailScreen() {
   const landlordName = landlord.name ?? "Chủ trọ";
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
       <SampleControls>
         <ChoiceGroup
           label="Người xem"
@@ -78,71 +81,77 @@ export function ListingDetailScreen() {
         />
       </SampleControls>
 
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href={LISTINGS_HREF}>Tìm trọ</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{listing.ward.name}</BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem className="min-w-0">
-            <BreadcrumbPage className="truncate">
-              {listing.title}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={LISTINGS_HREF}>Tìm trọ</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>{listing.ward.name}</BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem className="min-w-0">
+                <BreadcrumbPage className="truncate">
+                  {listing.title}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+        title={listing.title}
+        description={
+          <span className="flex items-start gap-1.5">
+            <MapPinIcon aria-hidden="true" className="mt-1 size-4 shrink-0" />
+            {listing.fullAddress}
+          </span>
+        }
+      />
 
-      <div className="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex flex-col gap-2 lg:col-start-1">
-          <ImagePlaceholder ratio="16:9" className="[&_svg]:size-16" />
+          <ImagePlaceholder
+            ratio="16:9"
+            className="border bg-card [&_svg]:size-16"
+          />
           <p className="text-sm text-muted-foreground">
             Tin này chưa có ảnh. Chủ trọ có thể thêm ảnh sau khi đăng.
           </p>
         </div>
 
-        <section
-          aria-labelledby="listing-title"
-          className="flex flex-col gap-4 lg:col-start-1"
-        >
-          <div className="flex flex-col gap-2">
-            <h1 id="listing-title">{listing.title}</h1>
-            <p className="flex items-start gap-1.5 text-muted-foreground">
-              <MapPinIcon aria-hidden="true" className="mt-1 size-4 shrink-0" />
-              {listing.fullAddress}
+        <Card className="lg:col-start-1">
+          <CardContent className="gap-4">
+            <p className="text-2xl font-semibold text-primary">
+              {formatMoney(listing.price)}
+              <span className="text-base font-normal text-muted-foreground">
+                {" "}
+                mỗi tháng
+              </span>
             </p>
-          </div>
-          <p className="text-2xl font-semibold text-primary">
-            {formatMoney(listing.price)}
-            <span className="text-base font-normal text-muted-foreground">
-              {" "}
-              mỗi tháng
-            </span>
-          </p>
-          <dl className="grid grid-cols-2 gap-4 rounded-xl border bg-card p-4 sm:grid-cols-4">
-            <Fact label="Diện tích" value={formatArea(listing.areaM2)} />
-            <Fact
-              label="Tiền cọc"
-              value={
-                listing.deposit === null
-                  ? NOT_SET
-                  : formatMoney(listing.deposit)
-              }
-            />
-            <Fact
-              label="Vào ở từ"
-              value={
-                listing.availableFrom === null
-                  ? NOT_SET
-                  : formatDateOnly(listing.availableFrom)
-              }
-            />
-            <Fact label="Lượt xem" value={formatCount(listing.viewCount)} />
-          </dl>
-        </section>
+            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Fact label="Diện tích" value={formatArea(listing.areaM2)} />
+              <Fact
+                label="Tiền cọc"
+                value={
+                  listing.deposit === null
+                    ? NOT_SET
+                    : formatMoney(listing.deposit)
+                }
+              />
+              <Fact
+                label="Vào ở từ"
+                value={
+                  listing.availableFrom === null
+                    ? NOT_SET
+                    : formatDateOnly(listing.availableFrom)
+                }
+              />
+              <Fact label="Lượt xem" value={formatCount(listing.viewCount)} />
+            </dl>
+          </CardContent>
+        </Card>
 
         <aside
           aria-label="Liên hệ chủ trọ"
@@ -158,7 +167,7 @@ export function ListingDetailScreen() {
                 </Avatar>
                 <div className="flex min-w-0 flex-col">
                   <CardTitle>
-                    <h2 className="truncate text-lg">{landlordName}</h2>
+                    <h2 className="truncate text-base">{landlordName}</h2>
                   </CardTitle>
                   <CardDescription>
                     Đăng tin ngày {formatDateTime(listing.createdAt)}
@@ -166,7 +175,7 @@ export function ListingDetailScreen() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="flex flex-col gap-3">
+            <CardContent>
               {landlord.phone === null ? (
                 <>
                   <Button asChild size="lg">
@@ -195,69 +204,68 @@ export function ListingDetailScreen() {
           </Card>
         </aside>
 
-        <section
-          aria-labelledby="description-title"
-          className="flex flex-col gap-3 lg:col-start-1"
-        >
-          <h2 id="description-title" className="text-xl md:text-2xl">
-            Mô tả
-          </h2>
-          {/* Plain text from the API: shown as text, with its line breaks, never as HTML. */}
-          <p className="max-w-prose whitespace-pre-line">
-            {listing.description}
-          </p>
-        </section>
-
-        <section
-          aria-labelledby="property-title"
-          className="flex flex-col gap-5 lg:col-start-1"
-        >
-          <h2 id="property-title" className="text-xl md:text-2xl">
-            Nhà trọ
-          </h2>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-lg md:text-lg">{property.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {property.fullAddress}
+        <Card className="lg:col-start-1">
+          <CardHeader>
+            <CardTitle>
+              <h2 className="text-base">Mô tả</h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Plain text from the API: shown as text, with its line breaks, never as HTML. */}
+            <p className="max-w-prose whitespace-pre-line">
+              {listing.description}
             </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="text-base md:text-base">
-              Các khoản phí ngoài tiền thuê
-            </h3>
-            <dl className="divide-y rounded-xl border bg-card">
-              {property.fees.map((fee) => (
-                <div
-                  key={fee.kind}
-                  className="flex flex-col gap-0.5 px-4 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
-                >
-                  <dt className="font-medium">{feeKindLabel(fee.kind)}</dt>
-                  <dd className="text-sm sm:text-right">
-                    {formatFee(fee)}
-                    {fee.note !== null && (
-                      <span className="block text-muted-foreground">
-                        {fee.note}
-                      </span>
-                    )}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <div className="flex flex-col gap-3">
-            <h3 className="text-base md:text-base">Tiện ích</h3>
-            <ul className="flex flex-wrap gap-2">
-              {property.amenities.map((amenity) => (
-                <li key={amenity.key}>
-                  <Badge variant="secondary">
-                    <CheckIcon data-icon="inline-start" />
-                    {amenity.name}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
+
+        {/* One zone, three parts, each with its own h2. The hairlines stay inside the zone. */}
+        <Card className="lg:col-start-1">
+          <CardContent className="gap-5">
+            <section className="flex flex-col gap-2">
+              <h2 className="text-base">Nhà trọ</h2>
+              <div className="flex flex-col">
+                <p className="font-medium">{property.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {property.fullAddress}
+                </p>
+              </div>
+            </section>
+            <section className="flex flex-col gap-3 border-t pt-5">
+              <h2 className="text-base">Các khoản phí ngoài tiền thuê</h2>
+              <dl className="divide-y">
+                {property.fees.map((fee) => (
+                  <div
+                    key={fee.kind}
+                    className="flex flex-col gap-0.5 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                  >
+                    <dt className="font-medium">{feeKindLabel(fee.kind)}</dt>
+                    <dd className="text-sm sm:text-right">
+                      {formatFee(fee)}
+                      {fee.note !== null && (
+                        <span className="block text-muted-foreground">
+                          {fee.note}
+                        </span>
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+            <section className="flex flex-col gap-3 border-t pt-5">
+              <h2 className="text-base">Tiện ích</h2>
+              <ul className="flex flex-wrap gap-2">
+                {property.amenities.map((amenity) => (
+                  <li key={amenity.key}>
+                    <Badge variant="secondary">
+                      <CheckIcon data-icon="inline-start" />
+                      {amenity.name}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

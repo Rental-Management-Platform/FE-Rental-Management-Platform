@@ -4,6 +4,7 @@ import { CheckIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,14 +46,15 @@ const GOOD_TO_KNOW = [
   },
 ] as const;
 
-// Public screen: one card per plan from `GET /plans`, cheapest first as the API sorts them. Who
+// Public screen: one item card per plan from `GET /plans`, cheapest first as the API sorts them,
+// standing on the canvas, then one white zone with what to know before buying. Who
 // sees the buy button is fixed by the sample viewer here (the real rule is the scope's item on
 // the pricing page): a landlord buys, a guest is led to sign in, a seeker and an admin see none.
 export function PricingScreen() {
   const [viewer, setViewer] = useState<Viewer>("guest");
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
       <SampleControls>
         <ChoiceGroup
           label="Người xem"
@@ -62,15 +64,12 @@ export function PricingScreen() {
         />
       </SampleControls>
 
-      <header className="flex flex-col gap-2">
-        <h1>Bảng giá gói đăng tin</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Chọn gói theo số tin bạn cần hiện cùng lúc. Giá tính cho một kỳ, và
-          thanh toán chỉ là thanh toán thử.
-        </p>
-      </header>
+      <PageHeader
+        title="Bảng giá gói đăng tin"
+        description="Chọn gói theo số tin bạn cần hiện cùng lúc. Giá tính cho một kỳ, và thanh toán chỉ là thanh toán thử."
+      />
 
-      <ul className="grid gap-4 md:grid-cols-3">
+      <ul className="grid gap-6 md:grid-cols-3">
         {PLANS.map((plan) => (
           <li key={plan.id} className="grid">
             <Card>
@@ -142,22 +141,23 @@ export function PricingScreen() {
         </p>
       )}
 
-      <section
-        aria-labelledby="good-to-know"
-        className="flex flex-col gap-4 rounded-xl border bg-muted p-6"
-      >
-        <h2 id="good-to-know" className="text-lg md:text-xl">
-          Cần biết trước khi mua
-        </h2>
-        <ul className="grid gap-4 md:grid-cols-3">
-          {GOOD_TO_KNOW.map(({ title, text }) => (
-            <li key={title} className="flex flex-col gap-1">
-              <h3 className="text-base md:text-base">{title}</h3>
-              <p className="text-sm text-muted-foreground">{text}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <h2 className="text-base">Cần biết trước khi mua</h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="grid gap-4 md:grid-cols-3">
+            {GOOD_TO_KNOW.map(({ title, text }) => (
+              <li key={title} className="flex flex-col gap-1">
+                <h3 className="text-base">{title}</h3>
+                <p className="text-sm text-muted-foreground">{text}</p>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 }

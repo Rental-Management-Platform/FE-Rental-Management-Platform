@@ -9,8 +9,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { PageHeader } from "@/components/layout/page-header";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -40,36 +42,34 @@ const RULES = [
 // tokens, the base components, the shared states and the shells, on fixed sample data.
 export default function ScreensIndexPage() {
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-8 md:px-6">
-      <header className="flex flex-col gap-3">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/dev/ui">Thư viện giao diện</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Màn hình mẫu</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <h1>Màn hình mẫu</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Bảy màn hình dựng bằng mã trên hệ thiết kế có sẵn, để xem token, thành
-          phần, trạng thái dùng chung và các khung trang hoạt động cùng nhau.
-          Các tính năng thật sẽ nhấc phần cần dùng từ đây.
-        </p>
-      </header>
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 md:px-6 md:py-8">
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/dev/ui">Thư viện giao diện</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Màn hình mẫu</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+        title="Màn hình mẫu"
+        description="Bảy màn hình dựng bằng mã trên hệ thiết kế có sẵn, để xem token, thành phần, trạng thái dùng chung và các khung trang hoạt động cùng nhau. Các tính năng thật sẽ nhấc phần cần dùng từ đây."
+      />
 
       {GROUPS.map((group) => (
         <section key={group} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h2 className="text-xl md:text-2xl">{GROUP_LABEL[group]}</h2>
+            <h2 className="text-lg">{GROUP_LABEL[group]}</h2>
             <p className="text-sm text-muted-foreground">{GROUP_NOTE[group]}</p>
           </div>
-          <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {SCREENS.filter((screen) => screen.group === group).map(
               ({ href, title, description, icon: Icon }) => (
                 <li key={href} className="grid">
@@ -108,14 +108,20 @@ export default function ScreensIndexPage() {
         </section>
       ))}
 
-      <section className="flex flex-col gap-3 rounded-xl border bg-muted p-6">
-        <h2 className="text-lg md:text-xl">Cách các màn hình này được dựng</h2>
-        <ul className="flex list-disc flex-col gap-2 pl-5 text-sm">
-          {RULES.map((rule) => (
-            <li key={rule}>{rule}</li>
-          ))}
-        </ul>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <h2 className="text-base">Cách các màn hình này được dựng</h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="flex list-disc flex-col gap-2 pl-5 text-sm">
+            {RULES.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
     </main>
   );
 }

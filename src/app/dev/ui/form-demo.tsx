@@ -135,7 +135,7 @@ export function FormDemo() {
         <form
           onSubmit={handleSubmit(onSubmit)}
           aria-label="Đăng nhập thử"
-          className="flex w-full max-w-md flex-col gap-5 rounded-xl border bg-card p-6 shadow-sm"
+          className="flex w-full max-w-md flex-col gap-5"
         >
           <h3 className="text-xl">Đăng nhập</h3>
           <FieldGroup>

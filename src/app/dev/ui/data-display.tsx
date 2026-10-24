@@ -120,8 +120,9 @@ const ROWS: {
 function CardsSection() {
   return (
     <Section
+      bare
       title="Thẻ"
-      description="Bố cục đầy đủ: tiêu đề, mô tả, hành động ở góc, nội dung và chân thẻ. Viền mảnh và đổ bóng nhẹ, thẻ nhỏ dùng khi dày."
+      description="Bố cục đầy đủ: tiêu đề, mô tả, hành động ở góc, nội dung và chân thẻ. Viền mảnh, không đổ bóng, thẻ nhỏ dùng khi dày. Thẻ đứng trực tiếp trên nền canvas và không bao giờ nằm trong một thẻ khác."
     >
       <div className="grid gap-6 md:grid-cols-3">
         <Labeled label="Thẻ đầy đủ">
@@ -347,58 +348,67 @@ function RowActions({ title }: { title: string }) {
 function TableSection() {
   return (
     <Section
+      bare
       title="Bảng"
-      description="Dòng cao khoảng 44 px, tiêu đề dòng nền xám nhạt. Dòng được chọn dùng màu accent. Bảng rộng hơn màn hình thì cuộn ngang trong khung của nó, trang không bị kéo ngang."
+      description="Dòng cao khoảng 44 px, tiêu đề dòng nền xám nhạt. Dòng được chọn dùng màu accent. Bảng nằm trong một vùng: vùng là khung, nên bảng không có viền riêng và chạy sát mép vùng, dưới một đường kẻ mảnh của hàng tiêu đề. Bảng rộng hơn màn hình thì cuộn ngang trong khung của nó, trang không bị kéo ngang."
     >
-      <Table>
-        <TableCaption className="sr-only">
-          Danh sách tin đăng mẫu của chủ trọ
-        </TableCaption>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead>Tin đăng</TableHead>
-            <TableHead className="text-right">Giá thuê</TableHead>
-            <TableHead className="text-right">Diện tích</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className="text-right">Lượt xem</TableHead>
-            <TableHead>
-              <span className="sr-only">Thao tác</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {ROWS.map((row, index) => (
-            <TableRow
-              key={row.id}
-              data-state={index === 1 ? "selected" : undefined}
-            >
-              <TableCell
-                className="max-w-72 min-w-56 truncate font-medium"
-                title={row.title}
-              >
-                {row.title}
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {VND.format(row.price)}
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {row.area} m²
-              </TableCell>
-              <TableCell>
-                <Badge variant={STATUS_BADGE[row.status].variant}>
-                  {STATUS_BADGE[row.status].label}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {new Intl.NumberFormat("vi-VN").format(row.views)}
-              </TableCell>
-              <TableCell className="w-12 text-right">
-                <RowActions title={row.title} />
-              </TableCell>
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle>Tin đăng của bạn</CardTitle>
+          <CardDescription>
+            Năm tin mẫu, tin thứ hai đang được chọn.
+          </CardDescription>
+        </CardHeader>
+        <Table>
+          <TableCaption className="sr-only">
+            Danh sách tin đăng mẫu của chủ trọ
+          </TableCaption>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Tin đăng</TableHead>
+              <TableHead className="text-right">Giá thuê</TableHead>
+              <TableHead className="text-right">Diện tích</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-right">Lượt xem</TableHead>
+              <TableHead>
+                <span className="sr-only">Thao tác</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {ROWS.map((row, index) => (
+              <TableRow
+                key={row.id}
+                data-state={index === 1 ? "selected" : undefined}
+              >
+                <TableCell
+                  className="max-w-72 min-w-56 truncate font-medium"
+                  title={row.title}
+                >
+                  {row.title}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {VND.format(row.price)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {row.area} m²
+                </TableCell>
+                <TableCell>
+                  <Badge variant={STATUS_BADGE[row.status].variant}>
+                    {STATUS_BADGE[row.status].label}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {new Intl.NumberFormat("vi-VN").format(row.views)}
+                </TableCell>
+                <TableCell className="w-12 text-right">
+                  <RowActions title={row.title} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
     </Section>
   );
 }

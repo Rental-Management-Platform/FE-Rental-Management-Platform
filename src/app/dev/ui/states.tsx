@@ -74,8 +74,9 @@ export function StatesSection() {
   return (
     <>
       <Section
+        bare
         title="Trạng thái trống"
-        description="Lời văn do từng tính năng viết, hai dòng dưới đây chỉ là ví dụ."
+        description="Lời văn do từng tính năng viết, hai dòng dưới đây chỉ là ví dụ. Trên nền canvas là hộp trắng viền nét đứt; trong một vùng thì vùng là khung nên viền mất đi."
       >
         <div className="grid gap-6 md:grid-cols-2">
           <EmptyState
@@ -92,8 +93,9 @@ export function StatesSection() {
       </Section>
 
       <Section
+        bare
         title="Đang tải"
-        description="Ba khung chờ dựng sẵn. Người dùng đọc màn hình nghe “Đang tải”."
+        description="Ba khung chờ dựng sẵn. Người dùng đọc màn hình nghe “Đang tải”. Khung bảng giữ viền trên nền canvas và bỏ viền khi nằm trong một vùng."
       >
         <div className="flex flex-col gap-8">
           <Labeled label='variant="cards"'>

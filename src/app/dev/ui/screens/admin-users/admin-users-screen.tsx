@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { FormField } from "@/components/form/form-field";
+import { PageHeader } from "@/components/layout/page-header";
 import { ListPagination } from "@/components/list-pagination";
 import { EmptyState } from "@/components/states/empty-state";
 import { LoadingState } from "@/components/states/loading-state";
@@ -20,6 +21,7 @@ import { WorkspaceShell } from "@/components/shells/workspace-shell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -282,8 +284,8 @@ const resultsTitle = (state: SampleState, total: number) =>
         ? "Đang tải danh sách"
         : "Danh sách người dùng";
 
-// Admin screen (desktop first, checked at 1440): search, filters, the table, and a lock dialog
-// that asks for a reason. The filters work on the sample rows the way `GET /users` would.
+// Admin screen (desktop first, checked at 1440): a filters zone and a table zone, and a lock
+// dialog that asks for a reason. The filters work on the sample rows the way `GET /users` would.
 // Locking and unlocking change the row in state, as the screen does after the real call.
 export function AdminUsersScreen() {
   const { state, select, reset, rateLimit } = useSampleState();
@@ -350,86 +352,89 @@ export function AdminUsersScreen() {
           </Button>
         </SampleControls>
 
-        <header className="flex flex-col gap-2">
-          <h1>Người dùng</h1>
-          <p className="max-w-2xl text-muted-foreground">
-            Tìm người cần khóa hoặc mở khóa. Danh sách có mọi loại tài khoản,
-            người mới đăng ký nằm trên cùng.
-          </p>
-        </header>
+        <PageHeader
+          title="Người dùng"
+          description="Tìm người cần khóa hoặc mở khóa. Danh sách có mọi loại tài khoản, người mới đăng ký nằm trên cùng."
+        />
 
-        <form
-          role="search"
-          aria-label="Tìm người dùng"
-          onSubmit={(event) => event.preventDefault()}
-          className="flex flex-col gap-2"
-        >
-          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem_14rem]">
-            <div className="relative">
-              <SearchIcon
-                aria-hidden="true"
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-              />
-              <Input
-                type="search"
-                aria-label="Tìm theo email, tên hoặc số điện thoại"
-                placeholder="Email, tên hoặc số điện thoại"
-                value={filters.q}
-                onChange={(event) => update({ q: event.target.value })}
-                className="pl-9"
-              />
-            </div>
-            <Select
-              value={filters.accountType}
-              onValueChange={(accountType) =>
-                update({
-                  accountType: accountType as UserFilters["accountType"],
-                })
-              }
+        <Card>
+          <CardContent>
+            <form
+              role="search"
+              aria-label="Tìm người dùng"
+              onSubmit={(event) => event.preventDefault()}
+              className="flex flex-col gap-2"
             >
-              <SelectTrigger aria-label="Loại tài khoản" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={filters.status}
-              onValueChange={(status) =>
-                update({ status: status as UserFilters["status"] })
-              }
-            >
-              <SelectTrigger aria-label="Trạng thái" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Gõ tên đúng dấu: “nguyen” không tìm ra “Nguyễn”. Tìm theo email hoặc
-            số điện thoại thì không bị ảnh hưởng.
-          </p>
-        </form>
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem_14rem]">
+                <div className="relative">
+                  <SearchIcon
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    type="search"
+                    aria-label="Tìm theo email, tên hoặc số điện thoại"
+                    placeholder="Email, tên hoặc số điện thoại"
+                    value={filters.q}
+                    onChange={(event) => update({ q: event.target.value })}
+                    className="pl-9"
+                  />
+                </div>
+                <Select
+                  value={filters.accountType}
+                  onValueChange={(accountType) =>
+                    update({
+                      accountType: accountType as UserFilters["accountType"],
+                    })
+                  }
+                >
+                  <SelectTrigger aria-label="Loại tài khoản" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TYPE_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.status}
+                  onValueChange={(status) =>
+                    update({ status: status as UserFilters["status"] })
+                  }
+                >
+                  <SelectTrigger aria-label="Trạng thái" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Gõ tên đúng dấu: “nguyen” không tìm ra “Nguyễn”. Tìm theo email
+                hoặc số điện thoại thì không bị ảnh hưởng.
+              </p>
+            </form>
+          </CardContent>
+        </Card>
 
-        <section aria-labelledby="users-title" className="flex flex-col gap-4">
-          <h2
-            id="users-title"
-            aria-live="polite"
-            className="text-lg md:text-xl"
-          >
-            {resultsTitle(shown, rows.length)}
-          </h2>
+        {/* The table zone: the count is its title row, the table below has no frame, and the
+            pagination sits under a hairline. The states fill the same zone. */}
+        <Card>
+          <CardHeader className="border-b">
+            <CardTitle>
+              <h2 id="users-title" aria-live="polite" className="text-base">
+                {resultsTitle(shown, rows.length)}
+              </h2>
+            </CardTitle>
+          </CardHeader>
           <StateSwitch
             state={shown}
             rateLimit={rateLimit}
@@ -457,9 +462,10 @@ export function AdminUsersScreen() {
               total={result.total}
               itemLabel="người dùng"
               onPageChange={setPage}
+              className="border-t px-(--card-spacing) py-4"
             />
           </StateSwitch>
-        </section>
+        </Card>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

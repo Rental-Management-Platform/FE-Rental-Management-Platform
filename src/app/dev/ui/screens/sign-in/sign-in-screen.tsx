@@ -112,7 +112,8 @@ const TEXT_LINK = cn(
 const notBuilt = () => toast("Màn hình này chưa có trong bản mẫu.");
 
 // The sign in page inside `AuthShell`: it brings the `CardHeader` and `CardContent` that the
-// shell's card holds. The switches sit inside the card, under a dashed line, because the shell
+// shell's card holds. The card is the one zone on the canvas and its title is the h1, so there
+// is no `PageHeader`. The switches sit inside the card, under a dashed line, because the shell
 // has nothing else on the page.
 export function SignInScreen() {
   const {
@@ -151,19 +152,19 @@ export function SignInScreen() {
     <>
       <CardHeader>
         <CardTitle>
-          <h1 className="text-2xl">Đăng nhập</h1>
+          <h1>Đăng nhập</h1>
         </CardTitle>
         <CardDescription>
           Dùng email và mật khẩu đã đăng ký để đăng tin, lưu phòng yêu thích và
           theo dõi chủ trọ.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-6">
+      <CardContent className="gap-4">
         <form
           noValidate
           aria-label="Đăng nhập"
           onSubmit={handleSubmit(onSubmit, clearFailure)}
-          className="flex flex-col gap-5"
+          className="flex flex-col gap-4"
         >
           <FieldGroup>
             <FormField control={control} name="email" label="Email">
