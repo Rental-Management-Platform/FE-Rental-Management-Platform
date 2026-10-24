@@ -10,7 +10,7 @@
 - [x] Design it (spec): `/architect sign up and sign in`
 - [ ] Build it: `/develop sign up and sign in`
   - [x] M1 Sợi chỉ mỏng: đăng nhập thật từ đầu đến cuối: `safeNextPath`, `PasswordInput`, `LoginForm`, trang `/login` có thông báo thử lại khi không kiểm tra được phiên (AC-1, AC-2, AC-7, AC-8, AC-15, AC-16)
-  - [ ] M2 Đăng ký: chọn loại tài khoản trước, kiểm sơ bộ, `RegisterForm`, trang `/register`, thứ tự focus của lỗi máy chủ (AC-3 đến AC-6, AC-13)
+  - [x] M2 Đăng ký: chọn loại tài khoản trước, kiểm sơ bộ, `RegisterForm`, trang `/register`, thứ tự focus của lỗi máy chủ (AC-3 đến AC-6, AC-13)
   - [ ] M3 Cổng chặn trang và trạng thái phiên: `RequireSession` ngoài khung trang của khu chủ trọ và admin, lời nhắn khi phiên mất, trạng thái "Không kiểm tra được tài khoản" kèm Thử lại, hai trang thử `dev-check`, đăng xuất và nút đầu trang mang `next` (AC-9 đến AC-13)
   - [ ] M4 `Can` và dọn dẹp: thành phần `Can` (chỉ ẩn), xóa `/dev/session` cùng nút gỡ lỗi của phiên, ghi chú sửa spec 0002 và 0003 (AC-14, AC-17)
   - [ ] M5 Cổng kiểm: `npm run check`, `npm run build`, console sạch ở `/login` và `/register` (AC-1, AC-17)
