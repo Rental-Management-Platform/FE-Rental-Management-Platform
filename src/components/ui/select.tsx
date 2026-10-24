@@ -46,7 +46,7 @@ function SelectTrigger({
       data-size={size}
       className={cn(
         FOCUS_RING,
-        "flex w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-base whitespace-nowrap transition-[color,box-shadow,border-color] focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:focus-visible:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-10 data-[size=lg]:h-11 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+        "flex w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-(length:--text-input) leading-(--text-input--line-height) whitespace-nowrap transition-[color,box-shadow,border-color] focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:focus-visible:border-destructive data-placeholder:text-muted-foreground data-[size=default]:h-10 data-[size=lg]:h-11 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
         className,
       )}
       {...props}

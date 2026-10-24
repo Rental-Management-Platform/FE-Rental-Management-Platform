@@ -12,7 +12,7 @@ export function SiteFooter({ nav }: { nav: readonly PublicNavItem[] }) {
   const links = nav.filter((item) => item.permission === undefined);
 
   return (
-    <footer className="border-t bg-muted">
+    <footer className="border-t bg-background">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="flex max-w-sm flex-col gap-2">

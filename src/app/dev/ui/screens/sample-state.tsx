@@ -118,7 +118,7 @@ export function SampleControls({
       role="group"
       aria-label="Điều khiển cho trang mẫu"
       className={cn(
-        "flex flex-col gap-3 rounded-lg border border-dashed bg-muted p-3 md:flex-row md:flex-wrap md:items-center md:gap-x-6",
+        "flex flex-col gap-3 rounded-lg border border-dashed bg-background p-3 md:flex-row md:flex-wrap md:items-center md:gap-x-6",
         className,
       )}
     >

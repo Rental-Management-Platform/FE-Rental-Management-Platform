@@ -6,17 +6,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Be Vietnam Pro loads through next/font in layout.tsx as --font-be-vietnam-pro. The
-     var() fallback keeps the whole list valid where that class is missing (global-error.tsx):
-     an undefined variable without one would void the declaration and show Times New Roman. */
+  /* Inter loads through next/font in layout.tsx as --font-inter. The var() fallback keeps
+     the whole list valid where that class is missing (global-error.tsx): an undefined
+     variable without one would void the declaration and show Times New Roman. */
   --font-sans:
-    var(--font-be-vietnam-pro, ui-sans-serif), ui-sans-serif, system-ui,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    var(--font-inter, ui-sans-serif), ui-sans-serif, system-ui, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --font-heading: var(--font-sans);
 
   --color-background: var(--background);
+  --color-canvas: var(--canvas);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -61,29 +62,36 @@
   --radius-4xl: 9999px;
 }
 
-/* Type scale: size and line height, named like the Figma text styles. */
+/* Type scale (spec 0004): 12, 13, 15, 17, 20, 22, 24, 28 px. Body is 15 px and UI text 13 px.
+   `--text-input` is the size of text typed in a field. It stays 16 px so iPhone does not zoom
+   on focus, and it is the only size that does not shrink with the rest. Use it as
+   `text-(length:--text-input)`: the plain class `text-input` would pick the `input` color. */
 @theme {
   --text-xs: 0.75rem;
   --text-xs--line-height: 1.5;
-  --text-sm: 0.875rem;
-  --text-sm--line-height: 1.5;
-  --text-base: 1rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.55;
+  --text-base: 0.9375rem;
   --text-base--line-height: 1.6;
-  --text-lg: 1.125rem;
+  --text-lg: 1.0625rem;
   --text-lg--line-height: 1.5;
   --text-xl: 1.25rem;
   --text-xl--line-height: 1.4;
-  --text-2xl: 1.5rem;
+  --text-2xl: 1.375rem;
   --text-2xl--line-height: 1.35;
-  --text-3xl: 1.875rem;
+  --text-3xl: 1.5rem;
   --text-3xl--line-height: 1.3;
-  --text-4xl: 2.25rem;
+  --text-4xl: 1.75rem;
   --text-4xl--line-height: 1.25;
+  --text-input: 1rem;
+  --text-input--line-height: 1.5;
 }
 
-/* Values are copied from the Figma variables (Foundations/Tokens), one flat mode "Light". */
+/* Values are copied from the Figma variables (Foundations/Tokens), one flat mode "Light".
+   `--canvas` came later (spec 0004) and has no Figma variable. */
 :root {
   --background: #ffffff;
+  --canvas: #f1f5f9;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
@@ -128,22 +136,22 @@
     @apply border-border outline-ring;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-canvas text-base text-foreground;
   }
   html {
     @apply font-sans;
   }
   h1 {
-    @apply text-3xl font-bold md:text-4xl;
+    @apply text-3xl font-semibold md:text-4xl;
   }
   h2 {
-    @apply text-2xl font-semibold md:text-3xl;
-  }
-  h3 {
     @apply text-xl font-semibold md:text-2xl;
   }
+  h3 {
+    @apply text-lg font-semibold;
+  }
   h4 {
-    @apply text-lg font-semibold md:text-xl;
+    @apply text-base font-semibold;
   }
 }
 

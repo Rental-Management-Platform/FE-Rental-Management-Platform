@@ -30,7 +30,7 @@ export function ListingCard({ listing }: { listing: PublicListingSummary }) {
             {listing.title}
           </Link>
         </h3>
-        <p className="text-xl font-bold text-primary">
+        <p className="text-xl font-semibold text-primary">
           {formatMoney(listing.price)}
           <span className="text-sm font-normal text-muted-foreground">
             {" "}

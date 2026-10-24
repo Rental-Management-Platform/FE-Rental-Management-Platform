@@ -5,7 +5,9 @@ import { useState } from "react";
 import { ListPagination } from "@/components/list-pagination";
 import { EmptyState } from "@/components/states/empty-state";
 import { LoadingState } from "@/components/states/loading-state";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -87,82 +89,83 @@ export function ListingsScreen() {
     filters.price !== "all";
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
       <SampleControls>
         <StateChoice state={state} onChange={select} />
       </SampleControls>
 
-      <header className="flex flex-col gap-2">
-        <h1>Tìm phòng trọ</h1>
-        <p className="max-w-2xl text-muted-foreground">
-          Phòng trọ, nhà cho thuê và căn hộ mini ở Thành phố Hồ Chí Minh, do chủ
-          trọ đăng trực tiếp.
-        </p>
-      </header>
+      <PageHeader
+        title="Tìm phòng trọ"
+        description="Phòng trọ, nhà cho thuê và căn hộ mini ở Thành phố Hồ Chí Minh, do chủ trọ đăng trực tiếp."
+      />
 
-      <form
-        role="search"
-        aria-label="Tìm phòng trọ"
-        onSubmit={(event) => {
-          event.preventDefault();
-          setPage(1);
-        }}
-        className="grid gap-3 rounded-xl border bg-card p-4 shadow-sm md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]"
-      >
-        <Input
-          type="search"
-          size="lg"
-          enterKeyHint="search"
-          aria-label="Từ khóa: tên đường, phường hoặc tiêu đề tin"
-          placeholder="Tên đường, phường hoặc từ khóa"
-          value={filters.q}
-          onChange={(event) => update({ q: event.target.value })}
-          className="md:col-span-2 lg:col-span-1"
-        />
-        <Select
-          value={filters.wardCode}
-          onValueChange={(wardCode) => update({ wardCode })}
-        >
-          <SelectTrigger size="lg" aria-label="Phường" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả phường</SelectItem>
-            {WARDS.map((ward) => (
-              <SelectItem key={ward.code} value={ward.code}>
-                {ward.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.price}
-          onValueChange={(price) => update({ price: price as PriceRange })}
-        >
-          <SelectTrigger size="lg" aria-label="Mức giá" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PRICE_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button type="submit" size="lg" className="md:col-span-2 lg:col-span-1">
-          <SearchIcon data-icon="inline-start" />
-          Tìm trọ
-        </Button>
-      </form>
+      <Card>
+        <CardContent>
+          <form
+            role="search"
+            aria-label="Tìm phòng trọ"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setPage(1);
+            }}
+            className="grid gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]"
+          >
+            <Input
+              type="search"
+              size="lg"
+              enterKeyHint="search"
+              aria-label="Từ khóa: tên đường, phường hoặc tiêu đề tin"
+              placeholder="Tên đường, phường hoặc từ khóa"
+              value={filters.q}
+              onChange={(event) => update({ q: event.target.value })}
+              className="md:col-span-2 lg:col-span-1"
+            />
+            <Select
+              value={filters.wardCode}
+              onValueChange={(wardCode) => update({ wardCode })}
+            >
+              <SelectTrigger size="lg" aria-label="Phường" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả phường</SelectItem>
+                {WARDS.map((ward) => (
+                  <SelectItem key={ward.code} value={ward.code}>
+                    {ward.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={filters.price}
+              onValueChange={(price) => update({ price: price as PriceRange })}
+            >
+              <SelectTrigger size="lg" aria-label="Mức giá" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PRICE_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="submit"
+              size="lg"
+              className="md:col-span-2 lg:col-span-1"
+            >
+              <SearchIcon data-icon="inline-start" />
+              Tìm trọ
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       <section aria-labelledby="results-title" className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2
-            id="results-title"
-            aria-live="polite"
-            className="text-lg md:text-xl"
-          >
+          <h2 id="results-title" aria-live="polite" className="text-lg">
             {resultsTitle(shown, rows.length)}
           </h2>
           <Select
