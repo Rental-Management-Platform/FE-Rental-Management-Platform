@@ -50,10 +50,10 @@ function TableSkeleton() {
   );
 }
 
-function FormSkeleton() {
+function FormSkeleton({ fields }: { fields: number }) {
   return (
     <div className="flex w-full max-w-sm flex-col gap-5">
-      {THREE.map((i) => (
+      {Array.from({ length: fields }, (_, i) => i).map((i) => (
         <div key={i} className="flex flex-col gap-2">
           <Skeleton className="h-3.5 w-24" />
           <Skeleton className="h-10 w-full rounded-lg" />
@@ -66,11 +66,15 @@ function FormSkeleton() {
 
 // Skeleton presets for a list of cards, a table and a form. `aria-busy` marks the region as
 // loading and the visually hidden text tells a screen reader why nothing is there yet.
+// `fields` is how many labelled rows the form skeleton draws, so it can match the form that
+// replaces it (the sign in form has two).
 export function LoadingState({
   variant,
+  fields = 3,
   className,
 }: {
   variant: LoadingVariant;
+  fields?: number;
   className?: string;
 }) {
   return (
@@ -80,7 +84,7 @@ export function LoadingState({
       </span>
       {variant === "cards" && <CardsSkeleton />}
       {variant === "table" && <TableSkeleton />}
-      {variant === "form" && <FormSkeleton />}
+      {variant === "form" && <FormSkeleton fields={fields} />}
     </div>
   );
 }

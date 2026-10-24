@@ -1,7 +1,7 @@
 # 0005. Sign up and sign in pages, route gate and permission helper for the web frontend
 
 **Date**: 2026-10-25
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

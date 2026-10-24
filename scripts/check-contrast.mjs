@@ -110,6 +110,8 @@ export const PAIRS = [
     "accent",
     "sidebar",
     "canvas",
+    // The retry button inside the "cannot check your account" notice (spec 0005).
+    "warning",
     DESTRUCTIVE_TINT,
   ]),
   // The sidebar ring is drawn outside the item with a 2 px gap in `sidebar` (ring-offset-sidebar),
