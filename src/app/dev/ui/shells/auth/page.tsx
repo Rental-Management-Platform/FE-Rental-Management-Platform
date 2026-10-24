@@ -16,7 +16,7 @@ export default function AuthShellPreview() {
     <AuthShell>
       <CardHeader>
         <CardTitle>
-          <h1 className="text-2xl">Đăng nhập</h1>
+          <h1>Đăng nhập</h1>
         </CardTitle>
         <CardDescription>
           Xem trước khung đăng nhập. Nội dung thật của trang nằm trong thẻ này.

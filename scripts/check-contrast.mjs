@@ -51,8 +51,9 @@ export const PAIRS = [
   text("sidebar-accent-foreground", "sidebar-accent"),
   text("sidebar-foreground", "sidebar-accent"),
 
-  // Body text on the quiet surfaces (table rows, footer links, selected rows).
-  ...textOn("foreground", ["muted", "accent"]),
+  // Body text on the quiet surfaces (table rows, footer links, selected rows) and on the page
+  // canvas (spec 0004), where headings, page descriptions and result counts stand.
+  ...textOn("foreground", ["muted", "accent", "canvas"]),
   // Help text, placeholders, labels and icons that use the muted color.
   ...textOn("muted-foreground", [
     "background",
@@ -62,6 +63,7 @@ export const PAIRS = [
     "secondary",
     "accent",
     "sidebar",
+    "canvas",
   ]),
 
   // Links and the current page, in the primary color.
@@ -72,6 +74,7 @@ export const PAIRS = [
     "muted",
     "secondary",
     "accent",
+    "canvas",
   ]),
   // Error text and the destructive menu row.
   ...textOn("destructive", [
@@ -80,6 +83,7 @@ export const PAIRS = [
     "popover",
     "muted",
     "accent",
+    "canvas",
     DESTRUCTIVE_TINT,
   ]),
   // Alert titles, icons and toast icons.
@@ -88,7 +92,14 @@ export const PAIRS = [
   text("warning-foreground", "popover"),
 
   // Borders of form controls and outline buttons.
-  ...controlOn("input", ["background", "card", "popover", "muted", "accent"]),
+  ...controlOn("input", [
+    "background",
+    "card",
+    "popover",
+    "muted",
+    "accent",
+    "canvas",
+  ]),
   // Focus rings.
   ...controlOn("ring", [
     "background",
@@ -98,6 +109,7 @@ export const PAIRS = [
     "secondary",
     "accent",
     "sidebar",
+    "canvas",
     DESTRUCTIVE_TINT,
   ]),
   // The sidebar ring is drawn outside the item with a 2 px gap in `sidebar` (ring-offset-sidebar),

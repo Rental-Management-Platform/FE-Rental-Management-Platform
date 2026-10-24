@@ -1,14 +1,14 @@
 ---
 name: rental-management-platform-design-system
 source: figma:cdrAcD1PywM8IWdVRt7X0o (M1 and M2 only, a frozen reference)
-character: "Deep teal on white, calm and trustworthy, friendly rather than corporate. Rounded 8 px shapes, quiet borders, one strong accent used only for the main action. Vietnamese text is the first class citizen: Be Vietnam Pro, generous line height, every diacritic intact."
+character: "Deep teal on white, calm and trustworthy, friendly rather than corporate. Rounded 8 px shapes, quiet borders, one strong accent used only for the main action. Vietnamese text is the first class citizen: Inter with its Vietnamese subset, small and light type, generous line height, every diacritic intact. Each part of a page is a white zone on a very light grey canvas."
 tokens: "Real values live in src/app/globals.css (:root and @theme inline). The tokens that existed at the end of M2 were copied from the Figma variables of the Tokens collection, one flat mode named Light, with the same names. A token added from M3 on lives in globals.css alone, and its contrast pair is added to the contrast script in the same change. Never copy a value into this file."
 contrast: "Kept true by scripts/check-contrast.mjs, which runs in npm run check. It reads the tokens from src/app/globals.css and fails when a text pair is under 4.5:1 or a control border, icon or focus ring pair is under 3:1. The pairs are listed in PAIRS in that file and shown, with their measured ratio, on /dev/ui. Never copy a ratio into this file."
 ---
 
 # Design system
 
-The look of the whole site: guests on a phone, landlords and admins on a computer. Spec: [0003](docs/specs/0003-design-system-and-ui-foundation/index.md). Everything here is light mode only.
+The look of the whole site: guests on a phone, landlords and admins on a computer. Specs: [0003](docs/specs/0003-design-system-and-ui-foundation/index.md) (tokens, components, shells) and [0004](docs/specs/0004-type-and-layout-refinement/index.md) (font, type scale, weights, canvas and zones; where the two disagree, 0004 wins). Everything here is light mode only.
 
 ## Build mandate
 
@@ -18,6 +18,8 @@ Rules for any new screen or component:
 
 - **Code directly, no Figma.** From M3 on, build in code on the existing design system: no new Figma frame and no approval gate. The layout of each screen is decided by `/develop` from the spec, the scope text, the API contract and this file, and the engineer reviews it in the browser. Figma was the source for M1 and M2 only, and it stays as a frozen reference.
 - **Tokens only.** Colors, radius, type and shadows come from `src/app/globals.css` through semantic classes (`bg-primary`, `text-muted-foreground`). No raw color, no `bg-red-700`, no hex in a `.tsx` file.
+- **Weights and sizes from the scale.** Only three weights exist: 400, 500 and 600 (see Type). Never `font-bold`, never an arbitrary size such as `text-[17px]`; take a step of the `text-*` scale.
+- **A page area is a zone.** Each part of a page is a `Card` on the canvas, and a card never sits inside another card (see Canvas, zones and spacing). Every page except sign in starts with `PageHeader`.
 - **Components from `src/components/ui`.** Add them with the shadcn CLI (`npx shadcn@latest add <name>`), one at a time, never `add --all`, never `--overwrite` without approval. After adding, review the file and edit it to match the rules in spec 0003 ("Edits after adding shadcn files").
 - **`className` is for layout.** Do not restyle a component from outside. Use its variants (`default`, `secondary`, `outline`, `ghost`, `destructive`) and sizes (`sm`, `default`, `lg`).
 - **Vietnamese only.** Every visible and screen reader string is Vietnamese. Money and area use `vi-VN`, dates use `Asia/Ho_Chi_Minh`.
@@ -27,19 +29,69 @@ Rules for any new screen or component:
 ## Character and direction
 
 - Teal `primary` is for the main action and the current place (active nav link). Everything else is quiet: white surfaces, slate text, thin `border` lines.
-- Shapes: 8 px radius for controls and small surfaces, 12 px for cards, full round for pills.
-- Depth: two levels only. `shadow-sm` for cards, `shadow-md` for menus and dialogs. Prefer a hairline border to a shadow.
-- Type: one family, Be Vietnam Pro, weights 400, 500, 600, 700. Scale `text-xs` to `text-4xl` is set in `globals.css`. Headings never get a line height under 1.25, so stacked marks (ễ, ợ) are never clipped.
+- Shapes: 8 px radius for controls and small surfaces, 12 px for zones and cards, full round for pills.
+- Depth: a zone has no shadow, only a hairline border. `shadow-md` is for menus and dialogs, and an interactive item card may take it on hover. Prefer a hairline border to a shadow.
+- Type: one family, Inter, three weights (400, 500, 600). The scale `text-xs` to `text-4xl` and `text-input` is set in `globals.css`, and the roles of each step are under Type. Headings never get a line height under 1.25, so stacked marks (ễ, ợ) are never clipped.
 - Motion: 150 ms on color, shadow and opacity. With reduced motion the durations become 0.01 ms, never `none`.
 - Brand mark: a white house (lucide `House`) on a teal rounded square, shown next to the site name.
 
 ## Composition patterns
 
-- **Public pages** (mobile first): sticky header (brand, nav links, account area), one `main`, a footer. Content width `max-w-6xl` with 16 px side padding on a phone and 24 px from `md` up. Below `md` the header shows the brand and a 44 by 44 px menu button that opens a sheet with the nav links and the account actions.
-- **Sign in and register**: a minimal centered frame, brand on top, one card up to `max-w-sm`.
-- **Landlord and admin** (desktop first): a side menu (256 px, collapses to 64 px, becomes a sheet below `lg`) and a top bar with the account menu.
-- **Lists**: search and filters on top, the collection, then pagination. Always design the empty, loading, error and rate limited states with it.
+- **Public pages** (mobile first): sticky white header (brand, nav links, account area), one `main`, a white footer, the canvas between them. Content width `max-w-6xl` with 16 px side padding on a phone and 24 px from `md` up. Below `md` the header shows the brand and a 44 by 44 px menu button that opens a sheet with the nav links and the account actions.
+- **Sign in and register**: a minimal centered frame on the canvas, brand on top, one card up to `max-w-sm`. The card is the zone and its title is the page `h1`, so there is no `PageHeader`.
+- **Landlord and admin** (desktop first): a side menu (256 px, collapses to 64 px, becomes a sheet below `lg`) and a white top bar with the account menu. The content area stands on the canvas.
+- **Lists**: a filters zone on top, then the collection and its pagination (item cards on the canvas, or a table zone). Always design the empty, loading, error and rate limited states with it, inside the same zone.
 - **Forms**: `FieldGroup` and `Field` from shadcn, a visible label for every input, the server error under its own field.
+
+## Type
+
+One family, Inter, loaded in `src/app/layout.tsx` as a variable font with the range 400 to 600 and the subsets `vietnamese` and `latin`. The range stops at 600, so a stray bold cannot render. Sizes and line heights are the `--text-*` tokens in `globals.css`; this file names the roles and never copies the numbers.
+
+| Role                                                                        | Weight |
+| --------------------------------------------------------------------------- | ------ |
+| Body text, descriptions, helper text, table cells, input values             | 400    |
+| Field labels, buttons, tabs, badges, table heads, menu rows, links that act | 500    |
+| Headings h1 to h4, card, dialog and sheet titles, the site name, prices     | 600    |
+
+| Token        | Used for                                                                                     |
+| ------------ | -------------------------------------------------------------------------------------------- |
+| `text-xs`    | Captions, badges                                                                             |
+| `text-sm`    | UI text: labels, buttons, tabs, helper text, table cells                                     |
+| `text-base`  | Body text, page descriptions, zone titles, menu rows, `lg` buttons, h4                       |
+| `text-lg`    | h3, dialog and sheet titles, the heading row of a result list                                |
+| `text-xl`    | h2 on a phone, a number in an item card                                                      |
+| `text-2xl`   | h2 from `md`, a price on the detail page                                                     |
+| `text-3xl`   | h1 on a phone, a plan price                                                                  |
+| `text-4xl`   | h1 from `md`                                                                                 |
+| `text-input` | Text typed in an input, a textarea or a select trigger, at every width (16 px, see the rule) |
+
+- Headings take their size and weight from the base styles in `globals.css` (h1 `text-3xl md:text-4xl`, h2 `text-xl md:text-2xl`, h3 `text-lg`, h4 `text-base`, all `font-semibold`). A heading that is a zone title sits inside `CardTitle` and takes `text-base`, so every zone title is one size; a heading that stands on the canvas keeps its base style, or a named step such as `text-lg` for the heading row of a result list.
+- A price or other emphasized number is `font-semibold`, never bold.
+- Write the input size as `text-(length:--text-input)`. The plain class `text-input` is the `input` color, not the size.
+- If the body proves too small in review, change `--text-base` alone. No component needs an edit.
+
+## Canvas, zones and spacing
+
+- **Canvas.** The page background is the `canvas` token (`bg-canvas`, set once on `body`), a very light grey under every shell. The public header and footer and the workspace top bar are white with a hairline, so they frame it. The side menu keeps the `sidebar` token. The token has no Figma variable.
+- **Zone.** A zone is a `Card` on the canvas: white, 1 px `border`, 12 px radius, no shadow, 20 px padding (16 px for `size="sm"`), title in `CardTitle` (`text-base`, 600). A zone that holds a table or a form puts `border-b` on its `CardHeader`, which draws the hairline under the title row. A filters zone has no title row.
+- **No card in a card.** An item card (a listing, a plan) is also a `Card`, but it stands on the canvas, never inside a zone. If a part needs a quiet box inside a zone, use a border or a tint, not a second `Card`.
+- **A `bg-muted` box on the canvas disappears**, because `muted` and `canvas` are the same value. Put it inside a white zone. The dashed sample strip on each gallery screen has a white fill for this reason.
+- **Table in a zone.** The zone is the frame. A table inside a card loses its own border and radius and runs edge to edge, so the card drops the gap under its title row and its bottom padding. A table outside a zone keeps its frame.
+- **Dividers.** Hairlines only inside a zone: under a title row that is followed by a table or a form, between rows, above a pagination row. No line between zones; the gap of canvas does that.
+- **Spacing rhythm** (4 px grid):
+
+| Where                                                       | Value                                         |
+| ----------------------------------------------------------- | --------------------------------------------- |
+| Page side padding                                           | 16 px on a phone, 24 px from `md`             |
+| Page top and bottom padding                                 | 24 px on a phone, 32 px from `md`             |
+| Page header to the first zone, and zone to zone             | 24 px (`gap-6`)                               |
+| Inside a zone: padding, then between field groups or blocks | 20 px, then 16 px (`FieldGroup` gap is 20 px) |
+| Between related rows or items inside a block                | 8 to 12 px                                    |
+| Title row to its hairline                                   | 16 px                                         |
+
+- **Who sets the page padding.** A public page sets it on its own root: `mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8`. The workspace shell already pads its `main`, so a landlord or admin page only needs `flex flex-col gap-6`.
+- **`PageHeader`** (`src/components/layout/page-header.tsx`). Props: `title`, `description?`, `breadcrumb?`, `actions?`. It renders the breadcrumb, the page's one `h1`, then the description in `text-base` muted, 8 px apart, and puts `actions` at the right from `md` and under the text on a phone. It stands on the canvas with no card. Sign in is the one page that does not use it.
+- **Zone maps.** The seven screens at `/dev/ui/screens` are the worked examples of how a page is divided (which parts are zones and which stand on the canvas). Lift the markup from the screen closest to the new page.
 
 ## Figma
 
@@ -61,6 +113,8 @@ File: `cdrAcD1PywM8IWdVRt7X0o` (https://www.figma.com/design/cdrAcD1PywM8IWdVRt7
 | Screens     | `States / EmptyState`, `ErrorState`, `RateLimitNotice`, `NotFoundState and ForbiddenState`, `ImagePlaceholder`, `LoadingState` | The shared states                                                                             |
 | Screens     | `States / Server errors in a form`, `States / Toast in context`                                                                | The AC-6 demo (400, 409, 429, 500) and a toast on a 390 wide phone                            |
 
+**Stale since spec 0004.** The Figma `font` variable and the `Foundations/Type` text styles still say Be Vietnam Pro, four weights and the old sizes (and `Foundations/Shape` still shows a card shadow). Nothing compares them any more, and the code does not follow them. The type of this site is Inter at three weights, as written under Type. Update the file only if it is shared with a designer. The `text-xs-medium` style of Figma is the badge text, which is `text-xs` at weight 500 in code.
+
 The Figma file is on the Starter plan, which allows 3 pages. So there is no `States` or `Shells` page: those frames are sections on `Screens`, named with the prefix `States /`. The shells were built in code (M4) and have no frame.
 
 The file holds M1 and M2 only. Overlays, menus, tables, pagination and shells are built in code and are not drawn here. `/dev/ui` is the living reference for those, and the seven sample screens at `/dev/ui/screens` show them working together on fake data. There is no Figma frame to compare with.
@@ -78,15 +132,14 @@ The file holds M1 and M2 only. Overlays, menus, tables, pagination and shells ar
 - **Shared states.** Use `EmptyState`, `LoadingState`, `ErrorState`, `RateLimitNotice`, `NotFoundState`, `ForbiddenState` and `ImagePlaceholder` from `src/components/states`. The copy for an empty state comes from the feature. `ErrorState` shows the support code only for a 5xx answer.
 - **Sizes.** Checkbox and radio are 20 px, with an invisible 44 px tap area around them. Inside a `Button`, a `Spinner` takes `size="sm"`.
 - **Skeleton** uses the `accent` tint, because `muted` is almost invisible on white.
-- Figma has one more text style than the type scale: `text-xs-medium`, used by badges.
 - **Dialog or alert dialog.** A `Dialog` is for a task that needs its own frame (a short form, something to read). An `AlertDialog` is only for confirming something that cannot be undone: the first focus lands on its safe button and a click outside does not close it. A dialog, alert dialog and sheet always have a title (`sr-only` if hidden). The destructive action is `AlertDialogAction variant="destructive"` with words that name the action ("Xóa tin"), never a bare "OK".
 - **Sheet.** The phone menu, filters and side details. A dialog or sheet taller than the window scrolls inside itself, never the page behind it.
-- **Dropdown menu.** Rows are 40 px high with 16 px text, like the Select menu. Keep the items inside a `DropdownMenuGroup`. A row that deletes or locks uses `variant="destructive"` and a label that says what it does. A button that only has an icon gets an `aria-label` in Vietnamese.
+- **Dropdown menu.** Rows are 40 px high with `text-base` text at weight 500, like the Select menu. Keep the items inside a `DropdownMenuGroup`. A row that deletes or locks uses `variant="destructive"` and a label that says what it does. A button that only has an icon gets an `aria-label` in Vietnamese.
 - **Tooltip.** Only a reminder for mouse and keyboard users, never the only place where something is said. `TooltipProvider` is mounted once in `Providers`.
-- **Table.** `Table` brings its own rounded, scrolling container, so a wide table scrolls inside it and the page never scrolls sideways. Header cells are muted, rows are about 44 px, numbers are right aligned with `tabular-nums`, a selected row uses `data-state="selected"`. Give a table a `TableCaption` (`sr-only` if the page already has a heading). Long text in a cell uses `truncate` with a `title`, or `whitespace-normal`.
+- **Table.** `Table` brings its own rounded, scrolling container, so a wide table scrolls inside it and the page never scrolls sideways. Inside a `Card` the container loses its border and radius, because the zone is the frame. Header cells are muted and weight 500, rows are about 44 px, numbers are right aligned with `tabular-nums`, a selected row uses `data-state="selected"`. Give a table a `TableCaption` (`sr-only` if the page already has a heading). Long text in a cell uses `truncate` with a `title`, or `whitespace-normal`.
 - **Tabs.** `variant="line"` (an underline in the primary color on a hairline) for filters above a list, `default` (a pill on a muted track) for switching small panels. A row that is wider than the window scrolls inside itself.
 - **Pagination.** Build a list's page links with `ListPagination` (`src/components/list-pagination.tsx`) from `{ page, pageSize, total }`. Pass `hrefFor` when the page is in the URL (links) or `onPageChange` when it is in state (buttons). Pass `size="lg"` on public pages. It draws nothing for a single page.
-- **Card.** Use the full composition (`CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`). `CardTitle` is a plain `div`: when the card needs a heading in the outline, put the right heading element inside it.
+- **Card.** A `Card` is a zone (see Canvas, zones and spacing). Use the full composition (`CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`). `CardTitle` is a plain `div`: when the card needs a heading in the outline, put the right heading element inside it with `text-base`.
 - **Avatar.** Always give it an `AvatarFallback` with the first letter of the name, or of the email.
 - **Contrast pairs.** `PAIRS` in `scripts/check-contrast.mjs` is the one list, and `npm run check` fails when a pair is under its limit. When a change puts a text or icon color on a surface that no pair covers yet (say `text-info` on `bg-muted`), add that pair in the same change. A `-foreground` token with no pair of its own fails the check, so a new token pair cannot slip in unmeasured. A tint such as `bg-destructive/10` is a pair of its own, written as `{ token, alpha, over }`. The script measures token pairs, not text over a photo, so look at those by eye.
 - **Focus ring and the sidebar.** The ring is drawn outside the control with a 2 px gap (`ring-offset-2`), in `ring` on the page and in `sidebar-ring` on the side menu. The gap color is the surface, so the ring never sits on the control's own fill, which is why `sidebar-ring` is not measured against `sidebar-primary` (same value).
@@ -95,7 +148,7 @@ The file holds M1 and M2 only. Overlays, menus, tables, pagination and shells ar
 
 - Target is WCAG AA: text 4.5:1, control borders, icons and focus rings 3:1.
 - Focus ring: 2 px ring plus 2 px offset in `ring`. A transparent outline sits under it (`outline-hidden`), so it still shows in forced colors mode.
-- Inputs are 16 px or more, so iPhone does not zoom on focus.
+- Text typed in an input, textarea or select trigger is 16 px at every width (`--text-input`), so iPhone does not zoom on focus. It is the one size that does not shrink with the rest of the scale.
 - Every page has a header, nav, one `main` and a footer, plus a skip link. The auth shell is the one exception: a brand header, the skip link and the `main`, with no nav and no footer.
 - Long names and addresses: one line labels use `truncate`, card titles use `line-clamp-2`, flex children get `min-w-0`.
 
