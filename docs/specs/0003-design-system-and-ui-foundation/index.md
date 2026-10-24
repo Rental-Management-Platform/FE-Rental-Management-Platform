@@ -1,7 +1,7 @@
 # 0003. Design system and UI foundation for the web frontend
 
 **Date**: 2026-10-23
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

@@ -6,6 +6,7 @@ import { cn } from "cn";
 import { Slot } from "radix-ui";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -26,7 +27,8 @@ import { PanelLeftIcon } from "lucide-react";
 // Edits after `shadcn add sidebar` (spec 0003, "Edits after adding shadcn files"): icon width
 // 4rem; the desktop menu appears at `lg` to match `useIsMobile`; no cookie, so the menu always
 // starts expanded and forgets between visits; the active item uses the `sidebar-primary` pair;
-// `SidebarMenuSkeleton` is gone (its random width would not match between server and client).
+// `SidebarMenuSkeleton` is gone (its random width would not match between server and client);
+// the menu sheet has no trigger of its own, so focus goes back to the control that opened it.
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "4rem";
@@ -40,6 +42,7 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  onMobileCloseAutoFocus: (event: Event) => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -68,6 +71,8 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
+  const { remember, onCloseAutoFocus: onMobileCloseAutoFocus } =
+    useReturnFocus();
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -87,8 +92,12 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+    if (!isMobile) return setOpen((open) => !open);
+    // Opening: the focused control (the toggle button, or whatever had focus when the keyboard
+    // shortcut was used) is where focus returns to when the sheet closes.
+    if (!openMobile) remember();
+    return setOpenMobile((open) => !open);
+  }, [isMobile, openMobile, remember, setOpen, setOpenMobile]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -119,8 +128,18 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      onMobileCloseAutoFocus,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+    [
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+      onMobileCloseAutoFocus,
+    ],
   );
 
   return (
@@ -159,7 +178,8 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
 }) {
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, openMobile, setOpenMobile, onMobileCloseAutoFocus } =
+    useSidebar();
 
   if (collapsible === "none") {
     return (
@@ -184,6 +204,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
+          onCloseAutoFocus={onMobileCloseAutoFocus}
           className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
           style={
             {

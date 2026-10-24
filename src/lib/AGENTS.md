@@ -8,7 +8,7 @@ Shared code that has no UI: the API client, the session, form helpers, env and s
 - `session/`: `createSession` holds the access token, `AuthProvider` and the hooks `useSession`, `useApi` and `useSessionActions`, `can(state, permission)`, and the end of session reasons.
 - `forms/`: `applyFieldErrors` and `useFormFailure` turn a failed submit into field messages, a form level message and a 429 countdown.
 - `env.ts` (browser) and `env.server.ts` (server only): the only places that read environment variables, both validated with Zod.
-- `format.ts` (`formatWait`), `use-countdown.ts`, `focus-ring.ts`, `site.ts` (site name and description), `utils.ts` (`cn`).
+- `format.ts` (`formatWait`), `use-countdown.ts`, `use-return-focus.ts` (focus back to the opener for a dialog or sheet that has no trigger), `focus-ring.ts`, `site.ts` (site name and description), `utils.ts` (`cn`).
 
 ## Rules
 

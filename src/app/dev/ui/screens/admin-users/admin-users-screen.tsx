@@ -54,6 +54,7 @@ import type {
   AdminUserListItem,
   UserStatus,
 } from "@/lib/api/types";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import {
   CURRENT_ADMIN_ID,
   NO_USER_FILTERS,
@@ -294,6 +295,9 @@ export function AdminUsersScreen() {
   const [page, setPage] = useState(1);
   const [target, setTarget] = useState<AdminUserListItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  // One dialog serves every row, so it has no trigger of its own. The row stays after a lock or
+  // an unlock, so focus goes back to its button.
+  const { remember, onCloseAutoFocus } = useReturnFocus();
 
   const update = (patch: Partial<UserFilters>) => {
     setFilters((current) => ({ ...current, ...patch }));
@@ -304,6 +308,7 @@ export function AdminUsersScreen() {
     setPage(1);
   };
   const askLock = (user: AdminUserListItem) => {
+    remember();
     setTarget(user);
     setDialogOpen(true);
   };
@@ -469,7 +474,7 @@ export function AdminUsersScreen() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent onCloseAutoFocus={onCloseAutoFocus}>
           <DialogHeader>
             <DialogTitle>
               {locking ? "Khóa tài khoản" : "Mở khóa tài khoản"}

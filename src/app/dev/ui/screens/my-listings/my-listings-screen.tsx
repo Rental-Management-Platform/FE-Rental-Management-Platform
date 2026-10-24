@@ -12,7 +12,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/states/empty-state";
@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ListingStatus, OwnerListingSummary } from "@/lib/api/types";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import {
   OWNER_LISTINGS,
   SAMPLE_MEMBERSHIP,
@@ -283,6 +284,14 @@ export function MyListingsScreen() {
   const [pendingDelete, setPendingDelete] =
     useState<OwnerListingSummary | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  // One dialog serves every row, so it has no trigger of its own. After a delete the row is
+  // gone, so focus goes to the current status tab, just above the table.
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const { remember, onCloseAutoFocus } = useReturnFocus(() =>
+    tabsRef.current?.querySelector<HTMLElement>(
+      '[role="tab"][data-state="active"]',
+    ),
+  );
 
   const limit = SAMPLE_MEMBERSHIP.listingLimit;
   const visible = listings.filter((l) => l.status === "visible").length;
@@ -301,6 +310,7 @@ export function MyListingsScreen() {
     toast.success(status === "visible" ? "Đã hiện tin" : "Đã ẩn tin");
   };
   const askDelete = (listing: OwnerListingSummary) => {
+    remember();
     setPendingDelete(listing);
     setDeleteOpen(true);
   };
@@ -347,6 +357,7 @@ export function MyListingsScreen() {
         {/* One table zone: the status tabs are its title row, and the tab list draws the hairline
             under it. The table runs edge to edge below, with no frame of its own. */}
         <Tabs
+          ref={tabsRef}
           value={filter}
           onValueChange={(value) => setFilter(value as Filter)}
         >
@@ -380,7 +391,7 @@ export function MyListingsScreen() {
       </div>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent onCloseAutoFocus={onCloseAutoFocus}>
           <AlertDialogHeader>
             <AlertDialogTitle>
               Xóa tin “{pendingDelete?.title}”?

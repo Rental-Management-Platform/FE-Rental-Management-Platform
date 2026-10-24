@@ -21,7 +21,7 @@ Shared UI for every feature. The look is fixed by [design.md](../../design.md) a
 - Control heights are 32, 40 and 44 px. Public pages use `size="lg"` at every width. The focus ring comes from `FOCUS_RING` in `src/lib/focus-ring.ts`.
 - Text weights are 400, 500 and 600 only. A page area is a `Card` zone on the `canvas` background, and a card never sits inside another card.
 - Shells stay static: no `cookies()` or `headers()` in a shell, and a client leaf that reads `usePathname` sits inside `<Suspense>`. A feature adds its link to `nav-config.ts` in the same change that ships its page.
-- Open a dialog through its trigger component. A dialog driven only by state (`open={...}`, no trigger) dropped focus to `body` when it closed in the spec 0003 verify run, and the sample screens for my listings and admin users still do this.
+- A dialog or sheet driven only by state (`open={...}` with no trigger of its own, such as one dialog shared by every table row) needs `useReturnFocus` from `src/lib/use-return-focus.ts`: call `remember()` where it opens and pass `onCloseAutoFocus` to its content. Without it Radix drops focus to `body` when it closes. The menu sheet in `ui/sidebar.tsx` and the dialogs on the my listings and admin users screens do this.
 
 ## Living reference
 
