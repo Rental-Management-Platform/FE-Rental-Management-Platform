@@ -16,7 +16,6 @@ import {
   LOADING_STATE,
   type Session,
   type SessionActions,
-  type SessionDebug,
   type SessionState,
 } from "./create-session";
 
@@ -76,9 +75,4 @@ export function useApi(): ApiClient {
 /** Stable across renders. */
 export function useSessionActions(): SessionActions {
   return useSessionContext().actions;
-}
-
-/** For the developer lab only: undefined in a production build. Never exposes the token. */
-export function useSessionDebug(): SessionDebug | undefined {
-  return useSessionContext().debug;
 }

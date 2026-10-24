@@ -369,6 +369,16 @@ Every AC appears in at least one task and every task names an AC.
 - [ ] Optional later: dark mode as a second token set plus a contrast pass; persist the sidebar state.
 - [ ] Optional later: `/test` can lock the contrast script and the `describeError` driven states with a component test.
 
+## Amended by 0005
+
+Spec [0005](../0005-sign-up-and-sign-in/index.md) changes these points. The text above is left as it was written.
+
+- Item #5 is done: the real sign in and sign up pages exist, `/dev/session` is deleted, and the scenarios that sign in on `/dev/session` sign in on `/login` now. `useFormFailure`, `FailureNotice` and `FormField` are used by the real forms.
+- `guest('unavailable')` is no longer shown as a plain guest. The account area (bar and phone sheet) shows "Không kiểm tra được tài khoản" and a "Thử lại" button that calls `restore()`, and `/dev/ui` shows that view. "Đăng nhập" and "Đăng ký" point to pages that exist, and carry `?next=` with the current path, except on `/` and on the auth pages.
+- "Đăng xuất" shows the toast "Đã đăng xuất" and does not wait for the server.
+- `ErrorState` takes an optional `message` that replaces the text read from the error, because a state about the session has no error object. Its `error` is optional too, and an optional `page` makes its title the page's one `h1`, as in `NotFoundState`. `LoadingState` takes an optional `fields` for the number of rows of its form skeleton.
+- AC-6: `applyFieldErrors` moves focus in the order of its `fields` list, which is the order on screen.
+
 ## Rationale
 
 Reasoning and options: see [rationale.md](rationale.md).

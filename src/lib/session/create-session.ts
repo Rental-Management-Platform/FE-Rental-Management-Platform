@@ -64,13 +64,6 @@ export interface SessionActions {
   restore(): Promise<void>;
 }
 
-/** Development only: lets the lab page reach the 401 retry path by hand. Never the token. */
-export interface SessionDebug {
-  getInfo(): { expiresAt: number | null; refreshCount: number };
-  /** 0 turns the early refresh off, so an expired token is sent and the server says so. */
-  setEarlyRefreshMs(ms: number): void;
-}
-
 export interface SessionConfig {
   /** `NEXT_PUBLIC_API_URL`. */
   baseUrl: string;
@@ -91,8 +84,6 @@ export interface Session {
   /** The same object until a transition happens, as `useSyncExternalStore` requires. */
   getState(): SessionState;
   subscribe(listener: () => void): () => void;
-  /** Undefined in a production build. */
-  debug?: SessionDebug;
 }
 
 interface TokenRecord {
@@ -138,8 +129,6 @@ export function createSession(config: SessionConfig): Session {
   // The logout request in flight. A login waits for it, so the answer that clears the `rt`
   // cookie cannot arrive after the login has set a new one.
   let loggingOut: Promise<void> | null = null;
-  let refreshCount = 0;
-  let earlyRefreshMs = EARLY_REFRESH_MS;
   const listeners = new Set<() => void>();
 
   function setState(next: SessionState) {
@@ -216,7 +205,6 @@ export function createSession(config: SessionConfig): Session {
 
   function startRefresh(): Promise<TokenRecord> {
     const startedIn = epoch;
-    refreshCount += 1;
     const promise: Promise<TokenRecord> = fetchRefresh(startedIn).finally(
       () => {
         if (refreshing?.promise === promise) refreshing = null;
@@ -267,7 +255,7 @@ export function createSession(config: SessionConfig): Session {
     const current = token;
     // A guest: nothing to renew, and no refresh is sent on their behalf.
     if (current === null) return null;
-    if (earlyRefreshMs <= 0 || current.expiresAt - now() > earlyRefreshMs) {
+    if (current.expiresAt - now() > EARLY_REFRESH_MS) {
       return current.accessToken;
     }
 
@@ -522,17 +510,5 @@ export function createSession(config: SessionConfig): Session {
         listeners.delete(listener);
       };
     },
-    debug:
-      process.env.NODE_ENV === "production"
-        ? undefined
-        : {
-            getInfo: () => ({
-              expiresAt: token?.expiresAt ?? null,
-              refreshCount,
-            }),
-            setEarlyRefreshMs: (ms) => {
-              earlyRefreshMs = ms;
-            },
-          },
   };
 }

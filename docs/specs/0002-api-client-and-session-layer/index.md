@@ -401,6 +401,16 @@ Every AC appears in at least one task and every task names an AC. **AC-2** and *
 - [ ] Optional later: refresh the profile after each token refresh so permissions never go stale for a whole session.
 - [ ] `AGENTS.md` `## Rules` could name the session hooks, the "token only in the session closure" rule, and the "always pass `signal`" rule (`/sync` owns that file).
 
+## Amended by 0005
+
+Spec [0005](../0005-sign-up-and-sign-in/index.md) changes these points. The text above is left as it was written.
+
+- The lab page `/dev/session`, `SessionDebug`, `useSessionDebug`, `session.debug`, `refreshCount`, the switch for the early refresh margin and the test scenarios that use the lab are removed. The session stays testable with a fake `fetch` and `now`, which `createSession` takes. The steps of `verify.md` that use the lab can no longer run.
+- The follow up "remove `dev` from the reserved names" is not done: `dev` stays reserved, because `/dev/ui` stays.
+- AC-8: `applyFieldErrors` moves focus to the first field with a message in the order of its `fields` list, which is the order on screen, and no longer in the order the backend listed its errors.
+- AC-14: `/dev/session` is gone, so the route no longer exists. It still answers 404 in every mode.
+- The follow up for item #5 (route gate, explaining a lost session, retry for `guest('unavailable')`, real forms) is done by spec 0005.
+
 ## Rationale
 
 Reasoning and options: see [rationale.md](rationale.md).

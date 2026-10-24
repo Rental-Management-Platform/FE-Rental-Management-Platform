@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CanDemo } from "./can-demo";
 import { ColorsSection } from "./colors";
 import { ControlsSection } from "./controls";
 import { DataDisplaySection } from "./data-display";
@@ -283,6 +284,7 @@ export default function DevUiPage() {
       <OverlaysSection />
       <DataDisplaySection />
       <ShellsSection />
+      <CanDemo />
 
       <Section
         title="Màn hình mẫu"
