@@ -2,6 +2,8 @@
 
 import { ChevronDownIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,13 +17,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { User } from "@/lib/api/types";
+import { authHref } from "@/lib/next-path";
 import type { SessionState } from "@/lib/session/create-session";
+import {
+  RETRY_LABEL,
+  UNAVAILABLE_MESSAGE,
+  UNAVAILABLE_TITLE,
+} from "@/lib/session/messages";
 import { ACCOUNT_LINKS, type NavItem } from "./nav-config";
 import { MenuLink } from "./nav-link";
 
 export interface AccountMenuViewProps {
   state: SessionState;
   onSignOut: () => void;
+  /** The session could not be checked: tries again (`restore()`). */
+  onRetry: () => void;
   /** `bar` is the header menu; `list` is the same content laid out inside a sheet. */
   variant?: "bar" | "list";
   /** Public pages use `lg` (44 px); the dense workspace top bar uses `default`. */
@@ -37,15 +47,18 @@ export interface AccountMenuViewProps {
 export function AccountMenuView({
   state,
   onSignOut,
+  onRetry,
   variant = "bar",
   size = "lg",
   onNavigate,
   links,
 }: AccountMenuViewProps) {
-  // `guest('unavailable')` looks like any guest until #5 decides what to say about it.
   if (state.status === "loading") return <AccountLoading variant={variant} />;
   if (state.status === "guest") {
-    return (
+    // The session may still be valid, so the sign in buttons give way to a retry (spec 0005).
+    return state.endedReason === "unavailable" ? (
+      <AccountUnavailable variant={variant} size={size} onRetry={onRetry} />
+    ) : (
       <GuestActions variant={variant} size={size} onNavigate={onNavigate} />
     );
   }
@@ -107,17 +120,34 @@ interface GuestActionsProps {
   onNavigate?: () => void;
 }
 
-function GuestActions({ variant, size, onNavigate }: GuestActionsProps) {
+// The sign in and sign up buttons carry the page the person is on, so they come back to it
+// (spec 0005, AC-13). Reading the path needs <Suspense> on a route with dynamic parts, so the
+// buttons are a small leaf with the loading skeleton as its fallback.
+function GuestActions(props: GuestActionsProps) {
+  return (
+    <Suspense fallback={<AccountLoading variant={props.variant} />}>
+      <GuestLinks {...props} />
+    </Suspense>
+  );
+}
+
+function GuestLinks({ variant, size, onNavigate }: GuestActionsProps) {
+  const pathname = usePathname();
+  // The home page has nothing to come back to, and `authHref` drops the auth pages itself.
+  const next = pathname === "/" ? null : pathname;
+  const loginHref = authHref("/login", next);
+  const registerHref = authHref("/register", next);
+
   if (variant === "list") {
     return (
       <div className="flex flex-col gap-3">
         <Button asChild variant="outline" size="lg">
-          <Link href="/login" onClick={onNavigate}>
+          <Link href={loginHref} onClick={onNavigate}>
             Đăng nhập
           </Link>
         </Button>
         <Button asChild size="lg">
-          <Link href="/register" onClick={onNavigate}>
+          <Link href={registerHref} onClick={onNavigate}>
             Đăng ký
           </Link>
         </Button>
@@ -127,10 +157,45 @@ function GuestActions({ variant, size, onNavigate }: GuestActionsProps) {
   return (
     <div className="flex items-center gap-2">
       <Button asChild variant="ghost" size={size}>
-        <Link href="/login">Đăng nhập</Link>
+        <Link href={loginHref}>Đăng nhập</Link>
       </Button>
       <Button asChild size={size}>
-        <Link href="/register">Đăng ký</Link>
+        <Link href={registerHref}>Đăng ký</Link>
+      </Button>
+    </div>
+  );
+}
+
+// `guest('unavailable')`: the server did not answer, so the person may still be signed in.
+function AccountUnavailable({
+  variant,
+  size,
+  onRetry,
+}: {
+  variant: "bar" | "list";
+  size: "default" | "lg";
+  onRetry: () => void;
+}) {
+  if (variant === "list") {
+    return (
+      <div role="status" className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <span className="text-base font-medium">{UNAVAILABLE_TITLE}</span>
+          <span className="text-sm text-muted-foreground">
+            {UNAVAILABLE_MESSAGE}
+          </span>
+        </div>
+        <Button variant="outline" size="lg" onClick={onRetry}>
+          {RETRY_LABEL}
+        </Button>
+      </div>
+    );
+  }
+  return (
+    <div role="status" className="flex items-center gap-3">
+      <span className="text-sm text-muted-foreground">{UNAVAILABLE_TITLE}</span>
+      <Button variant="outline" size={size} onClick={onRetry}>
+        {RETRY_LABEL}
       </Button>
     </div>
   );

@@ -29,6 +29,10 @@ const STATES: readonly { label: string; state: SessionState }[] = [
   { label: "loading", state: { status: "loading" } },
   { label: "guest", state: { status: "guest", endedReason: null } },
   {
+    label: "không kiểm tra được",
+    state: { status: "guest", endedReason: "unavailable" },
+  },
+  {
     label: "user",
     state: { status: "user", user: SAMPLE_USER, permissions: [] },
   },
@@ -53,6 +57,7 @@ const PREVIEWS = [
 ] as const;
 
 const signOutDemo = () => toast("Đã bấm Đăng xuất (mẫu, chưa đăng xuất thật)");
+const retryDemo = () => toast("Đã bấm Thử lại (mẫu, chưa gọi máy chủ)");
 
 export function ShellsSection() {
   return (
@@ -70,7 +75,7 @@ export function ShellsSection() {
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-4">
         {STATES.map(({ label, state }) => (
           <Labeled key={label} label={`Khu vực tài khoản · ${label}`}>
             <div className="flex min-h-20 items-center rounded-lg border p-4">
@@ -78,13 +83,14 @@ export function ShellsSection() {
                 state={state}
                 links={SAMPLE_LINKS}
                 onSignOut={signOutDemo}
+                onRetry={retryDemo}
               />
             </div>
           </Labeled>
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-4">
         {STATES.map(({ label, state }) => (
           <Labeled key={label} label={`Trong menu điện thoại · ${label}`}>
             <div className="rounded-lg border p-4">
@@ -93,6 +99,7 @@ export function ShellsSection() {
                 variant="list"
                 links={SAMPLE_LINKS}
                 onSignOut={signOutDemo}
+                onRetry={retryDemo}
               />
             </div>
           </Labeled>
