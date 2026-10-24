@@ -12,7 +12,7 @@ Khung `create-next-app` đã có (Next.js 16.4.2, React 19.3, Tailwind 4, TypeSc
 - [x] Verify it: `/check verify stack & architecture` (12 trên 15 bước đạt, 3 bước chờ tính năng 3, 8 và cách đọc API từ server; đã ghi trong `verify.md`, đóng `done` theo ý bạn)
 spec [0001](../specs/0001-stack-and-architecture/index.md) · code in `./`. `AGENTS.md` nhắc bản Next.js này có thay đổi lớn so với những gì bạn quen, hãy đọc docs đi kèm trong `node_modules/next/dist/docs/` trước khi viết code.
 
-### 2. Coding standards & tooling · in-progress
+### 2. Coding standards & tooling · done
 Ghi quy ước và công cụ kiểm tra mã vào `AGENTS.md` từ dự án thật, rồi cài đặt. Hiện `AGENTS.md` mới chỉ có lời nhắc về Next.js.
 **Done when:** `AGENTS.md` phản ánh đúng stack thật, lint và format chạy sạch.
 - [x] Capture conventions + tooling choices: `/audit`
