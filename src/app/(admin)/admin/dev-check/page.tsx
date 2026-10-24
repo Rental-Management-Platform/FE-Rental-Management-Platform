@@ -13,8 +13,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// A fixture for the route gate of the admin area (spec 0005, AC-9). It answers 404 in a
-// production build, and #20 deletes it once a real admin page exists.
+// A fixture for the route gate of the admin area (spec 0005, AC-9), for developers only. In a
+// production build the page answers with the not found state. The status line stays 200, since
+// the gate draws no children on the server, so a `notFound()` here never sets the status. #20
+// deletes this page once a real admin page exists.
 export default function AdminGateCheckPage() {
   if (process.env.NODE_ENV === "production") notFound();
   return (
