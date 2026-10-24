@@ -18,7 +18,7 @@ Seeded from scope row #30 and refined with the engineer. Spec 0003 stays the con
 - As the engineer, I want the change made in tokens and shared components, not screen by screen, so a later tweak is one edit.
 
 **Acceptance criteria** (the contract; each is checkable on its own):
-- **AC-1**: Font. The body font is Inter, loaded through `next/font/google` as a variable font with `weight: '400 600'`, subsets `vietnamese` and `latin`, `display: 'swap'`, no extra axes, and the CSS variable `--font-inter`. `--font-sans` in `globals.css` starts with `var(--font-inter, ui-sans-serif)` and keeps the same fallback list as before. No import or variable of Be Vietnam Pro remains (`grep -rniE "Be_Vietnam|be-vietnam" src` prints nothing). On `/dev/ui` at 320 px wide the line "Nguyễn Thị Hồng Nhung, đường Lê Văn Việt, phường Hiệp Phú" shows with no missing glyph and no clipped mark at the h1, h2, h3 and body sizes, and `getComputedStyle(document.body).fontFamily` starts with the Inter family name.
+- **AC-1**: Font. The body font is Inter, loaded through `next/font/google` as a variable font with `weight: ['400', '500', '600']` (a list, because the loader rejects a range string such as `'400 600'`), subsets `vietnamese` and `latin`, `display: 'swap'`, no extra axes, and the CSS variable `--font-inter`. `--font-sans` in `globals.css` starts with `var(--font-inter, ui-sans-serif)` and keeps the same fallback list as before. No import or variable of Be Vietnam Pro remains (`grep -rniE "Be_Vietnam|be-vietnam" src` prints nothing). On `/dev/ui` at 320 px wide the line "Nguyễn Thị Hồng Nhung, đường Lê Văn Việt, phường Hiệp Phú" shows with no missing glyph and no clipped mark at the h1, h2, h3 and body sizes, and `getComputedStyle(document.body).fontFamily` starts with the Inter family name.
 - **AC-2**: Weights. Only 400, 500 and 600 are used. `grep -rnE "font-(bold|extrabold|black|thin|extralight|light)|font-\[[0-9]+\]" src --include="*.ts" --include="*.tsx"` prints nothing. Computed weights on `/dev/ui`: body text 400; h1 to h4 600; button, label, tab, badge and table head text 500; card, dialog and sheet titles 600; no element has a computed weight above 600.
 - **AC-3**: Scale. `globals.css` sets `--text-xs` to `--text-4xl` and their line heights to the values in the Type scale table, and adds `--text-input` at 1rem. Computed sizes: body 15 px; a `text-sm` element 13 px; h1 24 px at 390 wide and 28 px at 1280; h2 20 px and 22 px; h3 17 px; h4 15 px; text typed in an input, textarea or select trigger 16 px at both widths; every heading line height is at least 1.25 times its size.
 - **AC-4**: Canvas and zone surface. `globals.css` has a `--canvas` token (`#F1F5F9`) with a `canvas` color mapping, in `globals.css` only. `body` uses it, so `getComputedStyle(document.body).backgroundColor` is `rgb(241, 245, 249)` under every shell. The public header and footer, the workspace top bar and the zone cards are white. A zone is a `Card` with a 1 px `border`, 12 px radius, no shadow, 20 px padding (16 px for `size="sm"`) and a title in `text-base` 600; a zone that holds a table or a form has a hairline under its title row. The workspace content area and the auth page stand on the canvas.
@@ -71,7 +71,7 @@ In code, from `design.md` and the existing sample screens. No Figma frame and no
 
 ### Type
 
-**Font.** Inter, loaded in `src/app/layout.tsx`: `Inter({ weight: '400 600', subsets: ['vietnamese', 'latin'], display: 'swap', variable: '--font-inter' })`. A range on a variable font is allowed by the Next.js font docs, and no `axes` means only the weight axis is fetched. `--font-sans` in `globals.css` becomes `var(--font-inter, ui-sans-serif), ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`. The range stops at 600, so a stray bold cannot render. `global-error.tsx` has no web font and keeps using the system font.
+**Font.** Inter, loaded in `src/app/layout.tsx`: `Inter({ weight: ['400', '500', '600'], subsets: ['vietnamese', 'latin'], display: 'swap', variable: '--font-inter' })`. The `weight` option of `next/font/google` takes only the single values that the font lists, or `'variable'`. A range string such as `'400 600'` fails with "Unknown weight", even though the Next.js font docs show a range (the loader checks each value against the font data, see `validate-google-font-function-call.js`). Leaving `weight` out would load the whole 100 to 900 axis, so the list of three values is what clamps the weights. Inter is a variable font, so the three weights point to the same file and each subset is still downloaded once. No `axes` means only the weight axis is fetched. `--font-sans` in `globals.css` becomes `var(--font-inter, ui-sans-serif), ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`. The range stops at 600, so a stray bold cannot render. `global-error.tsx` has no web font and keeps using the system font.
 
 **Weights by role.**
 
@@ -93,7 +93,9 @@ In code, from `design.md` and the existing sample screens. No Figma frame and no
 | `text-2xl` | 22 px | 1.35 | h2 from `md`, a price on the detail page |
 | `text-3xl` | 24 px | 1.3 | h1 on a phone, a plan price |
 | `text-4xl` | 28 px | 1.25 | h1 from `md` |
-| `text-input` (new) | 16 px | 1.5 | Text typed in an input, a textarea and a select trigger, at every width |
+| `--text-input` (new) | 16 px | 1.5 | Text typed in an input, a textarea and a select trigger, at every width (see the class note below) |
+
+**Class for typed text.** The token is `--text-input` with its line height `--text-input--line-height` (1.5), but the plain class `text-input` does not give a font size: Tailwind reads it as the `input` color. The three controls therefore use `text-(length:--text-input) leading-(--text-input--line-height)`.
 
 Base heading styles: h1 `text-3xl md:text-4xl font-semibold`, h2 `text-xl md:text-2xl font-semibold`, h3 `text-lg font-semibold`, h4 `text-base font-semibold`. Heading line height never goes under 1.25, so stacked marks (ễ, ợ) are never clipped. The `Button` keeps `text-sm` for `sm` and `default` and takes `text-base` for `lg`, because the public primary action needs legible text on a phone. A price or other emphasized number is `font-semibold`, never bold, and one step smaller than today (card `text-xl`, detail `text-2xl`, plan `text-3xl`).
 
@@ -144,7 +146,7 @@ Base heading styles: h1 `text-3xl md:text-4xl font-semibold`, h2 `text-xl md:tex
 
 | Where | Value displayed | Source |
 |---|---|---|
-| Every page | Body font | Inter from `next/font/google`, weight range 400 to 600, subsets `vietnamese` and `latin`, variable `--font-inter` (decided here) |
+| Every page | Body font | Inter from `next/font/google`, the weight list 400, 500 and 600 on a variable font, subsets `vietnamese` and `latin`, variable `--font-inter` (decided here) |
 | Every page | Text weight | The three weights in the role table (decided here), through `font-normal`, `font-medium`, `font-semibold` and the base heading styles |
 | Every page | Text sizes and line heights | The `--text-*` tokens in `globals.css`, with the values of the Type scale table (decided here) |
 | Input, textarea, select trigger | Size of typed text | `--text-input` at 1rem, so iPhone does not zoom on focus (decided here, rule kept from spec 0003) |
@@ -205,7 +207,7 @@ Tracer Bullet (your project default): a thin thread first, from the font and tok
 
 **M1. Thin thread: font, tokens and one zoned screen**
 1. In `src/app/layout.tsx` replace Be Vietnam Pro by Inter as in the Font paragraph, and update `--font-sans` in `globals.css`, satisfies **AC-1**
-2. In `globals.css` restate `--text-xs` to `--text-4xl` and their line heights, add `--text-input`, set the base heading styles and weights, add `--canvas` and `--color-canvas`, and put `bg-canvas` on `body`. Switch `input.tsx`, `textarea.tsx` and `select.tsx` from `text-base` to `text-input`, satisfies **AC-2**, **AC-3**, **AC-4**
+2. In `globals.css` restate `--text-xs` to `--text-4xl` and their line heights, add `--text-input`, set the base heading styles and weights, add `--canvas` and `--color-canvas`, and put `bg-canvas` on `body`. Switch `input.tsx`, `textarea.tsx` and `select.tsx` from `text-base` to `text-(length:--text-input)` with `leading-(--text-input--line-height)`, satisfies **AC-2**, **AC-3**, **AC-4**
 3. Add `PageHeader`. Turn `Card` into the zone (no shadow, 20 px spacing, `text-base` 600 title). Divide the listing list screen as its zone map says, and check it at 390 and 1280, satisfies **AC-4**, **AC-5**, **AC-6**
 
 **M2. Components and shells**

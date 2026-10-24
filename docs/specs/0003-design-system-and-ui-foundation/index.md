@@ -54,7 +54,7 @@ The Next.js docs in `node_modules/next/dist/docs/` win over these skills where t
 |---|---|
 | Figma variables and base components for M1 and M2 only; from M3 on, code only | Domain components in code: listing card (#8, #15, #14), stat card (#25, #26), plan card (#18). The cards on the sample screens are sample markup inside `src/app/dev/ui/screens/`, which those items may lift |
 | Seven sample screens built in code at `/dev/ui/screens` with fake data | Real data fetching, routes and logic of those screens: sign in (#5), pricing page (#18), post listing form (#7) and the listing and admin screens of their own items |
-| Tokens, Be Vietnam Pro, `lang="vi"`, metadata template, site icon | Charts (#26), map (#29), photo uploader (#10), date picker (#25) |
+| Tokens, Be Vietnam Pro (Inter since [0004](../0004-type-and-layout-refinement/index.md)), `lang="vi"`, metadata template, site icon | Charts (#26), map (#29), photo uploader (#10), date picker (#25) |
 | shadcn base components, toast, state components, list pagination | Money, area and date formatting in `format.ts`: the first feature that shows a price |
 | Four shells, account menu, nav configs, `error.tsx` and `not-found.tsx` per group | The route gate with `?next=`, real login and register pages, what to show for `guest('unavailable')`: #5 |
 | Contrast script in `npm run check`, `design.md`, `/dev/ui` | Dark mode (scope Deferred), default share image (#9) |
@@ -136,7 +136,7 @@ Ours:
 ```
 src/
   app/
-    layout.tsx             lang vi, Be Vietnam Pro, title template, Providers + Toaster
+    layout.tsx             lang vi, Be Vietnam Pro (Inter since 0004), title template, Providers + Toaster
     globals.css            tokens (:root and @theme inline), base styles; no dark media query
     icon.svg               site icon (replaces the default favicon.ico)
     not-found.tsx          root 404 (NotFoundState inside PublicShell)
@@ -225,7 +225,7 @@ A client page (the shadcn skill calls it the design system page) with sections: 
 | Sample screens | Price, area, date text | A small helper in the screens folder on `Intl` with `vi-VN` and `Asia/Ho_Chi_Minh`, replaced by `format.ts` when that exists (decided here) |
 | Sample screens | Empty, loading, error, rate limited views | The shared state components, with fake `ApiError` objects as on `/dev/ui` |
 | Pricing screen | Who sees the "Mua" button | A fixed sample viewer (guest, landlord, seeker or admin) set on the screen, not the real session; the rule is scope item #18 |
-| Body | Font | `Be_Vietnam_Pro` from `next/font/google`, variable `--font-sans` |
+| Body | Font | `Be_Vietnam_Pro` from `next/font/google`, variable `--font-sans`. Amended by [0004](../0004-type-and-layout-refinement/index.md): `Inter`, variable `--font-inter`, which `--font-sans` starts with |
 | `ErrorState` | Message and support code | `describeError(error)` (spec 0002); code only for status 500 or more |
 | `RateLimitNotice` | Wait text and seconds | `formatWait` and `useCountdown` (spec 0002); "khoảng" only when `retryAfterExact` is false |
 | Contrast script | Thresholds | WCAG 2.2: 4.5:1 text (1.4.3), 3:1 controls and focus ring (1.4.11; the focus must also be visible, 2.4.7) |
@@ -304,7 +304,7 @@ Tracer Bullet (your project default): a thin thread first, from a Figma variable
 **M1. Thin thread: Figma to screen**
 1. In Figma, create the variables (colors, radius, font; one flat mode `Light`) with the token names above, a `Foundations/Tokens` frame with one bound swatch per variable, a `Button` component (variants and sizes, bound to the variables) and the public header frame at 390 and 1280. **Gate: engineer approves** (recorded in `design.md` once it exists), satisfies **AC-1**, **AC-2**
 2. Run `npx shadcn@latest init --base radix --preset vega --no-monorepo -y`, then `git diff`, then `npx shadcn@latest info --json` and confirm `base` is `radix`, `tailwindVersion` is `v4`, `tailwindCssFile` is `src/app/globals.css`, `iconLibrary` is `lucide`. Revert anything `init` adds that fights the project: a `postcss.config.*` or `@tailwindcss/postcss` (Tailwind would then run twice beside the Turbopack rule) and any edit to `next.config.ts`. Confirm the `tw-animate-css` and `shadcn/tailwind.css` imports resolve through the Turbopack rule; add `shadcn` to the dependencies if `init` asks for it. Fall back as in the edge case table. Read `npx shadcn@latest docs button` before using it, satisfies **AC-5**, **AC-13**
-3. Copy the tokens from Figma (`get_variable_defs`) into `globals.css` (`:root` and `@theme inline`), delete the dark media query and the Arial rule, set `color-scheme: light`. Keep `@custom-variant dark` keyed to a class, delete init's `.dark` block and `chart-*` tokens, add the `overlay` token, override `--text-xs` to `--text-4xl` with their line heights, and add the reduced motion rule. Switch the font to Be Vietnam Pro, set `lang="vi"`, the Vietnamese description and the title template, add `src/lib/site.ts` and `src/app/icon.svg` (the brand mark), remove the Geist fonts, satisfies **AC-2**, **AC-3**, **AC-4**
+3. Copy the tokens from Figma (`get_variable_defs`) into `globals.css` (`:root` and `@theme inline`), delete the dark media query and the Arial rule, set `color-scheme: light`. Keep `@custom-variant dark` keyed to a class, delete init's `.dark` block and `chart-*` tokens, add the `overlay` token, override `--text-xs` to `--text-4xl` with their line heights, and add the reduced motion rule. Switch the font to Be Vietnam Pro (amended by [0004](../0004-type-and-layout-refinement/index.md): Inter), set `lang="vi"`, the Vietnamese description and the title template, add `src/lib/site.ts` and `src/app/icon.svg` (the brand mark), remove the Geist fonts, satisfies **AC-2**, **AC-3**, **AC-4**
 4. Add `button`, a first `PublicShell` header (brand, nav, a login button) used by `(public)/layout.tsx`. The shell owns `<main id="main" tabIndex={-1}>`, so remove the `<main>` that `src/app/(public)/page.tsx` renders today (two `main` landmarks would nest). Add a first `/dev/ui` with the button and the Vietnamese test line. Compare the screenshot with the Figma frame, satisfies **AC-5**, **AC-8**, **AC-11**
 
 **M2. Forms, states and feedback**

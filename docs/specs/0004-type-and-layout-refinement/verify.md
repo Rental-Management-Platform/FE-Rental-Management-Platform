@@ -30,7 +30,7 @@ _Steps derived from spec 0004 acceptance criteria. `/check verify` runs these; `
 
 ## Value sourcing (one step per row of the Value sourcing table)
 
-- [x] Body font: in a production build, the Network tab on `/dev/ui` loads one Inter file per subset (`vietnamese`, `latin`) from the site itself, and no request goes to Google at run time → AC-1
+- [x] Body font: in a production build (`npm run build`, then `npm run start`), open `/` (`/dev/ui` is a 404 there). The Network tab shows the preloaded `vietnamese` and `latin` Inter files, plus at most the `latin-ext` file when a character needs it, one file per subset whatever the weight, all from the site itself, and no request goes to Google at run time → AC-1
 - [x] Text weight: search the source for `font-normal`, `font-medium`, `font-semibold` and the base heading styles only. The weights grep of AC-2 prints nothing → AC-2
 - [x] Sizes and line heights: edit `--text-base` alone in `globals.css` and reload; body text and every `text-base` element change size with no component edit. Revert it → AC-3
 - [ ] Input text size: at 390 wide, focus an input on an iPhone sized viewport. Typed text is 16 px and the page does not zoom → AC-3
