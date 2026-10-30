@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useForm, type Path } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { DatePicker } from "@/components/form/date-picker";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
 import { PageHeader } from "@/components/layout/page-header";
@@ -194,8 +195,8 @@ const MY_LISTINGS_HREF = `${SCREENS_HOME}/my-listings`;
 const PRICING_HREF = `${SCREENS_HOME}/pricing`;
 
 // Landlord screen: the post listing form, as two zones on the canvas with the notice and the
-// submit row under them, and a tips zone at the side from `xl`. The date is a plain date input,
-// because the date picker waits for the item that needs it.
+// submit row under them, and a tips zone at the side from `xl`. The move in date is the shared
+// `DatePicker`, the same one the real page uses.
 export function PostListingScreen() {
   const {
     control,
@@ -423,9 +424,7 @@ export function PostListingScreen() {
                     label="Ngày vào ở"
                     description="Để trống nếu có thể vào ở ngay."
                   >
-                    {({ field, aria }) => (
-                      <Input type="date" size="lg" {...field} {...aria} />
-                    )}
+                    {({ field, aria }) => <DatePicker {...field} {...aria} />}
                   </FormField>
                 </FieldGroup>
               </CardContent>

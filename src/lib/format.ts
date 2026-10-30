@@ -1,7 +1,7 @@
 // Text for people: waits, money, area and dates (`vi-VN`, `Asia/Ho_Chi_Minh`).
 import type { DateOnly, IsoDateTime } from "@/lib/api/types";
 
-const TIME_ZONE = "Asia/Ho_Chi_Minh";
+export const TIME_ZONE = "Asia/Ho_Chi_Minh";
 
 const MONEY = new Intl.NumberFormat("vi-VN", {
   style: "currency",

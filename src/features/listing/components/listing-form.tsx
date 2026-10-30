@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useForm, useWatch, type Path } from "react-hook-form";
 import { toast } from "sonner";
 import { FailureNotice } from "@/components/form/failure-notice";
+import { DatePicker } from "@/components/form/date-picker";
 import { FormField } from "@/components/form/form-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,7 @@ import {
   type ListingInput,
   type ListingValues,
 } from "../schemas/listing-schema";
+import { MoneyPreview, moneyPreviewText } from "./money-preview";
 
 // The form's own paths in screen order. A message the backend sends for a field this form
 // lacks is shown as the form level message, and focus goes to the first field in this order.
@@ -47,7 +49,13 @@ const FIELDS: readonly Path<ListingInput>[] = [
   "description",
   "price",
   "areaM2",
+  "deposit",
+  "availableFrom",
 ];
+
+/** The ids a control is described by: what `FormField` gave, then the money preview line. */
+const describedBy = (given: string | undefined, preview: string | undefined) =>
+  [given, preview].filter(Boolean).join(" ") || undefined;
 
 const PROPERTY_HINT = "Địa chỉ, phí và tiện ích lấy từ nhà trọ bạn chọn.";
 
@@ -74,7 +82,7 @@ interface ListingFormProps {
 }
 
 // The post listing form: two zones on the canvas with the notice and the submit row under them
-// (api-for-frontend.md, 6.18). Deposit and the move in date join with the next step.
+// (api-for-frontend.md, 6.18).
 export function ListingForm({
   properties,
   initialPropertyId,
@@ -233,7 +241,9 @@ export function ListingForm({
 
       <Card role="group" aria-labelledby="listing-price-title">
         <CardHeader className="border-b">
-          <CardTitle id="listing-price-title">Giá và diện tích</CardTitle>
+          <CardTitle id="listing-price-title">
+            Giá, diện tích và ngày vào ở
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <FieldGroup className="md:grid md:grid-cols-2">
@@ -243,16 +253,31 @@ export function ListingForm({
               label="Giá thuê (đồng mỗi tháng)"
               description="Từ 100.000 đến 100.000.000."
             >
-              {({ field, aria }) => (
-                <Input
-                  size="lg"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="3500000"
-                  {...field}
-                  {...aria}
-                />
-              )}
+              {({ field, aria }) => {
+                const previewId = `${aria.id}-preview`;
+                const preview = moneyPreviewText(field.value);
+                return (
+                  <>
+                    <Input
+                      size="lg"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="3500000"
+                      {...field}
+                      {...aria}
+                      aria-describedby={describedBy(
+                        aria["aria-describedby"],
+                        preview ? previewId : undefined,
+                      )}
+                    />
+                    <MoneyPreview
+                      id={previewId}
+                      typed={field.value}
+                      suffix=" mỗi tháng"
+                    />
+                  </>
+                );
+              }}
             </FormField>
             <FormField
               control={control}
@@ -270,6 +295,42 @@ export function ListingForm({
                   {...aria}
                 />
               )}
+            </FormField>
+            <FormField
+              control={control}
+              name="deposit"
+              label="Tiền cọc (đồng)"
+              description="Để trống nếu không thu cọc."
+            >
+              {({ field, aria }) => {
+                const previewId = `${aria.id}-preview`;
+                const preview = moneyPreviewText(field.value);
+                return (
+                  <>
+                    <Input
+                      size="lg"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="3500000"
+                      {...field}
+                      {...aria}
+                      aria-describedby={describedBy(
+                        aria["aria-describedby"],
+                        preview ? previewId : undefined,
+                      )}
+                    />
+                    <MoneyPreview id={previewId} typed={field.value} />
+                  </>
+                );
+              }}
+            </FormField>
+            <FormField
+              control={control}
+              name="availableFrom"
+              label="Ngày vào ở"
+              description="Để trống nếu có thể vào ở ngay."
+            >
+              {({ field, aria }) => <DatePicker {...field} {...aria} />}
             </FormField>
           </FieldGroup>
         </CardContent>

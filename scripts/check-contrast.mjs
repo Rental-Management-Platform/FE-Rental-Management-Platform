@@ -51,9 +51,10 @@ export const PAIRS = [
   text("sidebar-accent-foreground", "sidebar-accent"),
   text("sidebar-foreground", "sidebar-accent"),
 
-  // Body text on the quiet surfaces (table rows, footer links, selected rows) and on the page
-  // canvas (spec 0004), where headings, page descriptions and result counts stand.
-  ...textOn("foreground", ["muted", "accent", "canvas"]),
+  // Body text on the quiet surfaces (table rows, footer links, selected rows), on the page
+  // canvas (spec 0004), where headings, page descriptions and result counts stand, and on the
+  // popover (the day numbers and the "Bỏ chọn" button of the date picker, spec 0006).
+  ...textOn("foreground", ["muted", "accent", "canvas", "popover"]),
   // Help text, placeholders, labels and icons that use the muted color.
   ...textOn("muted-foreground", [
     "background",

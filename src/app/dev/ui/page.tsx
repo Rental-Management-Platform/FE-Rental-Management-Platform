@@ -16,6 +16,7 @@ import { CanDemo } from "./can-demo";
 import { ColorsSection } from "./colors";
 import { ControlsSection } from "./controls";
 import { DataDisplaySection } from "./data-display";
+import { DatePickerSection } from "./date-picker-section";
 import { FeedbackSection } from "./feedback";
 import { FormDemo } from "./form-demo";
 import { OverlaysSection } from "./overlays";
@@ -277,6 +278,7 @@ export default function DevUiPage() {
       </Section>
 
       <ControlsSection />
+      <DatePickerSection />
       <FeedbackSection />
       <StatesSection />
       <FormDemo />
