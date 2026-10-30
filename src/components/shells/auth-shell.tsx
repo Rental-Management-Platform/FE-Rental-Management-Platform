@@ -10,8 +10,8 @@ export function AuthShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-1 flex-col">
       <SkipLink />
-      <header className="flex h-16 shrink-0 items-center justify-center px-4">
-        <BrandLink />
+      <header className="flex h-28 shrink-0 items-center justify-center px-4">
+        <BrandLink logoClassName="h-24" />
       </header>
       <main
         id="main"

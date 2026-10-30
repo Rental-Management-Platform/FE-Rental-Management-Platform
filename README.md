@@ -1,4 +1,4 @@
-# Rental Management Platform — Frontend
+# Mái Hiên — Frontend
 
 Next.js (App Router) + TypeScript + Tailwind CSS v4.
 

@@ -8,7 +8,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-# Rental Management Platform (frontend)
+# Mái Hiên (frontend)
 
 Web UI for a rental listings marketplace (guests, landlords, admins). The backend is done; its contract is `api-for-frontend.md`. Decisions live in `docs/specs/`, the plan in `docs/scope/`.
 

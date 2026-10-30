@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { FOCUS_RING } from "@/lib/focus-ring";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
+import { SITE_DESCRIPTION } from "@/lib/site";
 import { cn } from "@/lib/utils";
-import { BrandMark } from "./brand";
+import { BrandLogo } from "./brand";
 import type { PublicNavItem } from "./nav-config";
 
 // Static: no session, no path. Links that need a permission are left out, because the server
@@ -16,10 +16,7 @@ export function SiteFooter({ nav }: { nav: readonly PublicNavItem[] }) {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="flex max-w-sm flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <BrandMark />
-              <span className="text-base font-semibold">{SITE_NAME}</span>
-            </div>
+            <BrandLogo className="h-24 self-start" />
             <p className="text-sm text-muted-foreground">{SITE_DESCRIPTION}</p>
           </div>
           {links.length > 0 && (

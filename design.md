@@ -33,7 +33,7 @@ Rules for any new screen or component:
 - Depth: a zone has no shadow, only a hairline border. `shadow-md` is for menus and dialogs, and an interactive item card may take it on hover. Prefer a hairline border to a shadow.
 - Type: one family, Inter, three weights (400, 500, 600). The scale `text-xs` to `text-4xl` and `text-input` is set in `globals.css`, and the roles of each step are under Type. Headings never get a line height under 1.25, so stacked marks (ễ, ợ) are never clipped.
 - Motion: 150 ms on color, shadow and opacity. With reduced motion the durations become 0.01 ms, never `none`.
-- Brand mark: a white house (lucide `House`) on a teal rounded square, shown next to the site name.
+- Brand: the Mái Hiên logo exactly as it was sent, never redrawn or set in another font. `public/logo_raw.jpg` is the master (2000 px, on paper). `public/logo.png` is the whole logo with the paper removed (the house, the name and the slogan "Một góc nhỏ bình yên" under it), and `public/logo-mark.png` is the house alone. `BrandLogo`, `BrandMark` and `BrandLink` in `src/components/shells/brand.tsx` draw them; the side menu shows the house alone when it is collapsed to icons. The tab icon is `src/app/icon.png` and `src/app/apple-icon.png`, the same house on white.
 
 ## Composition patterns
 

@@ -95,10 +95,10 @@ function WorkspaceSidebar({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="h-16 justify-center border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-2">
+      <SidebarHeader className="h-16 justify-center border-b border-sidebar-border px-4 py-1 group-data-[collapsible=icon]:px-2">
         <BrandLink
           className="group-data-[collapsible=icon]:justify-center"
-          labelClassName="text-base leading-tight whitespace-normal group-data-[collapsible=icon]:sr-only"
+          collapsedToMark
         />
       </SidebarHeader>
       <SidebarContent>
