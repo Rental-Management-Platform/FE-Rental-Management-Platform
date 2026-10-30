@@ -1,4 +1,9 @@
-import { HousePlus, Search, type LucideIcon } from "lucide-react";
+import {
+  FilePlusCorner,
+  HousePlus,
+  Search,
+  type LucideIcon,
+} from "lucide-react";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
 
 export type NavItem = {
@@ -17,9 +22,9 @@ export const toPublicNavItems = (items: readonly NavItem[]): PublicNavItem[] =>
   items.map(({ label, href, permission }) => ({ label, href, permission }));
 
 // A feature adds its item in the same change that ships its page, so no link points at a
-// page that does not exist yet (spec 0003, "Nav configs"). The landlord menu holds only the
-// create property page until #12 brings the rest, the admin menu stays empty until #20, and
-// `ACCOUNT_LINKS` until #14, #12, #20 and #28.
+// page that does not exist yet (spec 0003, "Nav configs"). The landlord menu holds the create
+// property and post listing pages until #12 brings the rest, the admin menu stays empty until
+// #20, and `ACCOUNT_LINKS` until #14, #12, #20 and #28.
 export const PUBLIC_NAV: readonly NavItem[] = [
   { label: "Tìm trọ", href: "/", icon: Search },
 ];
@@ -30,6 +35,12 @@ export const LANDLORD_NAV: readonly NavItem[] = [
     href: "/landlord/properties/new",
     icon: HousePlus,
     permission: "property:create",
+  },
+  {
+    label: "Đăng tin",
+    href: "/landlord/listings/new",
+    icon: FilePlusCorner,
+    permission: "listing:create",
   },
 ];
 

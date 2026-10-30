@@ -15,8 +15,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { AccountType } from "@/lib/api/types";
+import { formatMoney } from "@/lib/format";
 import { PLANS } from "../sample-data";
-import { formatMoney } from "../sample-format";
 import { ChoiceGroup, SampleControls } from "../sample-state";
 import { SCREENS_HOME } from "../screens";
 

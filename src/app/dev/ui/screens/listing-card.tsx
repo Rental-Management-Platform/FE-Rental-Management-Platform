@@ -8,7 +8,7 @@ import {
   formatDateOnly,
   formatDateTime,
   formatMoney,
-} from "./sample-format";
+} from "@/lib/format";
 import { SCREENS_HOME } from "./screens";
 
 export const LISTING_DETAIL_HREF = `${SCREENS_HOME}/listing-detail`;

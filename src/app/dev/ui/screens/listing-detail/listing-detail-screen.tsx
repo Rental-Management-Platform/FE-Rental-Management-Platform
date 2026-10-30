@@ -23,16 +23,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  formatArea,
+  formatDateOnly,
+  formatDateTime,
+  formatMoney,
+} from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 import { LISTING_DETAIL } from "../sample-data";
 import {
   feeKindLabel,
-  formatArea,
   formatCount,
-  formatDateOnly,
-  formatDateTime,
   formatFee,
-  formatMoney,
   formatPhone,
 } from "../sample-format";
 import { ChoiceGroup, SampleControls } from "../sample-state";

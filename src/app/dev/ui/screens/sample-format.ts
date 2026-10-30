@@ -1,50 +1,18 @@
-// Text helpers for the sample screens. Money, area and dates use `vi-VN` and
-// `Asia/Ho_Chi_Minh`, as the project rules say. This file stays here until the first feature
-// that shows a price adds `src/lib/format.ts`; the screens then switch to that one (spec 0003).
+// Text helpers that only the sample screens use. Money, area and dates moved to
+// `src/lib/format.ts` with the first feature that shows a price (spec 0006, AC-13).
 import type {
   AccountType,
-  DateOnly,
   FeeKind,
   FeeUnit,
-  IsoDateTime,
   ListingStatus,
   PropertyFee,
 } from "@/lib/api/types";
+import { formatMoney } from "@/lib/format";
 
-const TIME_ZONE = "Asia/Ho_Chi_Minh";
-
-const MONEY = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-  maximumFractionDigits: 0,
-});
-const AREA = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 });
 const COUNT = new Intl.NumberFormat("vi-VN");
-const DAY = new Intl.DateTimeFormat("vi-VN", {
-  timeZone: TIME_ZONE,
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
-
-/** 3500000 becomes "3.500.000 ₫". */
-export const formatMoney = (dong: number) => MONEY.format(dong);
-
-/** 22.5 becomes "22,5 m²". */
-export const formatArea = (m2: number) => `${AREA.format(m2)} m²`;
 
 /** 1248 becomes "1.248". */
 export const formatCount = (n: number) => COUNT.format(n);
-
-/** A UTC instant from the API, shown as a day in Vietnam: "16/10/2026". */
-export const formatDateTime = (iso: IsoDateTime) => DAY.format(new Date(iso));
-
-/**
- * A date without a time ("2026-11-01"). It is read as midnight in Vietnam, so it never moves
- * to the day before when the viewer is in another time zone.
- */
-export const formatDateOnly = (date: DateOnly) =>
-  DAY.format(new Date(`${date}T00:00:00+07:00`));
 
 /** "0901234567" becomes "0901 234 567". Any other shape is shown as it came. */
 export const formatPhone = (phone: string) =>

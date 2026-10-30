@@ -31,8 +31,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createApiError, isApiError, type ApiError } from "@/lib/api/errors";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
+import { formatMoney } from "@/lib/format";
 import { SAMPLE_PROPERTIES } from "../sample-data";
-import { formatMoney } from "../sample-format";
 import { SampleControls } from "../sample-state";
 import { LANDLORD_SCREENS_NAV, SCREENS_HOME } from "../screens";
 

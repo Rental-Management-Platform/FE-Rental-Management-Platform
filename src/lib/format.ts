@@ -1,5 +1,36 @@
-// Text for people. Money, area and dates join this file with the first feature that shows
-// one (`vi-VN`, `Asia/Ho_Chi_Minh`).
+// Text for people: waits, money, area and dates (`vi-VN`, `Asia/Ho_Chi_Minh`).
+import type { DateOnly, IsoDateTime } from "@/lib/api/types";
+
+const TIME_ZONE = "Asia/Ho_Chi_Minh";
+
+const MONEY = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+  maximumFractionDigits: 0,
+});
+const AREA = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 });
+const DAY = new Intl.DateTimeFormat("vi-VN", {
+  timeZone: TIME_ZONE,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+/** 3500000 becomes "3.500.000 ₫". */
+export const formatMoney = (dong: number) => MONEY.format(dong);
+
+/** 22.5 becomes "22,5 m²". */
+export const formatArea = (m2: number) => `${AREA.format(m2)} m²`;
+
+/** A UTC instant from the API, shown as a day in Vietnam: "16/10/2026". */
+export const formatDateTime = (iso: IsoDateTime) => DAY.format(new Date(iso));
+
+/**
+ * A date without a time ("2026-11-01"). It is read as midnight in Vietnam, so it never moves
+ * to the day before when the viewer is in another time zone.
+ */
+export const formatDateOnly = (date: DateOnly) =>
+  DAY.format(new Date(`${date}T00:00:00+07:00`));
 
 const MINUTE = 60;
 const HOUR = 3600;
