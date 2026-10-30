@@ -26,7 +26,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 3 | API client & session layer | Foundation | done |
 | 4 | Design system & UI foundation | Foundation | done |
 | 30 | Type and layout refinement | Foundation | done |
-| 5 | Sign up and sign in | Slice 1 | in-progress |
+| 5 | Sign up and sign in | Slice 1 | done |
 | 6 | First property | Slice 1 | planned |
 | 7 | Post a listing | Slice 1 | planned |
 | 8 | Find listings | Slice 1 | planned |
@@ -57,7 +57,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây là thứ tự các dòng trong bảng At a glance (dòng 30 được xếp sau dòng 4 vì xây trước dòng 5), nên trong một file các số không liền nhau.
 
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
-* [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 in-progress, 2 planned.
+* [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 2 planned.
 * [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 6 planned, 2 dropped (#16, #29).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 7 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26). 7 planned.

@@ -4,7 +4,7 @@
 
 ## Slice 1: Vòng lặp lõi
 
-### 5. Sign up and sign in · in-progress · Beta
+### 5. Sign up and sign in · done · Beta
 Đăng ký (chọn người đăng bài hoặc người tìm trọ, chọn một lần không đổi được; người đăng bài bắt buộc có số điện thoại), đăng nhập, đăng xuất, khôi phục phiên khi tải lại trang, ẩn hoặc làm mờ nút theo `permissions` của `/auth/me`. Đây là sợi đăng nhập thật của vòng lặp lõi. Mang nhãn Beta vì lỗi phiên rất khó thấy bằng mắt.
 **Done when:** đăng ký và đăng nhập được cả hai loại tài khoản, tải lại trang vẫn còn phiên, `EMAIL_TAKEN`, `PHONE_TAKEN` và `ACCOUNT_LOCKED` hiện đúng chỗ, đăng xuất xóa phiên.
 - [x] Design it (spec): `/architect sign up and sign in`
@@ -14,8 +14,8 @@
   - [x] M3 Cổng chặn trang và trạng thái phiên: `RequireSession` ngoài khung trang của khu chủ trọ và admin, lời nhắn khi phiên mất, trạng thái "Không kiểm tra được tài khoản" kèm Thử lại, hai trang thử `dev-check`, đăng xuất và nút đầu trang mang `next` (AC-9 đến AC-13)
   - [x] M4 `Can` và dọn dẹp: thành phần `Can` (chỉ ẩn), xóa `/dev/session` cùng nút gỡ lỗi của phiên, ghi chú sửa spec 0002 và 0003 (AC-14, AC-17)
   - [x] M5 Cổng kiểm: `npm run check`, `npm run build`, console sạch ở `/login` và `/register` (AC-1, AC-17)
-- [ ] Verify it: `/check verify sign up and sign in` (cần backend chạy, thêm `ACCESS_TTL_SECONDS=60` cho phần phiên mất)
-- [ ] Test it: `/test sign up and sign in` (Beta: `safeNextPath`, các schema, các bước chuyển của cổng, `createSession` với `fetch` giả)
+- [x] Verify it: `/check verify sign up and sign in` (cần backend chạy, thêm `ACCESS_TTL_SECONDS=60` cho phần phiên mất)
+- [x] Test it: `/test sign up and sign in` (Beta: `safeNextPath`, các schema, các bước chuyển của cổng, `createSession` với `fetch` giả)
 spec [0005](../specs/0005-sign-up-and-sign-in/index.md) · Chọn: một trang đăng ký (chọn loại trước), về trang đang muốn vào qua `?next=`, cổng chặn phía trình duyệt đặt ngoài khung trang, báo "Không kiểm tra được tài khoản" kèm Thử lại, nút hiện mật khẩu thay ô nhập lại, `Can` luôn ẩn theo quyền, đăng xuất ở nguyên trang công khai, xóa `/dev/session`. Code in `src/features/auth/`, `src/lib/next-path.ts`, `src/lib/session/messages.ts`, `src/components/can.tsx`, `src/components/form/password-input.tsx`, `src/app/(auth)/{login,register}/`, `src/app/(landlord)/` và `src/app/(admin)/` (layout có cổng và trang `dev-check`).
 
 ## Slice 6: Tài khoản và hoàn thiện
