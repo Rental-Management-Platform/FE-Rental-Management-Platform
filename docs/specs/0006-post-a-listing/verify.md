@@ -1,4 +1,4 @@
-# Verify: post a listing · spec 0006 · updated 2026-10-30
+# Verify: post a listing · spec 0006 · updated 2026-10-31
 
 _Steps derived from spec 0006 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones. Needs the backend running and seeded. Test account made by `/develop` on the local database (see spec 0005): `claude.dev.landlord1@example.com`, password `Passw0rd!dev1`. Side effects of the M1 self check on that database: one property "Nhà trọ Hoa Hồng" (12 Lê Lợi, Phường An Đông) and one listing "Phòng đẹp có gác gần chợ Bến Thành" (code `uzsj2ftc`). Later milestones add their own steps under their own tag._
 
@@ -11,6 +11,10 @@ Side effects of the M2 self check on the local database: listing "Phòng thử c
 Self checked by `/develop` for M3 against the real backend on 2026-10-31: the edit page for a visible listing (the six fields filled, the date `15/11/2026`, the property as plain text, the status label, the public path text, the tips zone, one `h1`, `noindex, nofollow`), a save with nothing changed (toast, no request), a price only save (`{"price":4300000}`), a title only save right after it (the price was not sent again, and the public path followed the new slug), a cleared deposit (`{"deposit":null}`, confirmed by `GET /me/listings/:id`), a save of area and deposit together (`{"areaM2":22.5,"deposit":5000000}`, the area field back to `22,5` afterwards), a bad title and price (two messages, focus on the title, no request), the not found state for a random UUID and for `not-a-uuid`, the not yours state for another landlord's listing, the error state with "Thử lại" and a working retry, a post followed by "Sửa tin này" into the edit form, 320 px with a clean console, the diff functions under node (`toListingPatch` and `fromOwnerListing` for ten cases), the post page after splitting `ListingForm` (same fields, preselected property, empty submit gives four messages and focus on the title, a real post with a four field body), `npm run check` and `npm run build`. Not run: the notice for a listing hidden by an admin (no admin account at hand, and a mocked `GET` is rejected by CORS because the test tool cannot add headers), the 403 and 404 answers to a save (they need a listing deleted or handed over in another tab), a `VALIDATION_FAILED` answer to a save, the 429 countdown, clearing the date in a real browser, a save of a listing with no deposit and no date, and a screen reader pass. The leave warning belongs to M4.
 
 Side effects of the M3 self check on the local database: the listing `4qdbazm7` was edited several times (price, title, deposit) and put back through the API, so its values are the original ones, but its `updatedAt` moved. One restore sent through `curl -d` stored a damaged title (the Windows shell changed the Vietnamese letters); it was repaired by sending the body from a UTF8 file with `--data-binary @file`, and the slug is again `phong-co-ban-cong-nhan-ngay-15-11`. The listing `uzsj2ftc` was hidden and shown again, and one throwaway listing "Phòng thử sửa tin M3" (code `e4q6jgbr`) was posted, edited and deleted (soft delete). `claude.dev.landlord1@example.com` again holds two visible listings, the trial limit.
+
+Self checked by `/develop` for M4 against the real backend on 2026-10-31: the chain "post page, menu link, create a property, press the new button" (it failed first, see the first M4 step, then passed after the fix), the leave warning on the post page (pristine, typed, cleared, typed again) by firing a cancelable `beforeunload` event and reading `defaultPrevented`, the real Edge confirmation when leaving the dirty post page by a script navigation, the leave warning on the edit page (pristine, typed, then off after a save), a clean console on both pages, 320 px on both pages with no sideways scroll, `npm run check` and `npm run build`. Not run: the chain as a landlord with no property, the property list read after a post (the account is at the listing limit), the warning after a successful post, the result view of #6 at 320 px, a screen reader pass, and a link click while typing.
+
+Side effects of the M4 self check on the local database: two properties, "Nhà trọ Kiểm Thử M4" (34 Nguyễn Huệ, Phường An Đông, `01a18de3-9ae3-70d5-bede-290db62996e7`) and "Nhà trọ Kiểm Thử M4 bản hai" (56 Trần Hưng Đạo, Phường An Đông, `01a18de5-2c50-7745-add8-1fad117c09f0`), both owned by `claude.dev.landlord1@example.com`, so that landlord now has three properties and the picker offers three. The listing `4qdbazm7` was saved with price 4200001 and then with 4200000 again, so its values are the original ones and only `updatedAt` moved. Note for `/check verify`: the sign in call answers 429 `RATE_LIMITED` for about eight minutes after a run of sign ins, so sign in once and keep the browser session.
 
 ## UI / manual
 
@@ -72,6 +76,18 @@ Side effects of the M3 self check on the local database: the listing `4qdbazm7` 
 - [ ] Press save more than the 60 writes an hour limit allows → `RateLimitNotice` with the countdown, save disabled until it ends → AC-11 (not run: 60 writes)
 - [ ] At 320 px on the edit page → no sideways scroll, the console has no error and no hydration warning → AC-12, AC-16
 
+**M4: join with #6 and finish**
+
+- [ ] Open `/landlord/listings/new` first (so the property list is cached), follow the menu link "Thêm nhà trọ", create a property and press "Đăng tin cho nhà trọ này" → the address is `/landlord/listings/new?propertyId=<id of the new property>`, the form opens with the new property chosen (not an older one) and its `fullAddress` as the help text. This is the case where a plain "out of date" mark was not enough: the page mounts from the old list, so the property create drops the cached list instead → AC-14 (value sourcing: path `:propertyId` preset by `?propertyId`)
+- [ ] As a landlord with no property do the same chain: the empty state, "Thêm nhà trọ", create, "Đăng tin cho nhà trọ này" → the form with that only property chosen → AC-2, AC-14 (not run: needs a landlord with no property)
+- [ ] Post a listing, then watch the Network tab → `GET /properties?page=1&pageSize=50` is sent again and the result is shown without waiting for it → AC-14 (not run: the test landlord is at the listing limit, so hide a listing first)
+- [ ] Open `/landlord/listings/new?propertyId=<id>` and type nothing, then close the tab or reload → no browser question (the preselected property does not make the form dirty) → AC-10 (value sourcing: is the form dirty)
+- [ ] Type a title, then close the tab or reload → the browser's own question shows. Clear the title back to empty → no question → AC-10
+- [ ] On the edit page change the price and reload → the browser asks. Save (toast "Đã lưu tin"), then reload → no question → AC-10
+- [ ] Post a listing, then reload the result view → no question → AC-10 (not run: at the limit)
+- [ ] Type in a form and click a link inside the site → no question (a known limit) → AC-10
+- [ ] The result view of #6 at 320 px → the two buttons wrap, no sideways scroll → AC-12, AC-14 (not run)
+
 ## Commands
 
 - [ ] `curl "http://localhost:3000/api/v1/listings?pageSize=50"` → the new listing is in `items` with `price` 3500000 (a number), `areaM2` 22.5, `deposit` null and `availableFrom` null → AC-6 (value sourcing: price and area as numbers, blank deposit and date left out)
@@ -82,6 +98,8 @@ Side effects of the M3 self check on the local database: the listing `4qdbazm7` 
 - [ ] `npm run contrast -- --verbose` → `foreground` on `popover` is listed and passes, next to `muted-foreground`, `primary-foreground` on `primary`, `accent-foreground` on `accent` and `ring` on `popover`, the pairs of the calendar → AC-15
 - [ ] `npm run check` and `npm run build` pass with M2 in place, and `/landlord/listings/new` is still listed as static → AC-1, AC-15, AC-16
 - [ ] `npm run check` and `npm run build` pass with M3 in place, `/landlord/listings/[id]/edit` is listed as Partial Prerender (a static shell with the skeleton, so the `useParams` Suspense boundary works) and `/landlord/listings/new` is still static → AC-1, AC-16
+- [ ] `npm run check` and `npm run build` pass with M4 in place, and both pages are listed as before (new static, edit Partial Prerender) → AC-16
+- [ ] `grep -rn "@/features/listing" src/features/property` → nothing is found: the property feature does not import from the listing feature, only the other way round → AC-14
 
 ## Acceptance-criteria coverage
 
@@ -91,4 +109,4 @@ Built and covered by M2: AC-3 (deposit and the move in date join the schema) · 
 
 Built and covered by M3: AC-6 ("Sửa tin này" on the result view) · AC-8 (load states, the property as plain text, status label and public path, the admin notice, not found and not yours, the retry) · AC-9 (a save of changed fields only, the no change toast, `null` for a cleared deposit or date, the form reset to the answer, the block states) · AC-1, AC-7, AC-11 and AC-12 on the edit page · AC-16 (partly, until M4 checks both pages). `ListingForm` was split into the shared form and two callers (`PostListingForm`, `EditListingForm`), so the M1 and M2 steps above also cover the refactor.
 
-Not built yet, steps arrive with their milestone: AC-10, AC-14 (M4).
+Built and covered by M4: AC-10 (`useLeaveWarning` on both forms, driven by `formState.isDirty`) · AC-14 (the button "Đăng tin cho nhà trọ này", the property create drops the cached `["properties"]` lists, the listing create marks them out of date) · AC-12 and AC-16 (both pages at 320 px, clean console, `npm run check` and `npm run build`). Every AC of spec 0006 now has a built task; `/check verify` closes the open boxes.
