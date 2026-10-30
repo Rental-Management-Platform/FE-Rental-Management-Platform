@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { ListingBody } from "@/lib/api/types";
+import type { ListingBody, OwnerListingDetail } from "@/lib/api/types";
 
 // Light checks only: the backend is the real validator (api-for-frontend.md, 6.18). The limits
 // are the ones of `POST /properties/:propertyId/listings`. The form holds text, so the schema
@@ -106,4 +106,45 @@ export const toListingBody = ({
   areaM2,
   ...(deposit !== null && { deposit }),
   ...(availableFrom !== null && { availableFrom }),
+});
+
+/** What a save sends: any of the six fields, and only the ones that changed. */
+export type ListingPatch = Partial<ListingBody>;
+
+/**
+ * The form's starting values for a listing the server sent, as the text a person would type:
+ * digits for money, a comma in the area, `YYYY-MM-DD` or blank for the date. `propertyId` is
+ * carried so the values fit the form's type, but an edit never shows it and never sends it.
+ */
+export const fromOwnerListing = (
+  listing: OwnerListingDetail,
+): ListingInput => ({
+  propertyId: listing.property.id,
+  title: listing.title,
+  description: listing.description,
+  price: String(listing.price),
+  areaM2: String(listing.areaM2).replace(".", ","),
+  deposit: listing.deposit === null ? "" : String(listing.deposit),
+  availableFrom: listing.availableFrom ?? "",
+});
+
+/**
+ * The request body of a save: only the fields whose value differs from the last copy the server
+ * sent. A deposit or date that had a value and is blank now goes as `null` (it is `null` in the
+ * parsed values); one that was blank and still is equals `null` in both, so it is left out.
+ */
+export const toListingPatch = (
+  values: ListingValues,
+  current: OwnerListingDetail,
+): ListingPatch => ({
+  ...(values.title !== current.title && { title: values.title }),
+  ...(values.description !== current.description && {
+    description: values.description,
+  }),
+  ...(values.price !== current.price && { price: values.price }),
+  ...(values.areaM2 !== current.areaM2 && { areaM2: values.areaM2 }),
+  ...(values.deposit !== current.deposit && { deposit: values.deposit }),
+  ...(values.availableFrom !== current.availableFrom && {
+    availableFrom: values.availableFrom,
+  }),
 });

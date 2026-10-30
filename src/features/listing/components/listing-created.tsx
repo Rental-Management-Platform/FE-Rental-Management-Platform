@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +87,11 @@ export function ListingCreated({
             onClick={onPostAnother}
           >
             Đăng tin khác
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link href={`/landlord/listings/${listing.id}/edit`}>
+              Sửa tin này
+            </Link>
           </Button>
         </div>
       </CardContent>

@@ -15,10 +15,10 @@ code in `src/features/property/`, `src/app/(landlord)/landlord/properties/new/`,
 **Done when:** chủ trọ đăng được tin và sửa được tin, tin xuất hiện ngay ở trang tìm tin của khách, lỗi từng ô hiện đúng, chưa có nhà trọ thì dẫn đi tạo nhà trọ trước.
 - [x] Design it (spec): `/architect post a listing`
 - [ ] Build it: `/develop post a listing`
-code in `src/features/listing/`, `src/app/(landlord)/landlord/listings/new/`, `src/lib/format.ts`, `src/components/shells/nav-config.ts` (mục menu "Đăng tin"), `src/components/form/date-picker.tsx`, `src/components/ui/popover.tsx`, `src/components/ui/calendar.tsx`
+code in `src/features/listing/`, `src/app/(landlord)/landlord/listings/new/`, `src/app/(landlord)/landlord/listings/[id]/edit/`, `src/lib/format.ts`, `src/components/shells/nav-config.ts` (mục menu "Đăng tin"), `src/components/form/date-picker.tsx`, `src/components/ui/popover.tsx`, `src/components/ui/calendar.tsx`
   - [x] M1 Sợi chỉ mỏng: đăng được một tin thật với bốn ô bắt buộc, chọn nhà trọ, màn kết quả tại chỗ, nhãn trạng thái, đổi định dạng tiền và ngày sang `src/lib/format.ts`, mục menu "Đăng tin" (AC-1 đến AC-3, AC-6, AC-7, AC-11, AC-12, AC-13)
   - [x] M2 Đủ biểu mẫu: tiền cọc, dòng xem trước tiền, bộ chọn ngày của shadcn kèm sửa file, cặp tương phản và mục trong `/dev/ui` (AC-3 đến AC-6, AC-15)
-  - [ ] M3 Sửa tin: tải tin, so ô đã đổi, PATCH, trạng thái không tìm thấy hay không có quyền, tin bị admin ẩn, nút "Sửa tin này" (AC-6, AC-8, AC-9)
+  - [x] M3 Sửa tin: tải tin, so ô đã đổi, PATCH, trạng thái không tìm thấy hay không có quyền, tin bị admin ẩn, nút "Sửa tin này" (AC-6, AC-8, AC-9)
   - [ ] M4 Nối với #6 và hoàn thiện: nút "Đăng tin cho nhà trọ này", làm mới danh sách nhà trọ, cảnh báo khi rời trang, `npm run check` và `npm run build` (AC-10, AC-12, AC-14, AC-16)
 - [ ] Verify it: `/check verify post a listing` (cần backend chạy; ô "tin xuất hiện ở trang tìm tin" chỉ kiểm bằng `GET /listings` cho tới khi #8 xong)
 spec [0006](../specs/0006-post-a-listing/index.md) · Chọn: một biểu mẫu dùng chung cho đăng và sửa, địa chỉ phẳng `/landlord/listings/new` và `/landlord/listings/[id]/edit`, nhà trọ chọn trong biểu mẫu (hoặc gắn sẵn bằng `?propertyId=`, tối đa 50 nhà trọ), kết quả hiện tại chỗ với đường dẫn công khai dạng chữ cho tới khi có #9, tiền nhập bằng chữ số kèm dòng xem trước, ngày vào ở bằng bộ chọn ngày của shadcn, trang sửa hiện nhà trọ chỉ đọc và lý do khi bị admin ẩn, hỏi khi đóng tab lúc đang gõ dở.

@@ -1,50 +1,25 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { useForm, useWatch, type Path } from "react-hook-form";
-import { toast } from "sonner";
-import { FailureNotice } from "@/components/form/failure-notice";
+import type { FormEventHandler, ReactNode } from "react";
+import type { Control, Path } from "react-hook-form";
 import { DatePicker } from "@/components/form/date-picker";
+import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { isAbortError } from "@/lib/api/abort";
-import { isApiError } from "@/lib/api/errors";
-import type {
-  ListingBody,
-  OwnerListingDetail,
-  PropertyListItem,
-  Uuid,
-} from "@/lib/api/types";
-import { useFormFailure } from "@/lib/forms/use-form-failure";
-import { useApi } from "@/lib/session/auth-provider";
-import { createListing } from "../api/create-listing";
-import {
-  emptyListing,
-  listingSchema,
-  toListingBody,
-  type ListingInput,
-  type ListingValues,
-} from "../schemas/listing-schema";
+import type { ListingInput, ListingValues } from "../schemas/listing-schema";
 import { MoneyPreview, moneyPreviewText } from "./money-preview";
 
-// The form's own paths in screen order. A message the backend sends for a field this form
-// lacks is shown as the form level message, and focus goes to the first field in this order.
-const FIELDS: readonly Path<ListingInput>[] = [
-  "propertyId",
+/**
+ * The six fields every listing form has, in screen order. The post form puts `propertyId`
+ * before them; the edit form has no such field, so a backend message for it would have
+ * nowhere to go.
+ */
+export const LISTING_FIELDS: readonly Path<ListingInput>[] = [
   "title",
   "description",
   "price",
@@ -57,116 +32,47 @@ const FIELDS: readonly Path<ListingInput>[] = [
 const describedBy = (given: string | undefined, preview: string | undefined) =>
   [given, preview].filter(Boolean).join(" ") || undefined;
 
-const PROPERTY_HINT = "Địa chỉ, phí và tiện ích lấy từ nhà trọ bạn chọn.";
-
-// The backend says the property is gone, or is not the landlord's: both are fixed by reading
-// the list again, so the choice can be dropped when it is no longer there.
-const PROPERTY_ERRORS: readonly string[] = [
-  "PROPERTY_NOT_FOUND",
-  "NOT_RESOURCE_OWNER",
-];
-
 interface ListingFormProps {
-  /** The properties to choose from. At least one: the empty list is a state of the page. */
-  properties: readonly PropertyListItem[];
+  /** Names the form for a screen reader. */
+  label: string;
+  control: Control<ListingInput, unknown, ListingValues>;
+  /** The caller's `handleSubmit(...)`: what happens on submit differs for a post and a save. */
+  onSubmit: FormEventHandler<HTMLFormElement>;
   /**
-   * The property chosen when the form starts, or "". It goes into the starting values and is
-   * never set after mount, so the form is not dirty before the person types.
+   * The top of the first zone: the property select when posting, the property as plain text
+   * when editing (it cannot change).
    */
-  initialPropertyId: Uuid;
-  /** Focus goes to the title when the form starts, for "Đăng tin khác". */
-  focusTitleOnMount: boolean;
-  /** Reads the list again and answers with the fresh items (a failed read answers nothing). */
-  onRefreshProperties: () => Promise<readonly PropertyListItem[] | undefined>;
-  onPosted: (listing: OwnerListingDetail) => void;
+  property: ReactNode;
+  /** `failure` and `secondsLeft` of `useFormFailure`, and `errors.root?.server?.message`. */
+  failure: unknown;
+  message: string | undefined;
+  secondsLeft: number;
+  isSubmitting: boolean;
+  submitLabel: string;
+  busyLabel: string;
 }
 
-// The post listing form: two zones on the canvas with the notice and the submit row under them
-// (api-for-frontend.md, 6.18).
+// The listing form shared by the post and the edit page: two zones on the canvas with the notice
+// and the submit row under them (api-for-frontend.md, 6.18 and 6.22). The caller owns the form
+// state and the call; this draws the fields.
 export function ListingForm({
-  properties,
-  initialPropertyId,
-  focusTitleOnMount,
-  onRefreshProperties,
-  onPosted,
+  label,
+  control,
+  onSubmit,
+  property,
+  failure,
+  message,
+  secondsLeft,
+  isSubmitting,
+  submitLabel,
+  busyLabel,
 }: ListingFormProps) {
-  const api = useApi();
-  const create = useMutation({
-    mutationFn: ({
-      propertyId,
-      body,
-    }: {
-      propertyId: Uuid;
-      body: ListingBody;
-    }) => createListing(api, propertyId, body),
-  });
-  const {
-    control,
-    handleSubmit,
-    setError,
-    setValue,
-    setFocus,
-    clearErrors,
-    formState: { errors, isSubmitting },
-  } = useForm<ListingInput, unknown, ListingValues>({
-    resolver: zodResolver(listingSchema),
-    defaultValues: emptyListing(initialPropertyId),
-  });
-  const { failure, secondsLeft, report, clear } = useFormFailure(
-    setError,
-    FIELDS,
-  );
-  const propertyId = useWatch({ control, name: "propertyId" });
-  const chosen = properties.find((property) => property.id === propertyId);
-
-  useEffect(() => {
-    if (focusTitleOnMount) setFocus("title");
-  }, [focusTitleOnMount, setFocus]);
-
-  // A later read may no longer list the chosen property (it was deleted in another tab): the
-  // choice goes, so the person picks from the list as it is now.
-  useEffect(() => {
-    if (propertyId !== "" && !chosen) setValue("propertyId", "");
-  }, [propertyId, chosen, setValue]);
-
-  const clearFailure = () => {
-    clear();
-    clearErrors("root.server");
-  };
-
-  const onSubmit = async (values: ListingValues) => {
-    clearFailure();
-    try {
-      const listing = await create.mutateAsync({
-        propertyId: values.propertyId,
-        body: toListingBody(values),
-      });
-      toast.success("Đã đăng tin", { description: listing.title });
-      onPosted(listing);
-    } catch (error) {
-      // The session changed under the request (a sign out in this tab): there is nothing to show.
-      if (isAbortError(error)) return;
-      // Everything typed stays, also for the two quota errors: they are messages, never retried.
-      report(error);
-      if (isApiError(error) && PROPERTY_ERRORS.includes(error.code)) {
-        void onRefreshProperties().then((fresh) => {
-          if (
-            fresh &&
-            !fresh.some((property) => property.id === values.propertyId)
-          ) {
-            setValue("propertyId", "");
-          }
-        });
-      }
-    }
-  };
-
   return (
     <form
       noValidate
       method="post"
-      aria-label="Đăng tin mới"
-      onSubmit={handleSubmit(onSubmit, clearFailure)}
+      aria-label={label}
+      onSubmit={onSubmit}
       className="flex flex-col gap-6"
     >
       {/* Each zone is a labelled group, like the fieldset it replaces. The hairline under the
@@ -177,33 +83,7 @@ export function ListingForm({
         </CardHeader>
         <CardContent>
           <FieldGroup>
-            <FormField
-              control={control}
-              name="propertyId"
-              label="Nhà trọ"
-              description={chosen?.fullAddress ?? PROPERTY_HINT}
-            >
-              {({ field, aria }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger
-                    ref={field.ref}
-                    size="lg"
-                    className="w-full"
-                    onBlur={field.onBlur}
-                    {...aria}
-                  >
-                    <SelectValue placeholder="Chọn nhà trọ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {properties.map((property) => (
-                      <SelectItem key={property.id} value={property.id}>
-                        {property.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </FormField>
+            {property}
             <FormField
               control={control}
               name="title"
@@ -337,10 +217,7 @@ export function ListingForm({
       </Card>
 
       <div className="flex flex-col gap-4">
-        <FailureNotice
-          failure={failure}
-          message={errors.root?.server?.message}
-        />
+        <FailureNotice failure={failure} message={message} />
         <div className="flex flex-wrap gap-3">
           <Button
             type="submit"
@@ -349,7 +226,7 @@ export function ListingForm({
             aria-busy={isSubmitting}
           >
             {isSubmitting && <Spinner size="sm" />}
-            {isSubmitting ? "Đang đăng tin" : "Đăng tin"}
+            {isSubmitting ? busyLabel : submitLabel}
           </Button>
         </div>
       </div>

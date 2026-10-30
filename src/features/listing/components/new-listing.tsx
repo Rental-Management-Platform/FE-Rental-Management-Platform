@@ -13,8 +13,8 @@ import type { OwnerListingDetail, PropertyListItem } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import { propertiesQuery } from "../api/properties";
 import { ListingCreated } from "./listing-created";
-import { ListingForm } from "./listing-form";
 import { ListingTips } from "./listing-tips";
+import { PostListingForm } from "./post-listing-form";
 
 // The property to start with: the wanted one when it is in the list, else the only one there
 // is, else none (the person chooses). A junk or unknown `?propertyId=` is ignored, no message.
@@ -88,7 +88,7 @@ export function NewListing() {
       );
     }
     return (
-      <ListingForm
+      <PostListingForm
         properties={items}
         initialPropertyId={pickPropertyId(items, wantedId)}
         focusTitleOnMount={again !== null}

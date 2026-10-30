@@ -8,6 +8,10 @@ Self checked by `/develop` for M2 against the real backend on 2026-10-30: the `D
 
 Side effects of the M2 self check on the local database: listing "Phòng thử có gác gần chợ" (code `3x3jh97r`, deposit 0, no date, hidden by the owner through `POST /listings/:id/hide` to free a slot) and listing "Phòng có ban công nhận ngày 15/11" (deposit 7000000, `availableFrom` 2026-11-15, visible). `claude.dev.landlord1@example.com` now holds two visible listings, the trial limit, so the next post answers 403 `LISTING_QUOTA_REACHED` until one is hidden or deleted.
 
+Self checked by `/develop` for M3 against the real backend on 2026-10-31: the edit page for a visible listing (the six fields filled, the date `15/11/2026`, the property as plain text, the status label, the public path text, the tips zone, one `h1`, `noindex, nofollow`), a save with nothing changed (toast, no request), a price only save (`{"price":4300000}`), a title only save right after it (the price was not sent again, and the public path followed the new slug), a cleared deposit (`{"deposit":null}`, confirmed by `GET /me/listings/:id`), a save of area and deposit together (`{"areaM2":22.5,"deposit":5000000}`, the area field back to `22,5` afterwards), a bad title and price (two messages, focus on the title, no request), the not found state for a random UUID and for `not-a-uuid`, the not yours state for another landlord's listing, the error state with "Thử lại" and a working retry, a post followed by "Sửa tin này" into the edit form, 320 px with a clean console, the diff functions under node (`toListingPatch` and `fromOwnerListing` for ten cases), the post page after splitting `ListingForm` (same fields, preselected property, empty submit gives four messages and focus on the title, a real post with a four field body), `npm run check` and `npm run build`. Not run: the notice for a listing hidden by an admin (no admin account at hand, and a mocked `GET` is rejected by CORS because the test tool cannot add headers), the 403 and 404 answers to a save (they need a listing deleted or handed over in another tab), a `VALIDATION_FAILED` answer to a save, the 429 countdown, clearing the date in a real browser, a save of a listing with no deposit and no date, and a screen reader pass. The leave warning belongs to M4.
+
+Side effects of the M3 self check on the local database: the listing `4qdbazm7` was edited several times (price, title, deposit) and put back through the API, so its values are the original ones, but its `updatedAt` moved. One restore sent through `curl -d` stored a damaged title (the Windows shell changed the Vietnamese letters); it was repaired by sending the body from a UTF8 file with `--data-binary @file`, and the slug is again `phong-co-ban-cong-nhan-ngay-15-11`. The listing `uzsj2ftc` was hidden and shown again, and one throwaway listing "Phòng thử sửa tin M3" (code `e4q6jgbr`) was posted, edited and deleted (soft delete). `claude.dev.landlord1@example.com` again holds two visible listings, the trial limit.
+
 ## UI / manual
 
 **M1: post a listing**
@@ -44,6 +48,30 @@ Side effects of the M2 self check on the local database: listing "Phòng thử c
 - [ ] Open `/dev/ui` → the section "Chọn ngày" shows five states (empty, chosen, outside the years, `aria-invalid`, disabled) with the value that would be sent. Open `/dev/ui/screens/post-listing` → its "Ngày vào ở" is the same picker, not a native date input → AC-15
 - [ ] As a landlord at the limit, fill every field including a date and post → the backend message in the form alert, everything typed and the date kept, the submit enabled again, one request in the Network tab → AC-7
 
+**M3: edit a listing** (test listings of `claude.dev.landlord1@example.com`: `4qdbazm7` is `01a18d9b-7d19-7a01-9382-a9497e447494`, visible, deposit 7000000, date 2026-11-15; `3x3jh97r` is `01a18d99-9b0e-7ed7-9150-c8c511aa19b2`, hidden by its owner, deposit 0, no date)
+
+- [ ] Open `/landlord/listings/<id of 4qdbazm7>/edit` → the tab title is "Sửa tin", there is one `h1` "Sửa tin", `meta[name=robots]` says `noindex, nofollow`, a form skeleton shows while loading, then the form is filled: title, description, price `4200000`, area `25`, deposit `7000000` and the date trigger `15/11/2026` → AC-1, AC-8 (value sourcing: the form's first values, page titles)
+- [ ] On the same page → the first zone starts with "Nhà trọ" as plain text (the name, then the address as the backend joined it), not a select, and the form has no property field → AC-8 (value sourcing: property name and address)
+- [ ] The page header shows the status label "Đang hiện với khách" and the public path `/<slug>-<code>` as plain text (no link), and the tips zone sits at the side from `xl` → AC-8, AC-12 (value sourcing: status label, public path)
+- [ ] Open `3x3jh97r` → the label "Bạn đã ẩn", the deposit field shows `0`, and the date trigger shows "Chọn ngày" → AC-8 (value sourcing: the form's first values, status label) (not run)
+- [ ] Open a listing hidden by an admin → a warning notice "Admin đã ẩn tin này" with "Lý do:" and the backend reason as plain text (a `<b>` in the reason stays text), the line "Bạn vẫn sửa được tin này để khắc phục.", the label "Admin đã ẩn", and the form still saves → AC-8, AC-9 (value sourcing: status label and admin reason) (not run: needs an admin to hide a listing)
+- [ ] Press "Lưu thay đổi" with nothing changed → the toast "Chưa có thay đổi nào" and no request in the Network tab → AC-9
+- [ ] Change only the price and save → the PATCH body is exactly `{"price":…}` and the toast "Đã lưu tin" shows. Then change only the title and save → that body holds the title only, not the price again (the server copy moved on after the first save) → AC-9 (value sourcing: which fields go in the PATCH)
+- [ ] After a save with a new title → the public path text in the header follows the new slug from the answer → AC-9 (value sourcing: public path)
+- [ ] Type `22.5` over a loaded `22,5` and change nothing else, save → the toast "Chưa có thay đổi nào" and no request. After a real change the area field shows `22,5` again → AC-9, AC-8
+- [ ] Clear the deposit and save → the body is `{"deposit":null}` and `GET /me/listings/:id` has `deposit` null. Clear the date with "Bỏ chọn" and save → `{"availableFrom":null}` → AC-9 (value sourcing: `null` for deposit or date) (the date part is not run in a browser)
+- [ ] On a listing with no deposit and no date, change only the title and save → the body holds neither `deposit` nor `availableFrom` → AC-9 (value sourcing: blank before and now is left out) (not run in a browser)
+- [ ] Set the title to `ab` and the price to `abc`, then save → both messages under their inputs, both `aria-invalid`, focus on the title, no request → AC-9, AC-7
+- [ ] Make the backend answer 400 `VALIDATION_FAILED` to a save for a field of the form → the message shows under that input and focus moves there. A message for a field the form lacks shows as the form message → AC-9 (not run)
+- [ ] Open `/landlord/listings/00000000-0000-4000-8000-000000000000/edit` and `/landlord/listings/not-a-uuid/edit` → both show "Không tìm thấy tin" as the one heading, with a link to `/` and no form → AC-8
+- [ ] Open the edit address of another landlord's listing → "Bạn không có quyền truy cập" as the one heading, the sentence "Bạn không có quyền sửa tin này", no form → AC-8
+- [ ] Delete the listing in another tab, then save → "Không tìm thấy tin" replaces the form. Hand a listing to another landlord in the database, then save → the not yours state replaces the form → AC-9 (not run)
+- [ ] Block `GET **/me/listings/*` and open the edit page → the error state with the network message and "Thử lại", the header stays. Unblock and press "Thử lại" → the form loads → AC-8
+- [ ] With the form shown, switch to another window and back, then go offline and online → the form is not refilled and typed text stays → AC-8 (not run)
+- [ ] Post a listing and press "Sửa tin này" in the result → the link points to `/landlord/listings/<id>/edit` and the form shows that listing (area with a comma, blank deposit, "Chọn ngày") → AC-6, AC-8
+- [ ] Press save more than the 60 writes an hour limit allows → `RateLimitNotice` with the countdown, save disabled until it ends → AC-11 (not run: 60 writes)
+- [ ] At 320 px on the edit page → no sideways scroll, the console has no error and no hydration warning → AC-12, AC-16
+
 ## Commands
 
 - [ ] `curl "http://localhost:3000/api/v1/listings?pageSize=50"` → the new listing is in `items` with `price` 3500000 (a number), `areaM2` 22.5, `deposit` null and `availableFrom` null → AC-6 (value sourcing: price and area as numbers, blank deposit and date left out)
@@ -53,6 +81,7 @@ Side effects of the M2 self check on the local database: listing "Phòng thử c
 - [ ] `grep -rn 'type="date"' src` → nothing is found: no native date input is left → AC-15
 - [ ] `npm run contrast -- --verbose` → `foreground` on `popover` is listed and passes, next to `muted-foreground`, `primary-foreground` on `primary`, `accent-foreground` on `accent` and `ring` on `popover`, the pairs of the calendar → AC-15
 - [ ] `npm run check` and `npm run build` pass with M2 in place, and `/landlord/listings/new` is still listed as static → AC-1, AC-15, AC-16
+- [ ] `npm run check` and `npm run build` pass with M3 in place, `/landlord/listings/[id]/edit` is listed as Partial Prerender (a static shell with the skeleton, so the `useParams` Suspense boundary works) and `/landlord/listings/new` is still static → AC-1, AC-16
 
 ## Acceptance-criteria coverage
 
@@ -60,4 +89,6 @@ Built and covered by M1: AC-1 (menu, page, titles) · AC-2 (property read, state
 
 Built and covered by M2: AC-3 (deposit and the move in date join the schema) · AC-4 (money preview) · AC-5 (the date picker) · AC-6 (deposit and `availableFrom` in the body, blank ones left out) · AC-15 (`popover` and `calendar` edited as spec 0003 says, the `foreground` on `popover` pair, `/dev/ui` section, sample screen) · AC-12 and AC-16 (320 px and console, still to be checked on both pages in M4).
 
-Not built yet, steps arrive with their milestone: AC-8, AC-9 (M3) · AC-10, AC-14 (M4) · AC-6 "Sửa tin này" (M3).
+Built and covered by M3: AC-6 ("Sửa tin này" on the result view) · AC-8 (load states, the property as plain text, status label and public path, the admin notice, not found and not yours, the retry) · AC-9 (a save of changed fields only, the no change toast, `null` for a cleared deposit or date, the form reset to the answer, the block states) · AC-1, AC-7, AC-11 and AC-12 on the edit page · AC-16 (partly, until M4 checks both pages). `ListingForm` was split into the shared form and two callers (`PostListingForm`, `EditListingForm`), so the M1 and M2 steps above also cover the refactor.
+
+Not built yet, steps arrive with their milestone: AC-10, AC-14 (M4).
