@@ -4,7 +4,7 @@ Khu của chủ trọ: nhà trọ, tin đăng, ảnh, trạng thái dùng thử,
 
 ## Slice 1: Vòng lặp lõi
 
-### 6. First property · in-progress
+### 6. First property · done
 Biểu mẫu tạo nhà trọ ở mức mỏng nhất: tên, số nhà và tên đường, phường hoặc xã chọn từ `GET /wards`. Chưa có phí, tiện ích, tọa độ. Không có ô quận huyện.
 **Done when:** chủ trọ tạo được nhà trọ, địa chỉ đầy đủ hiện đúng như backend ghép sẵn, `WARD_UNKNOWN` và lỗi từng ô hiện đúng chỗ.
 - [x] Build it: `/develop first property`
