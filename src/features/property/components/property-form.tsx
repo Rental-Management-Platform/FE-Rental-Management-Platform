@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CircleAlertIcon } from "lucide-react";
 import { useId } from "react";
 import { useForm, useWatch, type Path } from "react-hook-form";
@@ -32,6 +32,7 @@ import type { Property, PropertyBody } from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
 import { createProperty } from "../api/create-property";
+import { propertiesKey } from "../api/properties-key";
 import { wardsQuery } from "../api/wards";
 import {
   EMPTY_PROPERTY,
@@ -57,9 +58,17 @@ export function PropertyForm({
   onCreated: (property: Property) => void;
 }) {
   const api = useApi();
+  const queryClient = useQueryClient();
   const wards = useQuery(wardsQuery(api));
   const create = useMutation({
     mutationFn: (body: PropertyBody) => createProperty(api, body),
+    // The listing form's picker would miss the new property. A plain "out of date" mark is not
+    // enough: the picker would still mount from the old list, and `?propertyId=` is read once
+    // at mount, so the new property would not be chosen. The old list is dropped instead, and
+    // the picker waits for a fresh one. Not returned, so the result does not wait for the read.
+    onSuccess: () => {
+      void queryClient.resetQueries({ queryKey: propertiesKey });
+    },
   });
   const provinceId = useId();
   const {

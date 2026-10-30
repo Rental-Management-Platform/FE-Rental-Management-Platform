@@ -14,6 +14,7 @@ import {
   updateListing,
   type ListingBlock,
 } from "../api/owner-listing";
+import { useLeaveWarning } from "../hooks/use-leave-warning";
 import {
   fromOwnerListing,
   listingSchema,
@@ -60,7 +61,7 @@ export function EditListingForm({
     setError,
     clearErrors,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ListingInput, unknown, ListingValues>({
     resolver: zodResolver(listingSchema),
     defaultValues: initial,
@@ -69,6 +70,9 @@ export function EditListingForm({
     setError,
     LISTING_FIELDS,
   );
+
+  // A save resets the form to the answer, so it is not dirty any more and the warning is off.
+  useLeaveWarning(isDirty);
 
   const clearFailure = () => {
     clear();

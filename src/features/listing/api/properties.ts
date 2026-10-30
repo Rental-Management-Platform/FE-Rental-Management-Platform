@@ -1,4 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
+import { propertiesKey } from "@/features/property/api/properties-key";
 import type { ApiClient } from "@/lib/api/client";
 import type { Page, PropertyListItem } from "@/lib/api/types";
 
@@ -13,7 +14,7 @@ const PICKER_PAGE = { page: 1, pageSize: 50 } as const;
  */
 export const propertiesQuery = (api: ApiClient) =>
   queryOptions({
-    queryKey: ["properties", "mine", PICKER_PAGE],
+    queryKey: [...propertiesKey, "mine", PICKER_PAGE],
     queryFn: ({ signal }) =>
       api.get<Page<PropertyListItem>>("/properties", {
         query: PICKER_PAGE,

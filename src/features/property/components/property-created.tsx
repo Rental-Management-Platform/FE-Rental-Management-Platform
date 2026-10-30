@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Property } from "@/lib/api/types";
 
 // What the page shows once the property exists. `fullAddress` is joined by the backend, so it
-// is shown as it came and never put together here (api-for-frontend.md, 6.17). #12 replaces
+// is shown as it came and never put together here (api-for-frontend.md, 6.17). "Đăng tin cho
+// nhà trọ này" opens the listing form with this property chosen (spec 0006, AC-14). #12 replaces
 // this view with a trip to the list of properties.
 export function PropertyCreated({
   property,
@@ -48,7 +50,14 @@ export function PropertyCreated({
             <dd className="text-base font-medium">{property.fullAddress}</dd>
           </div>
         </dl>
-        <div>
+        <div className="flex flex-wrap gap-3">
+          <Button asChild size="lg">
+            <Link
+              href={`/landlord/listings/new?propertyId=${encodeURIComponent(property.id)}`}
+            >
+              Đăng tin cho nhà trọ này
+            </Link>
+          </Button>
           <Button
             type="button"
             variant="outline"

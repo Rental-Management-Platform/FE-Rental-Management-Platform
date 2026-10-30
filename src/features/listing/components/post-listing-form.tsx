@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm, useWatch, type Path } from "react-hook-form";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { propertiesKey } from "@/features/property/api/properties-key";
 import { isAbortError } from "@/lib/api/abort";
 import { isApiError } from "@/lib/api/errors";
 import type {
@@ -24,6 +25,7 @@ import type {
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
 import { createListing } from "../api/create-listing";
+import { useLeaveWarning } from "../hooks/use-leave-warning";
 import {
   emptyListing,
   listingSchema,
@@ -71,6 +73,7 @@ export function PostListingForm({
   onPosted,
 }: PostListingFormProps) {
   const api = useApi();
+  const queryClient = useQueryClient();
   const create = useMutation({
     mutationFn: ({
       propertyId,
@@ -79,6 +82,10 @@ export function PostListingForm({
       propertyId: Uuid;
       body: ListingBody;
     }) => createListing(api, propertyId, body),
+    // The property's `listingCount` moved. Not returned, so the result does not wait for the read.
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: propertiesKey });
+    },
   });
   const {
     control,
@@ -87,7 +94,7 @@ export function PostListingForm({
     setValue,
     setFocus,
     clearErrors,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ListingInput, unknown, ListingValues>({
     resolver: zodResolver(listingSchema),
     defaultValues: emptyListing(initialPropertyId),
@@ -98,6 +105,9 @@ export function PostListingForm({
   );
   const propertyId = useWatch({ control, name: "propertyId" });
   const chosen = properties.find((property) => property.id === propertyId);
+
+  // The result replaces this form after a post, which unmounts it and switches the warning off.
+  useLeaveWarning(isDirty);
 
   useEffect(() => {
     if (focusTitleOnMount) setFocus("title");
