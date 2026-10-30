@@ -13,8 +13,15 @@ const LOGO_ALT = `${SITE_NAME}. ${SITE_SLOGAN}`;
 // `unoptimized`: they are small fixed files that need no resizing, and in proxy mode
 // `next.config.ts` lets the image optimizer fetch only the API photo paths, so it would refuse them.
 
+interface BrandImageProps {
+  className?: string;
+  // `eager` for a logo above the fold (the header): it is the largest paint there, so it must
+  // not wait for the lazy loader. The footer one is below the fold and keeps the default.
+  loading?: "eager" | "lazy";
+}
+
 /** The whole logo as it was drawn: the house, the name and the slogan under it. */
-export function BrandLogo({ className }: { className?: string }) {
+export function BrandLogo({ className, loading }: BrandImageProps) {
   return (
     <Image
       src="/logo.png"
@@ -22,13 +29,14 @@ export function BrandLogo({ className }: { className?: string }) {
       width={720}
       height={629}
       unoptimized
+      loading={loading}
       className={cn("h-14 w-auto shrink-0", className)}
     />
   );
 }
 
 /** The house alone, for a place too narrow for the whole logo. */
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({ className, loading }: BrandImageProps) {
   return (
     <Image
       src="/logo-mark.png"
@@ -36,6 +44,7 @@ export function BrandMark({ className }: { className?: string }) {
       width={192}
       height={192}
       unoptimized
+      loading={loading}
       className={cn("size-10 shrink-0", className)}
     />
   );
@@ -63,14 +72,20 @@ export function BrandLink({
         className,
       )}
     >
+      {/* The brand link sits in a header, always above the fold, so both pictures load at once
+          (the house too, so collapsing the side menu never waits for it). */}
       <BrandLogo
+        loading="eager"
         className={cn(
           collapsedToMark && "group-data-[collapsible=icon]:hidden",
           logoClassName,
         )}
       />
       {collapsedToMark && (
-        <BrandMark className="hidden group-data-[collapsible=icon]:block" />
+        <BrandMark
+          loading="eager"
+          className="hidden group-data-[collapsible=icon]:block"
+        />
       )}
     </Link>
   );
