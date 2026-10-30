@@ -4,10 +4,11 @@ Khu của chủ trọ: nhà trọ, tin đăng, ảnh, trạng thái dùng thử,
 
 ## Slice 1: Vòng lặp lõi
 
-### 6. First property
+### 6. First property · in-progress
 Biểu mẫu tạo nhà trọ ở mức mỏng nhất: tên, số nhà và tên đường, phường hoặc xã chọn từ `GET /wards`. Chưa có phí, tiện ích, tọa độ. Không có ô quận huyện.
 **Done when:** chủ trọ tạo được nhà trọ, địa chỉ đầy đủ hiện đúng như backend ghép sẵn, `WARD_UNKNOWN` và lỗi từng ô hiện đúng chỗ.
-- [ ] Build it: `/develop first property`
+- [x] Build it: `/develop first property`
+code in `src/features/property/`, `src/app/(landlord)/landlord/properties/new/`, `src/components/shells/nav-config.ts` (mục menu "Thêm nhà trọ")
 
 ### 7. Post a listing · needs a decision
 Đăng tin từ một nhà trọ: tiêu đề, mô tả, giá, diện tích, tiền cọc và ngày vào ở (hai ô sau không bắt buộc). Tin hiện ngay, đăng xong mở được trang công khai. Cùng biểu mẫu này dùng để sửa tin (mở bằng `GET /me/listings/:id`, chỉ gửi ô đã đổi, sửa được ở mọi trạng thái kể cả tin bị admin ẩn; bỏ tiền cọc hoặc ngày vào ở thì gửi `null`). Việc chặn theo hạn mức làm ở Slice 4.
