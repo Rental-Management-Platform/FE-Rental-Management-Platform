@@ -29,7 +29,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 5 | Sign up and sign in | Slice 1 | done |
 | 6 | First property | Slice 1 | done |
 | 7 | Post a listing | Slice 1 | done |
-| 31 | Landlord and admin dashboards | Slice 1 | planned |
+| 31 | Landlord and admin dashboards | Slice 1 | in-progress |
 | 8 | Find listings | Slice 1 | planned |
 | 9 | Listing detail | Slice 1 | planned |
 | 10 | Listing photos | Slice 2 | done |
@@ -62,7 +62,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 6 planned, 2 dropped (#16, #29).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 3 done, 4 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26). 7 planned.
-* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 planned.
+* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 in-progress.
 
 ## Các giai đoạn
 
@@ -85,6 +85,7 @@ Ngoài phạm vi lần này, giữ lại để kế hoạch còn trung thực.
 * **Kéo thả tệp vào khối ảnh**: chủ trọ kéo ảnh từ máy thả vào khối ảnh của tin; cần thêm trạng thái kéo qua và cách dùng bằng bàn phím; sinh ra từ spec 0007 · needs a decision
 * **Chọn nơi chạy khi demo trên mạng (hosting)**: chọn nơi đặt FE và API trước khi demo online. Cookie đăng nhập là `SameSite=Strict`, nên hai nơi khác site cần proxy; xem mục "If hosting changes" trong spec 0001 · needs a decision
 * **Cứng hóa lớp phiên khi hai tab đổi tài khoản**: tab B còn là khách ở `/login` trong khi tab A đã đăng nhập, rồi B đăng nhập tài khoản khác thì cookie làm mới đổi, còn tab A vẫn hiện người cũ. Sau mỗi lần làm mới cần gọi `/auth/me` và so `user.id`. Phải sửa spec 0002; sinh ra từ spec 0005 · needs a decision
+* **Liên kết về dashboard từ trang "không có quyền"**: người của loại tài khoản khác mở nhầm `/landlord` hay `/admin` thấy trang báo không có quyền, nên có thêm nút về dashboard của chính họ; sinh ra từ spec 0008 · needs a decision
 * **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, danh sách đang theo dõi, thông báo, thống kê cho chủ trọ (kể cả lượt lưu tin), đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ.
 * **Backend đã bỏ khỏi kế hoạch, đừng làm**: duyệt tin trước khi hiện, VNPay, xác thực chủ trọ bằng giấy tờ, báo cáo tin xấu, liên hệ chủ trọ có giới hạn mỗi ngày, đẩy tin và tin nổi bật, kiểm tra tại chỗ, quảng cáo, dashboard thu chi, tìm quanh một địa điểm, đổi loại tài khoản.
 
