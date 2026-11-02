@@ -4,10 +4,17 @@ Phần dành cho khách và người tìm trọ: tìm tin, xem tin, lưu tin, h�
 
 ## Slice 1: Vòng lặp lõi
 
-### 8. Find listings · needs a decision
+### 8. Find listings · in-progress
 Trang danh sách tin công khai, điện thoại trước: ô tìm kiếm theo từ khóa, thẻ tin (ảnh bìa lấy từ `coverImageUrl`, tiêu đề, giá, diện tích, `fullAddress`), phân trang. Chưa có ảnh bìa thì hiện ảnh thay thế, ảnh trả 404 thì ẩn ô ảnh chứ không báo lỗi. Cách ghép địa chỉ ảnh dùng chung với #9 và #10 (xem AC-12 của spec 0007); mục nào xây trước thì tạo ra nó. Là nơi khách vào đầu tiên và là trang gốc của trang web (hợp đồng không có trang chủ riêng). Có metadata cho SEO.
 **Done when:** khách tìm theo từ khóa và chuyển trang được, địa chỉ URL phản ánh tìm kiếm, thẻ tin hiện ảnh bìa thật (chưa có ảnh thì hiện ảnh thay thế, ảnh lỗi thì ẩn ô ảnh), trạng thái trống, lỗi và 429 hiển thị đúng, trang có metadata SEO và dùng mượt trên điện thoại.
-- [ ] Design it (spec): `/architect find listings`
+- [x] Design it (spec): `/architect find listings`
+- [ ] Build it: `/develop find listings`
+  - [ ] M1 Sợi chỉ mỏng: đọc `GET /listings` ở máy chủ với tư cách khách (`src/lib/api/server.ts`), bộ phân tích địa chỉ cho `q` và `page`, trang `/` hiện các tin thật kèm liên kết trang thật (AC-1 đến AC-3, AC-5, AC-7, AC-14)
+  - [ ] M2 Thẻ tin: thẻ dùng chung lấy từ thẻ mẫu, ô ảnh bìa (chưa có ảnh thì ảnh thay thế, ảnh lỗi thì ẩn ô), lưới ba cột, khung chờ mỗi lần đổi từ khóa hoặc trang (AC-6 đến AC-9, AC-15)
+  - [ ] M3 Tìm kiếm và trạng thái: ô tìm kiếm `next/form`, không có tin, trang quá cuối, lỗi và 429 có nút "Thử lại" (AC-4, AC-10, AC-11)
+  - [ ] M4 Công cụ tìm kiếm và hoàn thiện: metadata, `robots.txt`, các trạng thái của thẻ trong `/dev/ui`, kiểm ở 320 và 390 px, `npm run check` và `npm run build` (AC-12, AC-13, AC-15, AC-16)
+- [ ] Verify it: `/check verify find listings`
+spec [0009](../specs/0009-find-listings/index.md) · Chọn: đọc danh sách ở máy chủ với tư cách khách, không bộ nhớ đệm (tin bị ẩn biến ngay), mỗi lần vào là một lần gọi API; từ khóa và số trang nằm trong địa chỉ (`?q=` và `?page=`), địa chỉ lạ thì lặng lẽ về trang 1, không chuyển hướng; ô tìm kiếm là biểu mẫu `next/form` gửi bằng Enter hoặc nút, chạy được khi tắt JavaScript; 12 thẻ mỗi trang, thẻ lấy nguyên từ thẻ mẫu và dùng chung (`src/components/listing-card.tsx`, `listing-photo.tsx`), chưa là liên kết cho đến khi #9 truyền địa chỉ; ảnh chưa có thì ảnh thay thế, ảnh lỗi thì ẩn ô ảnh; chỉ trang danh sách thường được lập chỉ mục, trang có từ khóa là `noindex, follow` và bị chặn trong `robots.txt`; không có JSON-LD ở trang này; sitemap và thẻ chia sẻ để #9.
 
 ### 9. Listing detail · needs a decision
 Trang `/<slug>-<code>`: nội dung tin, địa chỉ, giá, nhà trọ. Số điện thoại chỉ hiện khi đã đăng nhập, khách thấy nút "Đăng nhập để xem số điện thoại". Nếu `slug` trả về khác địa chỉ thì sửa lại thanh địa chỉ. Thư viện ảnh lấy từ `images[]` (tối đa 5 ảnh; chưa có ảnh thì hiện ảnh thay thế, ảnh trả 404 thì ẩn ô ảnh chứ không báo lỗi), dùng chung cách ghép địa chỉ ảnh với #8 (xem AC-12 của spec 0007). Phí và tiện ích được thêm ở Slice 2 (#11). Có metadata và thẻ chia sẻ cho SEO.
