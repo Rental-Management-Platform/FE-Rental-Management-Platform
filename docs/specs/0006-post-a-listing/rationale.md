@@ -131,3 +131,33 @@ An independent pass on a different model (Opus) read the spec, the API contract,
 
 **Unchecked until build**
 - Whether the installed `react-day-picker` has a `today` prop, and whether reading `useParams` under `cacheComponents` needs the `<Suspense>` as written. `npm run build` confirms the second.
+
+## Update of 2026-11-02: posting now needs photos
+
+What changed (`api-for-frontend.md`, section 6.18 and the change log of 2026-11-02): `POST /properties/:propertyId/listings` takes only `multipart/form-data`, the text fields plus 1 to 5 photos in the field `images`. The listing, its photo rows and its files are saved all together or not at all. The JSON call answers 400 `IMAGE_INVALID`, and it was confirmed against the running backend on the same day (while building M2 of spec 0007) that the form built in M1 to M4 fails this way, so posting from the app is broken until M5 is built.
+
+The shape of the call is forced by the backend, so there are no options to weigh there. The choices left are inside the form. They are settled by me and the engineer confirms or changes them at the accept step.
+
+| Decision | Pick | Why | Runner up |
+|---|---|---|---|
+| Where the chosen photos live | In the state of the post form (`usePickedPhotos`), outside `listingSchema` | `File` objects do not fit a text schema, and the leave warning only needs "at least one photo" added by hand | A React Hook Form field with `z.instanceof(File)`; dirty tracking of files is awkward |
+| How the order is changed | Two buttons per tile, earlier and later, no drag | The backend has no reorder and the first photo is the cover, so the order must be right before sending. Buttons work with a keyboard and a screen reader, and match the "no drag and drop" call of spec 0007 | Drag and drop, or only a "make cover" button |
+| Errors of a bad photo | Mark the tile named by `images.N`, with a fixed summary line in the form message | The backend names the exact file, and the person can fix just that one | Show every row in the form message |
+| Time limit of the post | 180 seconds, fixed | Five photos of 5 MiB are 25 MiB, which a connection of about 1.2 Mbps sends in that time. The one photo limit of 60 seconds from spec 0007 would fail on a weak connection | Scale it by the size of the files |
+| A lost answer | Read `GET /me/listings` first, match on title, price, area and time, and post again only if nothing matches | The backend has no key against duplicates and the contract says to check before sending again. It is the same rule as AC-9 of spec 0007 | A warning text only; no handling |
+| Photo controls while sending | Disabled | The index in `images.N` must mean the same tile that was sent | Leave them editable and map by file name |
+| Previews after success | `usePickedPhotos` hands them over, `NewListing` owns them and lends them to the photo zone | Spec 0007 AC-10 needs them for a listing that is not public at once. One owner stops React strict mode and the unmount of the form from freeing them early | Released at once, or owned by the zone |
+
+The lost answer rule is the part I would drop first if the form must stay simple: it adds one read and a small match function. Dropping it leaves a real chance of a duplicate public listing on a bad connection, because the request is now up to 25 MiB.
+
+## Cross check of the update (2026-11-02, another model, read only)
+
+An independent pass on a different model (Opus) read both amended specs, the contract and the listing code. It found nothing that contradicts `api-for-frontend.md`, and listed nine gaps in decisions and four small items. The two facts it relied on were checked against the code before the fixes were applied (`INVALID_RESPONSE` is thrown with the real `status`, and `usePhotoUploads` releases the previews it tracks when it unmounts). All were applied by the engineer's pick.
+
+**Applied**
+- Photo errors are not passed to `useFormFailure.report`, because it would join every unknown field into the form message. The form sets its own fixed line, marks are kept by photo id, and focus goes to the first marked tile.
+- A lost answer also covers an unreadable answer (`INVALID_RESPONSE`). The attempt lives in a `useRef`, the match window is 10 minutes and the newest match wins, and a found listing is confirmed by property id and photo count. Previews are handed over only when the photo list is unchanged.
+- One owner for the previews: the picker until the post succeeds, then `NewListing`, which lends them to the photo zone. This avoids React strict mode and the unmount of the form freeing them early.
+- Two live regions for the picker, and the "no free slot" wording depends on where the pick happens.
+- Build order: the result view part moved from M4 of spec 0007 into M5 of this spec, so AC-6 can be checked at the end of M5.
+- Small items: the photo controls lock for the whole `isSubmitting`, the worst case after a token refresh is noted, the disabled delete button also checks the count in its click handler, and `post-listing-form.tsx` is named in Files.

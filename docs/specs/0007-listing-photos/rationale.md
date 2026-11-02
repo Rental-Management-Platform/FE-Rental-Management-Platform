@@ -6,7 +6,7 @@ This is the decision record for [spec 0007](index.md). The build spec is `index.
 
 > ⚠️ Premise note: scope item #10 is built after #8 (find listings) and #9 (listing detail), and both of those must already show photos, because the demo data holds more than 200 and a card with an empty frame would look broken. Leaving the cover photo and the gallery to #10 means going back to edit two finished pages. This spec therefore keeps #10 on the landlord side and moves the public photos to #8 and #9, which share one small helper (`mediaUrl`). The scope text needs the matching change (spec Follow up).
 
-The backend is finished and lets a landlord attach up to five photos to a listing. Four facts shape the design. A photo needs the id of the listing, so it can only be sent after the listing exists; there is no call that creates both. The backend takes exactly one file per request, and sending the same file twice makes two photos, so a repeated upload is never safe. The client gives every attempt 20 seconds, which a 5 MiB photo on a weak connection can pass while the file still reaches the backend. And the public photo address answers 404 for any listing that is not public now, while an image request carries no token, so the landlord cannot see the photos of a hidden listing through that address.
+The backend is finished and lets a landlord attach up to five photos to a listing. Four facts shaped the first version of this design. A photo needs the id of the listing, so it could only be sent after the listing existed; there was no call that created both (this changed on 2026-11-02, see "Update of 2026-11-02" at the end). The backend takes exactly one file per request, and sending the same file twice makes two photos, so a repeated upload is never safe. The client gives every attempt 20 seconds, which a 5 MiB photo on a weak connection can pass while the file still reaches the backend. And the public photo address answers 404 for any listing that is not public now, while an image request carries no token, so the landlord cannot see the photos of a hidden listing through that address.
 
 Spec 0006 built the post and edit forms and left photos out on purpose, with a follow up to add a photo block to the edit page. Without this decision a landlord can post a listing but cannot give it a photo, and every public page shows an empty frame for new listings.
 
@@ -62,3 +62,22 @@ Other calls made in this spec, each with its reason:
 - **Local preview kept as a fallback.** Without it a landlord who uploads to a hidden listing sees no photo at all and thinks it failed.
 - **A one line note about EXIF, no stripping.** Stripping means redrawing the image in the browser, which costs quality and code. The address of the property is public already, so the added risk is low.
 - **No drag and drop.** The file button already takes many files; drag and drop adds states and keyboard equivalents for little gain in a demo.
+
+## Update of 2026-11-02: the backend changed twice
+
+What changed (`api-for-frontend.md`, change log of 2026-11-02, sections 6.18 and 6.28):
+
+- Posting a listing takes `multipart/form-data` with 1 to 5 photos in one call, saved all together or not at all. The JSON call is gone (it answers 400 `IMAGE_INVALID`).
+- The last photo of a listing cannot be deleted (409 `LISTING_IMAGE_REQUIRED`). Listings posted before that day may have no photo, and nothing forces them to get one.
+
+What it does to the first version. The premise of Option 1, "post first, add photos after", no longer holds for a new listing, and its negative "the listing is public for a moment without photos" is gone. Option 1 still stands for what it was good at: one component and one hook for a listing that exists (more photos, delete, the edit page), with the one at a time queue. Option 2 (choose the photos in the post form) is now required for the first photos, but not in the shape rejected then: it is one atomic call, so its worry about "the listing exists while some photos failed" does not apply. The picker itself is specified in spec 0006 (AC-17).
+
+Settled by me in this update. The engineer confirms or changes these at the accept step.
+
+| Decision | Pick | Why | Runner up |
+|---|---|---|---|
+| Delete of the last photo | The button is off (`aria-disabled`), with a reason line, and a 409 is handled | The contract says to turn it off. `aria-disabled` keeps the button in the tab order so the reason can be heard | Hide the button, or use `disabled` |
+| Zone under the result view | Keep `ListingPhotos`, starting from the photos the post carried | It exists, shows the saved photos, and lets the landlord add up to five | Drop it from the result and link to the edit page |
+| Previews after a post | `NewListing` owns the picker's previews and lends them to the zone | A listing over quota is hidden at once and answers 404 for its photos, and the landlord has just chosen them | Release them and show the placeholder |
+| Listings with no photo | Leave them as they are | The contract does not touch them, and the zone already says there is none | Block editing until a photo exists |
+| Help line under the grid | One line per state (none, one photo, two or more) | The old line "delete the cover to change it" is wrong for a single photo | One line for all |

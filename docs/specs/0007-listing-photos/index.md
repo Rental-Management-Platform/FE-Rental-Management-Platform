@@ -1,35 +1,36 @@
 # 0007. Photo block for listings in the landlord area of the web frontend
 
 **Date**: 2026-11-02
+**Updated**: 2026-11-02 (the backend now needs photos when posting and keeps the last photo, see Amendments)
 **Status**: In Progress
 
 ## Summary
 
-This feature lets a landlord add and remove up to five photos on a listing. One photo zone appears under the result view right after posting and again on the edit page, and it saves each photo the moment it is uploaded, apart from the form's own Save button. The landlord can pick several files at once, and the page sends them one at a time because the backend takes one file per request. It adds one small client option (a longer time limit for uploads), and no backend change, table, package or environment variable. The cover photo on cards and the gallery on the detail page stay with #8 and #9.
+This feature lets a landlord manage up to five photos on a listing that exists. One photo zone appears under the result view right after posting and again on the edit page, and it saves each photo the moment it is uploaded, apart from the form's own Save button. The landlord can pick several files at once, and the page sends them one at a time because the backend takes one file per request. Since 2026-11-02 the first 1 to 5 photos are chosen in the post form and travel with the listing (spec 0006, AC-17), so the zone starts from those photos, and the last photo of a listing can no longer be deleted: its delete button is off and says why. It adds one small client option (a longer time limit for uploads), and no backend change, table, package or environment variable. The cover photo on cards and the gallery on the detail page stay with #8 and #9.
 
 ## Requirements
 
-Seeded from scope item #10 and refined with the engineer. Contract with the backend: `api-for-frontend.md` sections 6.21, 6.28, 7 (step 8), 8 and Appendix C. Pattern to follow: spec 0006 (`src/features/listing`). Spec 0006 left "Photos: #10" out of its scope and listed "#10: add the photo block to the edit page" as follow up; this spec closes it.
+Seeded from scope item #10 and refined with the engineer. Contract with the backend: `api-for-frontend.md` sections 6.18, 6.21, 6.28, 7 (step 8), 8 and Appendix C, and the change log entry of 2026-11-02. Pattern to follow: spec 0006 (`src/features/listing`). Spec 0006 left "Photos: #10" out of its scope and listed "#10: add the photo block to the edit page" as follow up; this spec closes it. Photos chosen while posting are specified in spec 0006 (AC-17); this spec shares their rules (`checkPhotoFile`, `splitPicked`, the constants in `photo-rules.ts`).
 
 **User stories**:
-- As a landlord who just posted a listing, I want to add photos right away, so that renters see the room and not an empty frame.
+- As a landlord who just posted a listing, I want to see its photos and add more right away, so that renters see the room well.
 - As a landlord, I want to pick several photos at once and see each one's progress, so that I do not open the file dialog five times.
-- As a landlord, I want to remove a wrong photo, and to know that removing the cover makes the next photo the cover.
+- As a landlord, I want to remove a wrong photo, to know that removing the cover makes the next photo the cover, and to understand why I cannot remove the last photo.
 - As a landlord on a weak connection, I want a photo that timed out to be checked before it is sent again, so that I never get the same photo twice.
 - As a landlord whose listing is hidden, I want to manage its photos anyway, and to understand why I cannot see some of them.
 - As someone using a keyboard or a screen reader, I want labelled controls, and progress and errors announced.
 
 **Acceptance criteria** (the contract; each is checkable on its own):
-- **AC-1**: Where the zone lives. `ListingPhotos` is one `Card` zone titled "Ảnh của tin" (spec 0004), outside the `<form>` element. It shows (a) under `ListingCreated` after a successful post and (b) on `/landlord/listings/[id]/edit` once the listing is loaded. It reads the saved photos from the query entry `["listing","mine",id]`; the post page writes the 201 answer into that entry before it shows the zone. It works in every status, including `hidden_by_admin`, and the trial and quota never block it. A line under the title says "Ảnh được lưu ngay khi tải lên, bạn không cần bấm Lưu." The zone is never part of the form's dirty state. After a post, a short line invites the landlord to add photos; nothing forces it.
+- **AC-1**: Where the zone lives. `ListingPhotos` is one `Card` zone titled "Ảnh của tin" (spec 0004), outside the `<form>` element. It shows (a) under `ListingCreated` after a successful post and (b) on `/landlord/listings/[id]/edit` once the listing is loaded. It reads the saved photos from the query entry `["listing","mine",id]`; the post page writes the 201 answer into that entry before it shows the zone. It works in every status, including `hidden_by_admin`, and the trial and quota never block it. A line under the title says "Ảnh được lưu ngay khi tải lên, bạn không cần bấm Lưu." The zone is never part of the form's dirty state. After a post the zone already holds the 1 to 5 photos the listing was posted with (spec 0006 AC-6), and the previews of those photos are handed over (AC-10); nothing forces the landlord to add more. A listing posted before 2026-11-02 can have no photo at all, and the zone then says "Tin chưa có ảnh. Hãy thêm ảnh để người thuê thấy phòng."
 - **AC-2**: Picking. A button "Thêm ảnh" (size `lg`, `outline`) opens a visually hidden file input that stays in the DOM (`multiple`, `accept="image/jpeg,image/png,image/webp"`). Free slots are 5 minus the saved photos minus the items that are queued or uploading. The first files in the picked order fill the free slots and the rest are skipped (AC-3). The input value is reset after each pick, so the same file can be picked again. Under the button a help line says "JPEG, PNG hoặc WebP, mỗi ảnh tối đa 5 MiB, tối đa 5 ảnh. Ảnh được giữ nguyên thông tin kèm theo, như vị trí chụp nếu máy có ghi." When 5 photos are saved the button is replaced by "Đã đủ 5 ảnh. Hãy xóa bớt một ảnh trước nếu muốn thêm." While a 429 countdown runs the button is disabled.
 - **AC-3**: Checks before sending. A file passes when its `type` is `image/jpeg`, `image/png` or `image/webp` (an empty `type` passes, because the backend judges by content), and its `size` is above 0 and at most 5 MiB (5242880 bytes, the backend default). Each skipped file is listed with its name and the reason (type, size, or no free slot) in one message under the button, inside a polite live region. Nothing is sent for a skipped file. The 5 MiB is a hint: if the backend limit differs, its `message` is shown (AC-7).
 - **AC-4**: Upload. Items are sent one at a time in the picked order. Each sends `POST /listings/:id/images` as `multipart/form-data` with one field `file`, through the client's `FormData` path (no manual `Content-Type`), with a 60 second limit for this call only (AC-13). Each item is a tile with a local preview and the words "Đang chờ" or "Đang tải". On 201 the new image is added to `images` in the query entry, sorted by `position`, and the tile becomes a saved tile. The local preview is kept under the image `id` as a fallback (AC-10).
-- **AC-5**: Saved tiles and cover. Saved tiles are in `position` order. The first carries the label "Ảnh bìa", the others "Ảnh 2", "Ảnh 3" and so on. The zone header shows "N trên 5 ảnh". A help line says "Muốn đổi ảnh bìa, hãy xóa ảnh bìa hiện tại: ảnh kế tiếp sẽ thành ảnh bìa." because the backend has no reorder.
-- **AC-6**: Delete. Each saved tile has an icon button with `aria-label` "Xóa ảnh N" (the cover: "Xóa ảnh bìa"). It opens an `AlertDialog` titled "Xóa ảnh này?" with the line "Ảnh sẽ bị xóa khỏi tin và không khôi phục được." and, for the cover, "Đây là ảnh bìa, ảnh kế tiếp sẽ thành ảnh bìa." On confirm it sends `DELETE /listings/:id/images/:imageId`; the confirm button shows a spinner and is disabled while sending. On 204 the image leaves the query entry, the toast "Đã xóa ảnh" shows, and focus moves to the delete button of the tile now at that place, else of the previous tile, else the add button. A 404 `NOT_FOUND` counts as removed (same cache change, toast "Ảnh đã được xóa trước đó"). Any other error closes the dialog and shows the `describeError` text in the zone notice. The dialog uses `useReturnFocus`.
+- **AC-5**: Saved tiles and cover. Saved tiles are in `position` order. The first carries the label "Ảnh bìa", the others "Ảnh 2", "Ảnh 3" and so on. The zone header shows "N trên 5 ảnh". A help line explains the cover, because the backend has no reorder. With two or more saved photos it says "Muốn đổi ảnh bìa, hãy xóa ảnh bìa hiện tại: ảnh kế tiếp sẽ thành ảnh bìa." With exactly one saved photo it says "Tin cần giữ ít nhất 1 ảnh. Muốn thay ảnh này, hãy thêm ảnh mới trước rồi xóa ảnh cũ." With none, no help line shows.
+- **AC-6**: Delete. Each saved tile has an icon button with `aria-label` "Xóa ảnh N" (the cover: "Xóa ảnh bìa"). The listing must keep at least one photo (backend rule of 2026-11-02): while exactly one photo is saved, its delete button is off. It uses `aria-disabled="true"` and not `disabled`, so it stays in the tab order and a screen reader hears the reason, which is the one photo help line of AC-5 named in its `aria-describedby`; a press does nothing (the click handler checks the saved count and returns, and an `aria-disabled:` style makes the button look off). With two or more saved photos the button opens an `AlertDialog` titled "Xóa ảnh này?" with the line "Ảnh sẽ bị xóa khỏi tin và không khôi phục được." and, for the cover, "Đây là ảnh bìa, ảnh kế tiếp sẽ thành ảnh bìa." On confirm it sends `DELETE /listings/:id/images/:imageId`; the confirm button shows a spinner and is disabled while sending. On 204 the image leaves the query entry, the toast "Đã xóa ảnh" shows, and focus moves to the delete button of the tile now at that place, else of the previous tile, else the add button. A 404 `NOT_FOUND` counts as removed (same cache change, toast "Ảnh đã được xóa trước đó"). 409 `LISTING_IMAGE_REQUIRED` (another tab removed the other photo first) closes the dialog, shows the backend `message` in the zone notice, and reads the listing again so the tiles match the server; the code is added to `ERROR_CODES` in `src/lib/api/types.ts`. The zone notice is an `Alert` at the top of the zone that clears on the next pick or delete. After the 409, focus goes back to the delete button that was pressed if it still exists, else to "Thêm ảnh". Any other error closes the dialog and shows the `describeError` text in the zone notice. The dialog uses `useReturnFocus`.
 - **AC-7**: Errors that belong to one photo. 400 `IMAGE_INVALID` and 413 `PAYLOAD_TOO_LARGE` mark that item failed. The tile shows the backend `message` (for 413 plus "Hãy chọn ảnh nhỏ hơn.") and one button "Bỏ", because the same file would fail again. The queue goes on with the next item.
 - **AC-8**: Errors that stop the queue. 409 `LISTING_IMAGE_LIMIT`: the backend message shows, the queue stops, the items not yet sent become failed with "Chưa tải", and the query entry is read again so the tiles match the server. 429: `RateLimitNotice` with its countdown shows at the top of the zone, the queue stops, the unsent items become failed with "Chưa tải", and "Thử lại" is disabled until the countdown ends. 404 `LISTING_NOT_FOUND`, 400 `INVALID_ID` and 403 `NOT_RESOURCE_OWNER`: on the edit page the page level state of spec 0006 (through `onBlocked`), on the result view an inline `Alert` with the backend message and the zone's controls hidden. 403 `PERMISSION_DENIED` and a 5xx: that item fails with the `describeError` text (the support code only for a 5xx) and the queue stops. Failed tiles of this kind have "Thử lại" and "Bỏ".
 - **AC-9**: After a timeout or a network error on an upload. Before the item is called failed, the block reads the listing again. If the answer holds an image `id` that the block did not know before, that image is this item and the tile becomes saved. If not, the item fails with the standard message, "Thử lại" and "Bỏ", and the queue stops. A retry never sends until that read has finished. (A repeated upload makes a second copy, section 8 of the contract.)
-- **AC-10**: Photos that do not load. When the address of a saved photo answers an error (the backend serves only photos of listings that are public now, so a hidden, over quota or admin hidden listing answers 404, and an `img` request carries no token), the tile shows the local preview if the file was added while this zone was open, otherwise a framed placeholder (`role="img"`) with the words "Ảnh chỉ xem được khi tin đang công khai". No toast and no error state. The tile keeps its delete button and its place in the count.
+- **AC-10**: Photos that do not load. When the address of a saved photo answers an error (the backend serves only photos of listings that are public now, so a hidden, over quota or admin hidden listing answers 404, and an `img` request carries no token), the tile shows the local preview if the file was added while this zone was open or was chosen in the post form just before (the result view lends those previews to the zone as `seedPreviews`, matched to the saved photos by `position`; `NewListing` owns and releases them, the zone never does), otherwise a framed placeholder (`role="img"`) with the words "Ảnh chỉ xem được khi tin đang công khai". No toast and no error state. The tile keeps its delete button and its place in the count.
 - **AC-11**: Guards. While any item is queued or uploading, closing or reloading the tab asks for confirmation (`useLeaveWarning`). Delete and retry buttons disable themselves while their request is in flight. A link click inside the site is not guarded: items not yet sent are dropped when the zone unmounts, and the request in flight finishes and still updates the cache (a known limit, the same as spec 0006).
 - **AC-12**: Photo address. `mediaUrl(path)` in `src/lib/media.ts` returns the origin of `NEXT_PUBLIC_API_URL` plus `path` when that value is absolute, and `path` itself when it is a path such as `/api/v1` (proxy mode). It accepts only a path that starts with `/api/v1/media/public/` and returns `null` for anything else (shown as no photo). It matches the `remotePatterns` or `localPatterns` already in `next.config.ts`. Server photos show through `next/image`; local previews show through `next/image` with `unoptimized`.
 - **AC-13**: Client time limit. `RequestOptions` in `src/lib/api/client.ts` gets an optional `timeoutMs`, and `attempt` uses it in place of the default 20 seconds when it is given. Only the upload sets it (60000). Every other call is unchanged. This amends spec 0002.
@@ -38,9 +39,9 @@ Seeded from scope item #10 and refined with the engineer. Contract with the back
 
 ## Decision
 
-**Chosen option**: Option 1: One shared photo zone, under the post result and on the edit page, with a one at a time upload queue
+**Chosen option**: Option 1: One shared photo zone for a listing that exists, under the post result and on the edit page, with a one at a time upload queue (the first photos travel with the post, spec 0006)
 
-Build a `ListingPhotos` zone in `src/features/listing` that saves each photo at once and sits outside the form. Photos are added after the listing exists, so the form of spec 0006 is not touched.
+Build a `ListingPhotos` zone in `src/features/listing` that saves each photo at once and sits outside the form. Since the backend change of 2026-11-02 a new listing is posted with its first 1 to 5 photos (spec 0006 AC-6 and AC-17), so this zone starts from those photos, adds more one at a time, and removes photos but never the last one.
 
 **Implementation skills**: `tanstack-query-best-practices` (`deckardger/tanstack-agent-skills`, `.agents/skills/tanstack-query-best-practices/`) · `shadcn` (`shadcn-ui/ui`, `.agents/skills/shadcn/`) · `tailwind-design-system` (`wshobson/agents`, `.agents/skills/tailwind-design-system/`) · `next-dev-loop` (`vercel/next.js`, `.agents/skills/next-dev-loop/`)
 
@@ -53,7 +54,7 @@ The Next.js docs in `node_modules/next/dist/docs/` win over these skills where t
 | Endpoint | Method | Key inputs | Key outputs | Auth | Key errors |
 |---|---|---|---|---|---|
 | `/listings/:id/images` | POST | `file` (multipart, exactly one) | `ListingImage` (201) | bearer, `listing:update`, owner | 413 `PAYLOAD_TOO_LARGE`, 404 `LISTING_NOT_FOUND`, 403 `NOT_RESOURCE_OWNER`, 400 `IMAGE_INVALID`, 409 `LISTING_IMAGE_LIMIT`, 400 `INVALID_ID`, 403 `PERMISSION_DENIED`, 429 |
-| `/listings/:id/images/:imageId` | DELETE | ids in the path | 204 | bearer, `listing:update`, owner | 404 `LISTING_NOT_FOUND`, 404 `NOT_FOUND`, 403 `NOT_RESOURCE_OWNER`, 400 `INVALID_ID` |
+| `/listings/:id/images/:imageId` | DELETE | ids in the path | 204 | bearer, `listing:update`, owner | 404 `LISTING_NOT_FOUND`, 404 `NOT_FOUND`, 403 `NOT_RESOURCE_OWNER`, 409 `LISTING_IMAGE_REQUIRED` (the last photo), 400 `INVALID_ID` |
 | `/me/listings/:id` | GET | `id` in the path | `OwnerListingDetail` with `images` | bearer, `listing:read` | as in spec 0006 |
 | `/api/v1/media/public/<uuid>.<ext>` | GET | none (an image request) | the file | none | 404 `NOT_FOUND` when the listing is not public now |
 
@@ -63,7 +64,7 @@ The Next.js docs in `node_modules/next/dist/docs/` win over these skills where t
 |---|---|---|
 | Saved photo | `ListingImage`: `id`, `position` (0 to 4), `url` | Read from the query entry `["listing","mine",id]`. The cover is the smallest `position`. |
 | `UploadItem` | `localId`, `file`, `previewUrl`, `status` (`queued`, `uploading`, `failed`), `message` (backend text or null), `retryable` | Lives in the hook `usePhotoUploads`. Failed items do not use a backend slot. |
-| Previews | map of image `id` to `previewUrl` | Filled on a 201, used only as the fallback of AC-10, revoked when the zone unmounts. |
+| Previews | map of image `id` to `previewUrl` | Filled at the start from the post form (`seedPreviews`, lent by `NewListing`, never released by the zone) and on each upload 201 (made by the zone, released when it unmounts). Used only as the fallback of AC-10. |
 | Free slots | `5 - saved - (queued + uploading)` | Computed, never stored. |
 
 **State transitions** of one item: `queued` to `uploading`; `uploading` to saved (leaves the queue) or `failed`; `failed` to `queued` (Thử lại) or removed (Bỏ); `queued` to removed (Bỏ). A saved photo ends by delete (AC-6).
@@ -84,6 +85,10 @@ The Next.js docs in `node_modules/next/dist/docs/` win over these skills where t
 | Show | 429 countdown | `RateLimitNotice` and `useCountdown` (spec 0002) |
 | Timeout recovery | Which image is the new one | The ids from `GET /me/listings/:id` that were not known before the send |
 | Dialog | Is this photo the cover | It is first in `position` order |
+| Delete | Is the delete button on | The saved count from the query entry is above 1 (contract 6.28: the last photo cannot be deleted) |
+| Delete | The reason shown while it is off | The one photo help line of AC-5 (decided here, wording from the contract) |
+| Show | Which help line sits under the grid | The saved count: none for 0, the "giữ ít nhất 1 ảnh" line for 1, the cover line for 2 or more |
+| Start | The previews at the start after a post | The photos chosen in the post form, matched to the 201 `images` by `position` (spec 0006 AC-17) |
 | Fallback | A local preview for a photo | The map of image `id` to `previewUrl` (AC-10) |
 
 **Key invariants**:
@@ -94,6 +99,7 @@ The Next.js docs in `node_modules/next/dist/docs/` win over these skills where t
 - The zone sits outside the form and never changes its dirty state.
 - No `any`; photo text and file names are rendered as text, never as HTML (spec 0001).
 - A photo address is built only by `mediaUrl`.
+- A listing never goes below one photo through this zone: the delete of the last photo is off, and replacing it means adding first, then deleting.
 
 ### Files
 
@@ -105,13 +111,15 @@ src/
     api/listing-images.ts                       uploadListingImage, deleteListingImage, cache helpers
     schemas/photo-rules.ts                      constants, checkPhotoFile, freeSlots (pure functions)
     hooks/use-photo-uploads.ts                  the queue (AC-4, AC-7, AC-8, AC-9, AC-11)
-    components/listing-photos.tsx               the zone (AC-1, AC-2, AC-5, AC-14)
+    components/listing-photos.tsx               the zone (AC-1, AC-2, AC-5, AC-14), takes `seedPreviews`
     components/photo-tile.tsx                   one tile, shows its state, no data calls (AC-10, AC-15)
     components/delete-photo-dialog.tsx          AlertDialog (AC-6)
   app/dev/ui/...                                tile states on fake data (AC-15)
 changed:
   features/listing/components/edit-listing.tsx   renders the zone, passes onBlocked
-  features/listing/components/new-listing.tsx    writes the 201 into the cache, renders the zone under the result
+  features/listing/components/new-listing.tsx    writes the 201 into the cache, owns the handed over previews and lends them to the zone, renders the zone under the result (built in M5 of spec 0006)
+  features/listing/components/photo-tile.tsx     a saved tile can show its delete button off, with the reason (AC-6)
+  lib/api/types.ts                               ERROR_CODES gets LISTING_IMAGE_REQUIRED
 ```
 
 ### Edge cases and failure handling
@@ -131,6 +139,11 @@ changed:
 | Listing deleted in another tab | 404 `LISTING_NOT_FOUND`, page level state or inline alert (AC-8) |
 | Delete of a photo already gone | 404 `NOT_FOUND`, treated as removed (AC-6) |
 | Delete the cover | The dialog says the next photo becomes the cover; the order comes from the cache |
+| Delete the only photo | The button is off with the reason line; add a photo first, then delete the old one (AC-6) |
+| Two tabs delete the last two photos | One answer is 204, the other 409 `LISTING_IMAGE_REQUIRED`: the backend message shows and the tiles are read again (AC-6) |
+| Old listing with no photo | The zone says so and offers "Thêm ảnh"; there is nothing to delete |
+| Replace the only photo | Add the new one (two photos), then delete the old one |
+| Replace the cover with 5 photos saved | Delete any photo (allowed, 5 is above 1), then add |
 | Leave the page by a link while items wait | Unsent items are dropped, the one in flight finishes (AC-11) |
 | Close the tab during upload | Browser confirmation (AC-11) |
 | Session ends | The gate of spec 0005 sends the person to `/login?next=...`; queued files are lost (accepted) |
@@ -152,18 +165,20 @@ No environment variable, no package and no shadcn component to add (`alert-dialo
 |---|---|---|
 | Spec 0002, the client | One fixed 20 second limit for every attempt | An optional `timeoutMs` per call (AC-13) |
 | Spec 0006, Follow up | "#10: add the photo block to the edit page" | Done here, and the same block is also on the result view |
+| Spec 0006, the post call and the first version of this spec | JSON post, then "post first, add photos after" | Multipart post with 1 to 5 photos (spec 0006 AC-6 and AC-17); this zone starts from those photos |
 | Spec 0006, `ListingCreated` and the edit page | No photo block | Both render `ListingPhotos` (AC-1) |
 | Scope row #10 | Also covers the cover photo on cards and the gallery on the detail page | Landlord side only; #8 and #9 draw the public photos (see Follow up) |
 
 ### Critical test scenarios
 
-- Happy path: sign in as a seeded landlord, post a listing, add three photos at once on the result view, see "Đang chờ" then "Đang tải" then three saved tiles with the first labelled "Ảnh bìa", and check `GET /me/listings/:id` lists three images in `position` order, verifies **AC-1**, **AC-2**, **AC-4**, **AC-5**.
-- Edit page: open the edit page of that listing, see the same tiles, add two more, see "Đã đủ 5 ảnh" and no add button, verifies **AC-1**, **AC-2**, **AC-5**.
+- Happy path: sign in as a seeded landlord, post a listing with two photos (spec 0006), see the zone under the result with two saved tiles and the first labelled "Ảnh bìa", add three more at once and see "Đang chờ" then "Đang tải" then five saved tiles, and check `GET /me/listings/:id` lists five images in `position` order, verifies **AC-1**, **AC-2**, **AC-4**, **AC-5**.
+- Edit page: open the edit page of that listing, see the same five tiles and "Đã đủ 5 ảnh" with no add button; on a listing with fewer photos, add some, verifies **AC-1**, **AC-2**, **AC-5**.
 - File checks: pick a PDF, a 6 MiB image and a HEIC photo, see each listed with its reason and nothing sent (Network tab), verifies **AC-3**.
 - Backend errors: shrink `MAX_UPLOAD_BYTES` in the backend to get 413 and the hint; send a renamed text file to get `IMAGE_INVALID`; fill the listing from another tab to get 409; verifies **AC-7**, **AC-8**.
 - Rate limit and stop: after a 429 the countdown shows, the unsent items read "Chưa tải", and "Thử lại" works when the countdown ends, verifies **AC-8**.
 - Timeout: throttle the network so the upload passes 60 seconds or drop it mid send, check the block reads the listing before offering "Thử lại" and never makes a second copy, verifies **AC-9**.
 - Delete: delete the cover and a middle photo, check the dialog text, the toast, the focus, and that the next photo became the cover, verifies **AC-5**, **AC-6**.
+- Last photo: on a listing with one photo the delete button is off and the line says why; add a photo, then delete the first one and see the new one become the cover; with two tabs delete the last two photos of a listing and see the 409 message in the slower tab, verifies **AC-5**, **AC-6**.
 - Hidden listing: hide the listing (or use the seeded `bao.pham` over quota listings), reload the edit page, see the placeholder tiles with the explanation and a working delete; upload a photo and see its local preview, verifies **AC-10**.
 - Guards: start an upload and close the tab (the browser asks), click Thử lại twice (one request), verifies **AC-11**.
 - Address: with `NEXT_PUBLIC_API_URL` absolute and as `/api/v1`, check `mediaUrl` output and that images load through `next/image`, verifies **AC-12**.
@@ -172,7 +187,7 @@ No environment variable, no package and no shadcn component to add (`alert-dialo
 
 ## Build plan
 
-Tracer Bullet (your project default, tier Alpha): the first thread is one real photo uploaded to a real listing and shown on the edit page, then each milestone thickens it. Each milestone is one `/develop` pass. No Figma step: layout comes from `design.md` and spec 0004.
+Tracer Bullet (your project default, tier Alpha): the first thread is one real photo uploaded to a real listing and shown on the edit page, then each milestone thickens it. Each milestone is one `/develop` pass. No Figma step: layout comes from `design.md` and spec 0004. M1 and M2 are built and unaffected by the backend change of 2026-11-02. Order across the specs: M5 of spec 0006 (photos in the post form) first, then M3 and M4 here.
 
 **M1. Thin thread: one photo uploaded and shown on the edit page**
 1. Add `src/lib/media.ts` (`mediaUrl`) and `photo-rules.ts` (constants, `checkPhotoFile`, `freeSlots`), satisfies **AC-3**, **AC-12**
@@ -184,12 +199,12 @@ Tracer Bullet (your project default, tier Alpha): the first thread is one real p
 5. Add the tiles for queued, uploading and failed, the message under the button, the live region and `RateLimitNotice`, satisfies **AC-3**, **AC-7**, **AC-8**, **AC-14**
 
 **M3. Delete and photos that do not load**
-6. Add `DeletePhotoDialog` with `useReturnFocus`, the focus move after a delete and the 404 `NOT_FOUND` case, satisfies **AC-6**, **AC-14**
+6. Add `DeletePhotoDialog` with `useReturnFocus`, the focus move after a delete, the 404 `NOT_FOUND` case, `LISTING_IMAGE_REQUIRED` in `ERROR_CODES`, the delete button that is off with its reason when one photo is saved, the 409 handling, and the two help lines of AC-5, satisfies **AC-5**, **AC-6**, **AC-14**
 7. Add the load error fallback of a tile: local preview, else the placeholder with its words, satisfies **AC-10**
 
 **M4. Join the post result and finish**
-8. In `NewListing` write the 201 into the cache and render the zone under `ListingCreated` with its invitation line, with the inline alert for a blocked listing, satisfies **AC-1**, **AC-8**
-9. Show the tile states in `/dev/ui`, add any contrast pair, run `npm run check` and `npm run build`, check the console on both pages, then `/check verify` with the backend running, satisfies **AC-14**, **AC-15**
+8. The result view part (the 201 written into the cache, the zone under `ListingCreated` with the previews of the post form lent to it as `seedPreviews`, the inline alert for a blocked listing) was moved to task 10 of spec 0006 M5, so posting can be checked end to end. Here, check it in the running app, satisfies **AC-1**, **AC-8**, **AC-10**
+9. Show the tile states in `/dev/ui` (the delete button that is off included), add any contrast pair, run `npm run check` and `npm run build`, check the console on both pages, then `/check verify` with the backend running, satisfies **AC-14**, **AC-15**
 
 Every AC appears in at least one task and every task names an AC.
 
@@ -197,12 +212,14 @@ Every AC appears in at least one task and every task names an AC.
 
 **Positive**:
 - One zone serves the result view and the edit page, and a photo is never lost to a half done form.
+- A listing posted from now on starts with 1 to 5 photos, and this zone never lets it fall to none.
 - Each photo is saved at once, so a failure touches one tile and never the listing.
 - The timeout read prevents duplicate photos, which the backend would otherwise keep.
 - `mediaUrl` and the tile give #8, #9 and #12 a ready way to show photos.
 
 **Negative / tradeoffs**:
-- Posting is two steps for the landlord: post, then add photos. The listing is public for a moment without photos.
+- Replacing the only photo takes two steps (add, then delete).
+- Photo code lives in two places, the picker of the post form (spec 0006) and this zone. They share `photo-rules.ts` but are two components.
 - Photos save at once while the rest of the edit page needs Save, so the page has two saving models (the line in AC-1 explains it).
 - A landlord cannot preview server photos of a hidden listing after a reload (the backend limit), only a placeholder.
 - The queue lives in the page: leaving by a link drops the files not yet sent (a known limit).
@@ -220,7 +237,8 @@ Every AC appears in at least one task and every task names an AC.
 - [ ] #8 and #9 are built before this item and need `mediaUrl`. Whichever ships first creates `src/lib/media.ts` exactly as AC-12 describes; this item then reuses it.
 - [ ] #12: the list of my listings shows the cover photo; it should read or refresh the `["listing","mine"]` entries after photo changes.
 - [ ] `/sync`: add `src/lib/media.ts` and the `timeoutMs` option to `src/lib/AGENTS.md`.
-- [ ] Reorder of photos and a chosen cover wait for the backend (listed under "Chờ backend" in the scope).
+- [ ] Reorder of photos and a chosen cover wait for the backend (listed under "Chờ backend" in the scope). Only the order before posting is under the landlord's control (spec 0006 AC-17).
+- [ ] The scope rows #7 and #10 follow this change: M5 on #7, and the intro and "Done when" of #10 now say the first photos are sent with the post.
 - [ ] Drag and drop of files was left out on purpose; add it only if landlords ask.
 
 ## Rationale
