@@ -9,7 +9,7 @@ Trang danh sách tin công khai, điện thoại trước: ô tìm kiếm theo t
 **Done when:** khách tìm theo từ khóa và chuyển trang được, địa chỉ URL phản ánh tìm kiếm, thẻ tin hiện ảnh bìa thật (chưa có ảnh thì hiện ảnh thay thế, ảnh lỗi thì ẩn ô ảnh), trạng thái trống, lỗi và 429 hiển thị đúng, trang có metadata SEO và dùng mượt trên điện thoại.
 - [x] Design it (spec): `/architect find listings`
 - [ ] Build it: `/develop find listings`
-  - [ ] M1 Sợi chỉ mỏng: đọc `GET /listings` ở máy chủ với tư cách khách (`src/lib/api/server.ts`), bộ phân tích địa chỉ cho `q` và `page`, trang `/` hiện các tin thật kèm liên kết trang thật (AC-1 đến AC-3, AC-5, AC-7, AC-14)
+  - [x] M1 Sợi chỉ mỏng: đọc `GET /listings` ở máy chủ với tư cách khách (`src/lib/api/server.ts`), bộ phân tích địa chỉ cho `q` và `page`, trang `/` hiện các tin thật kèm liên kết trang thật (AC-1 đến AC-3, AC-5, AC-7, AC-14)
   - [ ] M2 Thẻ tin: thẻ dùng chung lấy từ thẻ mẫu, ô ảnh bìa (chưa có ảnh thì ảnh thay thế, ảnh lỗi thì ẩn ô), lưới ba cột, khung chờ mỗi lần đổi từ khóa hoặc trang (AC-6 đến AC-9, AC-15)
   - [ ] M3 Tìm kiếm và trạng thái: ô tìm kiếm `next/form`, không có tin, trang quá cuối, lỗi và 429 có nút "Thử lại" (AC-4, AC-10, AC-11)
   - [ ] M4 Công cụ tìm kiếm và hoàn thiện: metadata, `robots.txt`, các trạng thái của thẻ trong `/dev/ui`, kiểm ở 320 và 390 px, `npm run check` và `npm run build` (AC-12, AC-13, AC-15, AC-16)

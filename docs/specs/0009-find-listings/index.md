@@ -1,7 +1,7 @@
 # 0009. Find listings: the public list page with keyword search
 
 **Date**: 2026-11-03
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
