@@ -26,6 +26,16 @@ export const ACCEPT_ATTRIBUTE = ACCEPTED_TYPES.join(",");
  */
 export const PHOTO_HELP = `JPEG, PNG hoặc WebP, mỗi ảnh tối đa 5 MiB, tối đa ${MAX_PHOTOS} ảnh. Ảnh được giữ nguyên thông tin kèm theo, như vị trí chụp nếu máy có ghi.`;
 
+/**
+ * The two lines under the grid of saved photos (spec 0007, AC-5). The backend has no reorder, so
+ * they say how to change the cover. With one photo the second line is also the reason the delete
+ * button is off.
+ */
+export const COVER_HELP =
+  "Muốn đổi ảnh bìa, hãy xóa ảnh bìa hiện tại: ảnh kế tiếp sẽ thành ảnh bìa.";
+export const LAST_PHOTO_HELP =
+  "Tin cần giữ ít nhất 1 ảnh. Muốn thay ảnh này, hãy thêm ảnh mới trước rồi xóa ảnh cũ.";
+
 /** Why a picked file was left out. */
 export type SkipReason = "type" | "empty" | "size" | "no-slot";
 

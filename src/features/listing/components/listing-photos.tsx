@@ -25,19 +25,14 @@ import { useDeletePhoto } from "../hooks/use-delete-photo";
 import { usePhotoUploads } from "../hooks/use-photo-uploads";
 import {
   ACCEPT_ATTRIBUTE,
+  COVER_HELP,
+  LAST_PHOTO_HELP,
   MAX_PHOTOS,
   PHOTO_HELP,
   skippedText,
 } from "../schemas/photo-rules";
 import { DeletePhotoDialog } from "./delete-photo-dialog";
 import { PhotoTile } from "./photo-tile";
-
-// The two lines under the grid (spec 0007, AC-5). The backend has no reorder, so they say how
-// to change the cover; with one photo the second line is also the reason the delete button is off.
-const COVER_HELP =
-  "Muốn đổi ảnh bìa, hãy xóa ảnh bìa hiện tại: ảnh kế tiếp sẽ thành ảnh bìa.";
-const LAST_PHOTO_HELP =
-  "Tin cần giữ ít nhất 1 ảnh. Muốn thay ảnh này, hãy thêm ảnh mới trước rồi xóa ảnh cũ.";
 
 // Where focus goes once a deleted photo has left the grid: the delete button of the tile now at
 // that place, else of the one before it.
