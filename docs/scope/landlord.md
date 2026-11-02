@@ -26,17 +26,17 @@ spec [0006](../specs/0006-post-a-listing/index.md) · Chọn: một biểu mẫu
 
 ## Slice 2: Tin phong phú hơn
 
-### 10. Listing photos · in-progress
+### 10. Listing photos · done
 Khối ảnh của chủ trọ cho tin đã có (những ảnh đầu được chọn ở biểu mẫu đăng tin của #7 và gửi cùng tin), đặt ngay dưới màn kết quả sau khi đăng tin và trên trang sửa tin, nằm ngoài biểu mẫu và lưu từng ảnh ngay khi tải lên. Chọn nhiều ảnh một lần (JPEG, PNG hoặc WebP, mỗi ảnh tối đa 5 MiB, tối đa 5 ảnh), FE gửi lần lượt từng ảnh một, mỗi ảnh có nút xóa kèm hỏi xác nhận. Chưa có API đổi thứ tự: muốn đổi ảnh bìa thì xóa ảnh bìa, ảnh kế tiếp thành bìa. Tin phải giữ ít nhất 1 ảnh: nút xóa ảnh cuối cùng bị tắt kèm lời giải thích (backend trả 409 `LISTING_IMAGE_REQUIRED`). Ảnh bìa ở thẻ tin và thư viện ảnh ở trang chi tiết do #8 và #9 vẽ.
 **Done when:** đăng tin xong thấy ngay các ảnh đã đăng kèm và thêm được ảnh, sửa tin thì thấy, thêm và xóa được ảnh (trừ ảnh cuối cùng); nút thêm khóa lúc đang gửi và ẩn khi đủ 5 ảnh; `IMAGE_INVALID`, `LISTING_IMAGE_LIMIT`, `PAYLOAD_TOO_LARGE` và `RATE_LIMITED` hiện bằng `message` của backend; ảnh quá giờ không bị tải trùng; tin đang ẩn thì ảnh không xem được vẫn xóa được và có lời giải thích.
 - [x] Design it (spec): `/architect listing photos`
-- [ ] Build it: `/develop listing photos`
-code in `src/features/listing/` (`api/listing-images.ts`, `hooks/use-photo-uploads.ts`, `hooks/use-delete-photo.ts`, `schemas/photo-rules.ts`, `components/listing-photos.tsx`, `components/photo-tile.tsx`, `components/delete-photo-dialog.tsx`), `src/lib/media.ts`, `src/lib/api/client.ts` (`timeoutMs`)
+- [x] Build it: `/develop listing photos`
+code in `src/features/listing/` (`api/listing-images.ts`, `hooks/use-photo-uploads.ts`, `hooks/use-delete-photo.ts`, `schemas/photo-rules.ts`, `components/listing-photos.tsx`, `components/photo-tile.tsx`, `components/delete-photo-dialog.tsx`), `src/lib/media.ts`, `src/lib/api/client.ts` (`timeoutMs`), `src/app/dev/ui/photos.tsx` (các trạng thái của ô ảnh)
   - [x] M1 Sợi chỉ mỏng: một ảnh tải lên thật và hiện ở trang sửa tin, kèm `mediaUrl`, luật kiểm tệp và giới hạn giờ riêng cho ảnh (AC-1 đến AC-5, AC-12, AC-13)
   - [x] M2 Hàng đợi và lỗi: chọn nhiều ảnh, gửi lần lượt, thử lại và bỏ, dừng hàng đợi đúng lúc, đọc lại tin sau khi quá giờ, cảnh báo khi đóng tab (AC-3, AC-4, AC-7, AC-8, AC-9, AC-11, AC-14)
   - [x] M3 Xóa ảnh và ảnh không tải được: hộp xác nhận, luật ảnh cuối cùng (nút tắt, xử lý 409), chuyển tiêu điểm, khung thay thế cho tin đang ẩn (AC-5, AC-6, AC-10, AC-14)
-  - [ ] M4 Hoàn thiện: kiểm khối ảnh dưới màn kết quả (phần xây nằm ở M5 của #7), các trạng thái trong `/dev/ui`, `npm run check` và `npm run build` (AC-1, AC-8, AC-10, AC-14, AC-15)
-- [ ] Verify it: `/check verify listing photos` (cần backend chạy)
+  - [x] M4 Hoàn thiện: kiểm khối ảnh dưới màn kết quả (phần xây nằm ở M5 của #7), các trạng thái trong `/dev/ui`, `npm run check` và `npm run build` (AC-1, AC-8, AC-10, AC-14, AC-15)
+- [x] Verify it: `/check verify listing photos` (bỏ qua theo quyết định của chủ dự án ngày 2026-11-02, vì là dự án demo: chưa chạy `/check verify`, chỉ có các bước tự kiểm của `/develop` ghi trong `verify.md`)
 spec [0007](../specs/0007-listing-photos/index.md) · Chọn: một khối ảnh dùng chung cho màn kết quả và trang sửa tin, ảnh lưu ngay và tách khỏi nút Lưu, chọn nhiều ảnh nhưng gửi lần lượt từng ảnh một, kiểm loại và dung lượng ở FE (backend vẫn là người quyết), quá giờ thì đọc lại tin trước khi cho thử lại để không tải trùng, giới hạn giờ 60 giây chỉ cho ảnh, xóa có hỏi xác nhận, tin đang ẩn thì hiện khung thay thế và giữ bản xem trước trên máy, có một dòng nhắc về thông tin kèm theo ảnh, không kéo thả. Cập nhật 2026-11-02: ảnh đầu chọn ở biểu mẫu đăng tin (spec 0006), ảnh cuối cùng của tin không xóa được.
 
 ### 11. Property fees and amenities

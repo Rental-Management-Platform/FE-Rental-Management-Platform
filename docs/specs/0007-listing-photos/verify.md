@@ -1,6 +1,6 @@
 # Verify: listing photos · spec 0007 · updated 2026-11-02
 
-_Steps derived from spec 0007 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones. This file holds the steps of M2 (the queue and its errors) and M3 (delete, and photos that do not load). Each later milestone appends its own._
+_Steps derived from spec 0007 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones. This file holds the steps of M2 (the queue and its errors), M3 (delete, and photos that do not load) and M4 (the result view, the `/dev/ui` tiles and the clean build)._
 
 _The dev backend gives access tokens that last 60 seconds, so a long manual run refreshes through the cookie on its own. Use a listing of a landlord who is not at quota, with free photo slots. Steps marked "self check passed" were run against the real backend on 2026-11-02 while building M2._
 
@@ -62,3 +62,29 @@ _Steps 1 to 11 below were run against the real backend on 2026-11-02 while build
 
 - AC-5 … steps 3, 6, 7 · AC-6 … steps 1 to 10 and 12 · AC-10 … step 11 · AC-14 … steps 1, 12 · AC-15 … the command above.
 - Not covered here (M4): AC-1 on the result view, AC-8 on the result view, AC-10 on the result view, AC-12 beyond what loaded in these runs, and the `/dev/ui` tile states of AC-15. `npm run build` is run in M4.
+
+---
+
+# M4: the result view, the `/dev/ui` tiles and the clean build · updated 2026-11-02
+
+_Steps 1 to 7 below were run against the real backend on 2026-11-02 while building M4 (a throwaway landlord, a throwaway property, PNG files made by a script; the "other tab" was a script that called `DELETE /listings/:id`). Each step ran in a fresh browser session with its console read at the end. Step 1 was not checked in the Network tab._
+
+## UI / manual
+
+- [ ] Open `/dev/ui` and scroll to the four sections "Ảnh của tin: …" → saved (three photos, and one photo with its delete button off), sending (queued, uploading, four failed variants), not loading (local copy, the words "Ảnh chỉ xem được khi tin đang công khai", `src` null) and picked in the post form (cover, rejected, sending); every state has words and none is told by colour alone; at 320 px there is no sideways scroll; no request goes to the API or to `/_next/image` (Network tab) → AC-14, AC-15 (self check passed for the look and the 320 px width; the Network tab was not read)
+- [ ] Sign in as a landlord with a free slot and post a listing with 2 photos from `/landlord/listings/new` → under the result card the zone "Ảnh của tin" shows "2 trên 5 ảnh", the line "Ảnh được lưu ngay khi tải lên, bạn không cần bấm Lưu.", the first photo labelled "Ảnh bìa", both delete buttons on, and "Thêm ảnh" with its help line → AC-1, AC-5 (value sourcing: the listing id comes from the 201 answer; cover and order come from `position`) (self check passed)
+- [ ] Post again with `network route "**/_next/image**" --abort` set before the post → the saved tiles show the photos chosen in the form (`blob:` addresses), the first one as the cover, matched by `position`, with no toast and no error; then add a third photo in the zone → its tile shows its own local preview → AC-10 (value sourcing: the starting previews come from the post form matched by `position`; a fallback preview is looked up by image id) (self check passed)
+- [ ] Remove the block and press "Sửa tin này" → the edit page shows the same photos through `/_next/image`, each one loaded, with "3 trên 5 ảnh", and `GET /me/listings/:id` holds the same three ids at positions 0, 1, 2 → AC-1, AC-12 (self check passed)
+- [ ] Post a listing with exactly one photo → its delete button has `aria-disabled="true"` and not `disabled`, stays in the tab order and is described by "Tin cần giữ ít nhất 1 ảnh. Muốn thay ảnh này, hãy thêm ảnh mới trước rồi xóa ảnh cũ."; the cover line is not shown → AC-5, AC-6 (value sourcing: delete on or off, and which help line shows, come from the saved count) (self check passed)
+- [ ] On the result view of a listing, delete that listing from another tab (`DELETE /listings/:id`), then press "Thêm ảnh" and pick a file → the zone is replaced by a red `Alert` with the backend words ("Không tìm thấy tin đăng."), and no add button, file input or delete button is left → AC-8 (self check passed)
+- [ ] Read the browser console on `/dev/ui`, on the result view and on the edit page → no error, no hydration warning and no issue badge of the Next dev tools → AC-15 (self check passed)
+
+## Commands
+
+- [ ] `npm run check` → lint, typecheck, format and contrast pass → AC-15 (self check passed)
+- [ ] `npm run build` → compiles, typechecks and prerenders 24 pages with the API running → AC-15 (self check passed)
+
+## Acceptance-criteria coverage
+
+- AC-1 … steps 2, 4 · AC-5 … steps 2, 5 · AC-6 … step 5 · AC-8 … step 6 · AC-10 … step 3 · AC-12 … step 4 · AC-14 … step 1 · AC-15 … steps 1, 7 and both commands.
+- Not run in M4: a real hidden listing on the result view (the optimizer block stood in for it, because `next/image` keeps its copy of a photo that was public once), and a screen reader on the new `/dev/ui` sections.

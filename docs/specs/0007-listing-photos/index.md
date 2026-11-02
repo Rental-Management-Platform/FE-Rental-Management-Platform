@@ -2,7 +2,7 @@
 
 **Date**: 2026-11-02
 **Updated**: 2026-11-02 (the backend now needs photos when posting and keeps the last photo, see Amendments)
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
