@@ -29,6 +29,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 5 | Sign up and sign in | Slice 1 | done |
 | 6 | First property | Slice 1 | done |
 | 7 | Post a listing | Slice 1 | done |
+| 31 | Landlord and admin dashboards | Slice 1 | planned |
 | 8 | Find listings | Slice 1 | planned |
 | 9 | Listing detail | Slice 1 | planned |
 | 10 | Listing photos | Slice 2 | done |
@@ -61,11 +62,12 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 6 planned, 2 dropped (#16, #29).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 3 done, 4 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26). 7 planned.
+* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 planned.
 
 ## Các giai đoạn
 
 * **Foundation**: nền tảng trước khi có tính năng nào.
-* **Slice 1, vòng lặp lõi**: chủ trọ đăng ký, tạo nhà trọ, đăng tin; khách tìm thấy tin và mở xem. Sợi chỉ mỏng nhưng thật, đã là bộ khung chạy được.
+* **Slice 1, vòng lặp lõi**: chủ trọ đăng ký, tạo nhà trọ, đăng tin; khách tìm thấy tin và mở xem. Sợi chỉ mỏng nhưng thật, đã là bộ khung chạy được. Thêm dashboard của hai khu (#31) để vào các trang quản lý bằng cách bấm.
 * **Slice 2, tin phong phú hơn**: ảnh, phí, tiện ích, và khu quản lý tin của chủ trọ.
 * **Slice 3, tìm và gắn bó**: lọc, yêu thích, hồ sơ chủ trọ (trang chủ đã bỏ).
 * **Slice 4, gói và thanh toán thử**: trạng thái dùng thử, bảng giá, mua gói.

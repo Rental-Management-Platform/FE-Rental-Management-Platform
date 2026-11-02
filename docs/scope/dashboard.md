@@ -1,0 +1,11 @@
+# Dashboard
+
+Trang tổng quan của hai khu làm việc: khu chủ trọ và khu admin. Máy tính trước, nhưng vẫn dùng được trên điện thoại. Xem [index](index.md) để biết thứ tự toàn bộ.
+
+## Slice 1: Vòng lặp lõi
+
+### 31. Landlord and admin dashboards · needs a decision
+Trang tổng quan thật của hai khu, để vào mọi công cụ quản lý bằng cách bấm, không phải gõ địa chỉ: `/landlord` cho chủ trọ và `/admin` cho admin. Mỗi trang gom các công cụ của khu thành thẻ theo nhóm, mỗi thẻ có biểu tượng, tên và một dòng mô tả, và có thể kèm vài con số lấy từ API đã có (số nhà trọ, số tin theo trạng thái, gói đang dùng; với admin là số người dùng, số tin bị ẩn, doanh thu thử), không tự tính và không có thống kê ngoài hợp đồng.
+Dashboard liệt kê đầy đủ mọi công cụ quản lý của khu ngay từ đầu, kể cả những tính năng chưa làm. Thẻ của tính năng chưa làm thì mờ đi và không bấm được; thẻ của tính năng đã có thì bấm vào mở đúng trang. Nhờ vậy bạn thấy cả bức tranh, và mỗi khi một tính năng xong thì vào dashboard bấm thử, không cần gõ địa chỉ. Mỗi tính năng bật thẻ của mình trong cùng thay đổi với trang của nó (như quy tắc của menu). Danh sách đầy đủ là: chủ trọ có thêm nhà trọ, đăng tin và ảnh của tin (#6, #7, #10), nhà trọ và tin của tôi (#12), gói và hạn mức (#17), mua gói và đơn của tôi (#19), hồ sơ và đổi mật khẩu (#28); admin có người dùng (#20), kiểm duyệt tin (#21), gói và tham số dùng thử (#22), danh mục phường xã và tiện ích (#23), phân quyền (#24), đơn của mọi chủ trọ (#25), doanh thu (#26), hồ sơ (#28). Spec cần chốt thêm: cách một thẻ biết tính năng của nó đã xong, cách báo thẻ mờ cho người dùng đọc màn hình (không chỉ bằng màu), đăng nhập xong thì vào đâu, mục Tổng quan trong menu, ẩn thẻ theo quyền, và dashboard khớp thế nào với khung trang của #12 và #20.
+**Done when:** chủ trọ và admin đăng nhập xong vào được dashboard của mình, dashboard liệt kê đủ mọi công cụ quản lý của khu, thẻ của tính năng chưa làm mờ đi và không bấm được (người dùng đọc màn hình vẫn biết thẻ đó chưa dùng được), thẻ của tính năng đã có bấm vào mở đúng trang mà không cần gõ địa chỉ, thẻ ẩn theo quyền, số liệu trên thẻ bị lỗi thì chỉ thẻ đó báo lỗi và các thẻ khác vẫn dùng được, trang dùng được ở màn hình hẹp, và khi một tính năng xong thì thẻ của nó bật lên.
+- [ ] Design it (spec): `/architect landlord and admin dashboards`
