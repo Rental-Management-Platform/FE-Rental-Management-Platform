@@ -1,8 +1,13 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { LoadingState } from "@/components/states/loading-state";
+import { Card, CardContent } from "@/components/ui/card";
 import { Results } from "@/features/listing-search/components/results";
 import { ResultsBoundary } from "@/features/listing-search/components/results-boundary";
+import {
+  SearchBox,
+  SearchBoxFallback,
+} from "@/features/listing-search/components/search-box";
 
 // The front door of the site (spec 0009). The header is the static shell. `searchParams` is
 // passed down as a promise and read only inside the <Suspense> boundary, so the shell can be
@@ -14,6 +19,13 @@ export default function Home({ searchParams }: PageProps<"/">) {
         title="Tìm phòng trọ"
         description="Phòng trọ, nhà cho thuê và căn hộ mini do chủ trọ đăng trực tiếp. Tìm theo tên đường, phường hoặc từ khóa."
       />
+      <Card>
+        <CardContent>
+          <Suspense fallback={<SearchBoxFallback />}>
+            <SearchBox />
+          </Suspense>
+        </CardContent>
+      </Card>
       <Suspense fallback={<LoadingState variant="cards" />}>
         <ResultsBoundary>
           <Results searchParams={searchParams} />

@@ -3,8 +3,8 @@ import { z } from "zod";
 /** How many cards one page holds (spec 0009, AC-5). */
 export const LISTING_PAGE_SIZE = 12;
 
-// The limits of `GET /listings` (api-for-frontend.md, 6.19).
-const MAX_KEYWORD_LENGTH = 500;
+// The limits of `GET /listings` (api-for-frontend.md, 6.19). The search field uses the first.
+export const MAX_KEYWORD_LENGTH = 500;
 const MAX_PAGE = 1_000_000;
 
 /**
