@@ -21,6 +21,7 @@ import { usePhotoUploads } from "../hooks/use-photo-uploads";
 import {
   ACCEPT_ATTRIBUTE,
   MAX_PHOTOS,
+  PHOTO_HELP,
   skippedText,
 } from "../schemas/photo-rules";
 import { PhotoTile } from "./photo-tile";
@@ -31,11 +32,21 @@ import { PhotoTile } from "./photo-tile";
 // already loaded: this reader never asks the server on its own.
 export function ListingPhotos({
   listingId,
+  seedPreviews,
   onBlocked,
 }: {
   listingId: string;
-  /** The listing is gone or is not mine: the page replaces itself with that state. */
-  onBlocked: (block: ListingBlock) => void;
+  /**
+   * Saved photo id to the object URL of the file it was chosen as in the post form. Lent by the
+   * result view, which owns and frees them: this zone only shows them, and only for a photo
+   * whose saved address cannot be loaded (spec 0007, AC-10).
+   */
+  seedPreviews?: Readonly<Record<string, string>>;
+  /**
+   * The listing is gone or is not mine: the page replaces itself with that state, or the result
+   * view shows `message` (the backend's words) in place of the zone.
+   */
+  onBlocked: (block: ListingBlock, message: string) => void;
 }) {
   const api = useApi();
   const titleId = useId();
@@ -46,8 +57,16 @@ export function ListingPhotos({
     staleTime: Infinity,
     select: savedImages,
   });
-  const { items, skipped, rateLimit, announcement, enqueue, retry, remove } =
-    usePhotoUploads(listingId, images.length, onBlocked);
+  const {
+    items,
+    skipped,
+    rateLimit,
+    announcement,
+    previews,
+    enqueue,
+    retry,
+    remove,
+  } = usePhotoUploads(listingId, images.length, onBlocked);
   // Pick and retry wait for the countdown of a 429 to end.
   const waitSeconds = useCountdown(rateLimit);
   const isFull = images.length >= MAX_PHOTOS;
@@ -92,6 +111,7 @@ export function ListingPhotos({
                 alt={`Ảnh ${index + 1} của tin`}
                 isCover={index === 0}
                 label={index === 0 ? "Ảnh bìa" : `Ảnh ${index + 1}`}
+                fallbackSrc={previews[image.id] ?? seedPreviews?.[image.id]}
               />
             ))}
             {items.map((item) => {
@@ -172,9 +192,7 @@ export function ListingPhotos({
               Thêm ảnh
             </Button>
             <p id={helpId} className="text-sm text-muted-foreground">
-              JPEG, PNG hoặc WebP, mỗi ảnh tối đa 5 MiB, tối đa {MAX_PHOTOS}{" "}
-              ảnh. Ảnh được giữ nguyên thông tin kèm theo, như vị trí chụp nếu
-              máy có ghi.
+              {PHOTO_HELP}
             </p>
           </div>
         )}

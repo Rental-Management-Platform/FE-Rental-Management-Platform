@@ -108,6 +108,29 @@ export const toListingBody = ({
   ...(availableFrom !== null && { availableFrom }),
 });
 
+/**
+ * The request of a post (api-for-frontend.md, 6.18): `multipart/form-data`, every text field as
+ * a string (`String(areaM2)` has a dot), a blank deposit or date left out, then one `images`
+ * part per photo in screen order, so the first photo is the cover. The client adds the
+ * `Content-Type` with its boundary; it is never set by hand.
+ */
+export function toListingFormData(
+  body: ListingBody,
+  photos: readonly File[],
+): FormData {
+  const form = new FormData();
+  form.append("title", body.title);
+  form.append("description", body.description);
+  form.append("price", String(body.price));
+  form.append("areaM2", String(body.areaM2));
+  if (body.deposit != null) form.append("deposit", String(body.deposit));
+  if (body.availableFrom != null) {
+    form.append("availableFrom", body.availableFrom);
+  }
+  for (const photo of photos) form.append("images", photo);
+  return form;
+}
+
 /** What a save sends: any of the six fields, and only the ones that changed. */
 export type ListingPatch = Partial<ListingBody>;
 

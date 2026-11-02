@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useState } from "react";
 import { useForm, type Path } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -30,6 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { PostPhotos } from "@/features/listing/components/post-photos";
+import { usePickedPhotos } from "@/features/listing/hooks/use-picked-photos";
 import { createApiError, isApiError, type ApiError } from "@/lib/api/errors";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { formatMoney } from "@/lib/format";
@@ -188,16 +191,21 @@ const TIPS = [
   "Nêu rõ khu vực và điểm nổi bật trong tiêu đề, ví dụ có gác hoặc gần chợ.",
   "Mô tả giờ giấc, chỗ để xe và các khoản phí ngoài tiền thuê.",
   "Tin hiện ngay khi đăng, không có bước duyệt.",
-  "Ảnh được thêm sau khi tin đã đăng.",
+  "Ảnh rõ và sáng giúp người thuê tin hơn. Ảnh đầu tiên là ảnh bìa của tin.",
 ] as const;
+
+const NO_PHOTO_MESSAGE = "Chọn ít nhất 1 ảnh.";
 
 const MY_LISTINGS_HREF = `${SCREENS_HOME}/my-listings`;
 const PRICING_HREF = `${SCREENS_HOME}/pricing`;
 
-// Landlord screen: the post listing form, as two zones on the canvas with the notice and the
+// Landlord screen: the post listing form, as three zones on the canvas with the notice and the
 // submit row under them, and a tips zone at the side from `xl`. The move in date is the shared
-// `DatePicker`, the same one the real page uses.
+// `DatePicker` and the third zone is the real photo picker, the same ones the real page uses.
+// A photo picked here stays on this device: nothing is sent.
 export function PostListingScreen() {
+  const picked = usePickedPhotos();
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
@@ -233,6 +241,12 @@ export function PostListingScreen() {
   };
   const onSubmit = (values: ListingFormOutput) => {
     clearFailure();
+    if (picked.photos.length === 0) {
+      setPhotoError(NO_PHOTO_MESSAGE);
+      picked.requestFocus({ kind: "add" });
+      return;
+    }
+    setPhotoError(null);
     toast.success("Đã đăng tin mẫu", {
       description: `${values.title} · ${formatMoney(values.price)} mỗi tháng`,
     });
@@ -280,14 +294,19 @@ export function PostListingScreen() {
             </Breadcrumb>
           }
           title="Đăng tin mới"
-          description="Điền thông tin phòng cho thuê. Tin hiện ngay khi đăng, không có bước duyệt."
+          description="Điền thông tin phòng cho thuê và chọn từ 1 đến 5 ảnh. Tin hiện ngay khi đăng, không có bước duyệt."
         />
 
         <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <form
             noValidate
             aria-label="Đăng tin mới"
-            onSubmit={handleSubmit(onSubmit, clearFailure)}
+            onSubmit={handleSubmit(onSubmit, () => {
+              clearFailure();
+              setPhotoError(
+                picked.photos.length === 0 ? NO_PHOTO_MESSAGE : null,
+              );
+            })}
             className="flex flex-col gap-6"
           >
             {/* Each zone is a labelled group, like the fieldset it replaces. The hairline under
@@ -429,6 +448,22 @@ export function PostListingScreen() {
                 </FieldGroup>
               </CardContent>
             </Card>
+
+            <PostPhotos
+              photos={picked.photos}
+              skipped={picked.skipped}
+              announcement={picked.announcement}
+              focusRequest={picked.focusRequest}
+              marks={{}}
+              error={photoError}
+              disabled={isSubmitting}
+              onAdd={(files) => {
+                setPhotoError(null);
+                picked.add(files);
+              }}
+              onMove={picked.move}
+              onRemove={picked.remove}
+            />
 
             <div className="flex flex-col gap-4">
               <FailureNotice

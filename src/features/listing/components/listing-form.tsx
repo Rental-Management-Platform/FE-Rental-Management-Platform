@@ -43,6 +43,11 @@ interface ListingFormProps {
    * when editing (it cannot change).
    */
   property: ReactNode;
+  /**
+   * The third zone, after the price zone: the photos of the post form (spec 0006, AC-17). The
+   * edit page has none, because its photos are the zone of spec 0007.
+   */
+  photos?: ReactNode;
   /** `failure` and `secondsLeft` of `useFormFailure`, and `errors.root?.server?.message`. */
   failure: unknown;
   message: string | undefined;
@@ -60,6 +65,7 @@ export function ListingForm({
   control,
   onSubmit,
   property,
+  photos,
   failure,
   message,
   secondsLeft,
@@ -215,6 +221,8 @@ export function ListingForm({
           </FieldGroup>
         </CardContent>
       </Card>
+
+      {photos}
 
       <div className="flex flex-col gap-4">
         <FailureNotice failure={failure} message={message} />

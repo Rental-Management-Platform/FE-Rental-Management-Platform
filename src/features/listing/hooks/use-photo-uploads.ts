@@ -133,7 +133,7 @@ type Check =
 export function usePhotoUploads(
   listingId: Uuid,
   savedCount: number,
-  onBlocked: (block: ListingBlock) => void,
+  onBlocked: (block: ListingBlock, message: string) => void,
 ) {
   const api = useApi();
   const queryClient = useQueryClient();
@@ -273,7 +273,7 @@ export function usePhotoUploads(
       case "blocked":
         stopQueue(item, failure.message, false, null);
         // Not when the zone is gone: the person may be looking at another listing by now.
-        if (alive.current) blocked.current(failure.block);
+        if (alive.current) blocked.current(failure.block, failure.message);
         return "stop";
       case "rate-limit":
         setRateLimit(failure.error);

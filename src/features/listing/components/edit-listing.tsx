@@ -74,7 +74,7 @@ export function EditListing() {
           <ListingPhotos
             key={`photos-${data.id}`}
             listingId={data.id}
-            onBlocked={setBlocked}
+            onBlocked={(block) => setBlocked(block)}
           />
           <EditListingForm
             // A different listing starts a different form. The keys differ because the two are

@@ -20,6 +20,12 @@ export const ACCEPTED_TYPES = [
 /** The `accept` attribute of the file input. */
 export const ACCEPT_ATTRIBUTE = ACCEPTED_TYPES.join(",");
 
+/**
+ * The line under the add button of both photo pickers: what is accepted, and a note about the
+ * data inside a photo, which the backend keeps (spec 0007, AC-2).
+ */
+export const PHOTO_HELP = `JPEG, PNG hoặc WebP, mỗi ảnh tối đa 5 MiB, tối đa ${MAX_PHOTOS} ảnh. Ảnh được giữ nguyên thông tin kèm theo, như vị trí chụp nếu máy có ghi.`;
+
 /** Why a picked file was left out. */
 export type SkipReason = "type" | "empty" | "size" | "no-slot";
 
@@ -28,16 +34,29 @@ export interface SkippedFile {
   reason: SkipReason;
 }
 
-const SKIP_TEXT: Record<SkipReason, string> = {
+const SKIP_TEXT: Record<Exclude<SkipReason, "no-slot">, string> = {
   type: "không phải ảnh JPEG, PNG hoặc WebP",
   empty: "tệp rỗng",
   size: "lớn hơn 5 MiB",
-  "no-slot": "tin đã hết chỗ cho ảnh",
+};
+
+/**
+ * Where a pick happens. A listing that exists has "no room" for a file; in the post form there
+ * is no listing yet, so the same reason reads as "five photos already" (spec 0006, AC-17).
+ */
+export type SkipContext = "listing" | "post";
+
+const NO_SLOT_TEXT: Record<SkipContext, string> = {
+  listing: "tin đã hết chỗ cho ảnh",
+  post: `đã đủ ${MAX_PHOTOS} ảnh`,
 };
 
 /** The words for one skipped file, ready for the message under the add button. */
-export const skippedText = ({ name, reason }: SkippedFile) =>
-  `${name}: ${SKIP_TEXT[reason]}`;
+export const skippedText = (
+  { name, reason }: SkippedFile,
+  context: SkipContext = "listing",
+) =>
+  `${name}: ${reason === "no-slot" ? NO_SLOT_TEXT[context] : SKIP_TEXT[reason]}`;
 
 /**
  * Why a file cannot be sent, or `null` when it passes. An empty `type` passes, because some
