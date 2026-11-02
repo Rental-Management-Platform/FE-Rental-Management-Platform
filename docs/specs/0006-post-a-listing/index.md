@@ -2,7 +2,7 @@
 
 **Date**: 2026-10-30
 **Updated**: 2026-11-02 (the backend now needs photos when posting, see AC-6, AC-17, AC-18 and Amendments)
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

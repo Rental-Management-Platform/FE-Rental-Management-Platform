@@ -1,6 +1,6 @@
 # Verify: listing photos · spec 0007 · updated 2026-11-02
 
-_Steps derived from spec 0007 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones. This file holds the steps of M2 (the queue and its errors). Each later milestone appends its own._
+_Steps derived from spec 0007 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones. This file holds the steps of M2 (the queue and its errors) and M3 (delete, and photos that do not load). Each later milestone appends its own._
 
 _The dev backend gives access tokens that last 60 seconds, so a long manual run refreshes through the cookie on its own. Use a listing of a landlord who is not at quota, with free photo slots. Steps marked "self check passed" were run against the real backend on 2026-11-02 while building M2._
 
@@ -32,3 +32,33 @@ _The dev backend gives access tokens that last 60 seconds, so a long manual run 
 
 - AC-2 … covered by step 3 and step 7 · AC-3 … steps 2, 3 · AC-4 … steps 1, 13 · AC-7 … steps 4, 5 · AC-8 … steps 6, 7, 8, 9 · AC-9 … steps 10, 11, 12, 13 · AC-11 … steps 14, 15 · AC-14 … step 16 · AC-15 … both commands.
 - Not covered here (later milestones): AC-1 on the result view, AC-5 labels beyond the cover, AC-6, AC-10, AC-12 and the `/dev/ui` states of AC-15.
+
+---
+
+# M3: delete and photos that do not load · updated 2026-11-02
+
+_Steps 1 to 11 below were run against the real backend on 2026-11-02 while building M3 (a throwaway landlord with one listing; a second "tab" was played by calls to the API). Keys were real key presses (`press Enter`, `press Tab`, `press Escape`) on a focused button._
+
+## UI / manual
+
+- [ ] Open `/landlord/listings/<id>/edit` of a listing with 2 or more photos → every saved tile has a delete button named "Xóa ảnh bìa" (the first) or "Xóa ảnh N", 44 px high; at 320 px there is no sideways scroll and the dialog of the next step fits the screen → AC-6, AC-14 (self check passed)
+- [ ] Press the delete button of the cover → the dialog "Xóa ảnh này?" reads "Ảnh sẽ bị xóa khỏi tin và không khôi phục được. Đây là ảnh bìa, ảnh kế tiếp sẽ thành ảnh bìa." with "Giữ lại" focused; Escape or "Giữ lại" closes it, nothing is sent, and focus is back on that tile's delete button → AC-6 (value sourcing: is this photo the cover, the first in `position` order) (self check passed)
+- [ ] Confirm the delete of the cover → the dialog closes, the toast "Đã xóa ảnh" shows, the tile leaves, the next photo is labelled "Ảnh bìa", the count drops by one, `GET /me/listings/:id` holds one photo fewer, and focus is on the delete button of the tile now at that place → AC-5, AC-6 (self check passed)
+- [ ] Press the delete button of a photo that is not the cover → the dialog has only the first sentence, no cover line → AC-6 (self check passed)
+- [ ] With 3 photos delete the middle one → focus goes to the delete button of the tile now in its place; delete the last tile of the row → focus goes to the tile before it → AC-6 (self check passed for the middle photo, and for the tile before through the 404 step)
+- [ ] With exactly one saved photo → its delete button has `aria-disabled="true"` (not `disabled`), is in the tab order, looks off, and `aria-describedby` names the line "Tin cần giữ ít nhất 1 ảnh. Muốn thay ảnh này, hãy thêm ảnh mới trước rồi xóa ảnh cũ."; Enter on it opens no dialog; the cover line is not shown → AC-5, AC-6 (value sourcing: delete on or off from the saved count, which help line shows) (self check passed)
+- [ ] Add a photo to that listing → two saved photos, both delete buttons are on, the line under the grid now reads "Muốn đổi ảnh bìa, hãy xóa ảnh bìa hiện tại: ảnh kế tiếp sẽ thành ảnh bìa." → AC-5, AC-6 (self check passed; note that the backend gave the new photo `position` 0, so it became the cover)
+- [ ] With 2 photos open the dialog on one, delete the other photo from another tab (or `DELETE /listings/:id/images/:imageId`), then confirm → the dialog closes, a red `Alert` at the top of the zone shows the backend `message` (409 `LISTING_IMAGE_REQUIRED`), the zone reads the listing again so one tile is left with its delete button off, and focus is on the button that was pressed → AC-6 (self check passed)
+- [ ] Open the dialog on a photo, delete the same photo from another tab, then confirm → the toast "Ảnh đã được xóa trước đó" shows, the tile leaves, no `Alert`, focus goes to a neighbour tile → AC-6 (404 `NOT_FOUND`) (self check passed)
+- [ ] Block the delete request (`network route "**/listings/*/images/*" --abort`) and confirm a delete → the dialog closes, the `Alert` shows the network message, both tiles stay, focus is on the delete button that was pressed, and the server still holds both photos; the next pick of a file clears the `Alert` → AC-6 (self check passed)
+- [ ] Block `**/_next/image**` and reload → each saved tile shows the framed placeholder (`role="img"`) with "Ảnh chỉ xem được khi tin đang công khai", no toast, and its delete button still works; then add a photo → its tile shows the local preview from the file just added → AC-10 (value sourcing: a local preview for a photo, the map of image `id` to preview) (self check passed; a really hidden listing was not used, because `next/image` keeps its optimized copy of a photo that was public once)
+- [ ] While the delete request is in flight (throttle the network) → "Xóa ảnh" shows a spinner and "Đang xóa" and is off, "Giữ lại" is off, Escape and a click on the backdrop do not close the dialog, and a second click sends no second request; with a screen reader the dialog title and text are read, and the off delete button reads its reason → AC-6, AC-14 (not run: local calls finish in milliseconds and no screen reader was used)
+
+## Commands
+
+- [ ] `npm run check` → lint, typecheck, format and contrast pass → AC-15 (self check passed)
+
+## Acceptance-criteria coverage
+
+- AC-5 … steps 3, 6, 7 · AC-6 … steps 1 to 10 and 12 · AC-10 … step 11 · AC-14 … steps 1, 12 · AC-15 … the command above.
+- Not covered here (M4): AC-1 on the result view, AC-8 on the result view, AC-10 on the result view, AC-12 beyond what loaded in these runs, and the `/dev/ui` tile states of AC-15. `npm run build` is run in M4.

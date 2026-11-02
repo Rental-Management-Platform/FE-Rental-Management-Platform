@@ -2,6 +2,8 @@
 
 _Steps derived from spec 0006 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones. Needs the backend running and seeded. Test account made by `/develop` on the local database (see spec 0005): `claude.dev.landlord1@example.com`, password `Passw0rd!dev1`. Side effects of the M1 self check on that database: one property "Nhà trọ Hoa Hồng" (12 Lê Lợi, Phường An Đông) and one listing "Phòng đẹp có gác gần chợ Bến Thành" (code `uzsj2ftc`). Later milestones add their own steps under their own tag._
 
+_Closed without a `/check verify` run on 2026-11-02 by the engineer's decision (a demo project): the boxes below stay open on purpose, and the only evidence is the self checks of `/develop` listed here. Run them later if the feature misbehaves._
+
 _Since 2026-11-02 the backend needs 1 to 5 photos in a multipart post, and M5 is built. The M1 to M4 steps below were written for the JSON call: wherever one says "post a listing", read it as "choose 1 to 5 photos first, then post" (a `curl` or script post must send `multipart/form-data` with the field `images`, see spec 0006 Amendments). The M5 section adds the steps for AC-6, AC-7, AC-10, AC-11, AC-17 and AC-18._
 
 Self checked by `/develop` for M1 against the real backend on 2026-10-30: the empty state, the form with one property, the empty submit, the four bad values, a valid post with its result, "Đăng tin khác", the blocked post, the landlord menu, the tab title and single `h1`, 320 px with a clean console, the `curl`, `npm run check`, `npm run build` and the import search. Not run: the steps marked "not run", plus `22.5` as the area, the trimmed title and `meta[name=robots]`. The boxes stay open until `/check verify` runs them.
