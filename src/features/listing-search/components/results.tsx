@@ -1,5 +1,6 @@
 import { ListPagination } from "@/components/list-pagination";
-import { formatCount, formatMoney } from "@/lib/format";
+import { ListingCard } from "@/components/listing-card";
+import { formatCount } from "@/lib/format";
 import { getListings } from "../api/get-listings";
 import {
   LISTING_PAGE_SIZE,
@@ -34,10 +35,11 @@ export async function Results({
         {formatCount(result.total)} tin phù hợp
         {q !== "" && ` với “${headingKeyword(q)}”`}
       </h2>
-      <ul className="flex flex-col gap-2">
-        {result.items.map((listing) => (
-          <li key={listing.id}>
-            {listing.title} · {formatMoney(listing.price)}
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {result.items.map((listing, index) => (
+          // `grid` lets the card fill the cell, so cards of one row are equally high.
+          <li key={listing.id} className="grid">
+            <ListingCard listing={listing} eagerPhoto={index === 0} />
           </li>
         ))}
       </ul>
@@ -48,6 +50,7 @@ export async function Results({
         hrefFor={(to) => listingsHref({ q, page: to })}
         itemLabel="tin"
         size="lg"
+        className="mt-2"
       />
     </section>
   );
