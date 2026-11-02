@@ -1,10 +1,7 @@
-import {
-  FilePlusCorner,
-  HousePlus,
-  Search,
-  type LucideIcon,
-} from "lucide-react";
+import { LayoutDashboard, Search, type LucideIcon } from "lucide-react";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
+import { homePathOf } from "@/lib/next-path";
+import { LANDLORD_TOOLS, navItemsOf } from "./workspace-tools";
 
 export type NavItem = {
   label: string;
@@ -21,36 +18,34 @@ export type PublicNavItem = Pick<NavItem, "label" | "href" | "permission">;
 export const toPublicNavItems = (items: readonly NavItem[]): PublicNavItem[] =>
   items.map(({ label, href, permission }) => ({ label, href, permission }));
 
-// A feature adds its item in the same change that ships its page, so no link points at a
-// page that does not exist yet (spec 0003, "Nav configs"). The landlord menu holds the create
-// property and post listing pages until #12 brings the rest, the admin menu stays empty until
-// #20, and `ACCOUNT_LINKS` until #14, #12, #20 and #28.
+// The public menu and `ACCOUNT_LINKS` still follow spec 0003 ("Nav configs"): a feature adds
+// its item in the same change that ships its page, so no link points at a page that does not
+// exist yet. The two work areas are different since spec 0008: their menus are built from the
+// tool lists in `workspace-tools.ts`, one "Tổng quan" item first and then the ready tools, so a
+// feature turns its menu item on by flipping its tool from `soon` to `ready`.
 export const PUBLIC_NAV: readonly NavItem[] = [
   { label: "Tìm trọ", href: "/", icon: Search },
 ];
 
+// "Tổng quan" is the dashboard of an area. Its address is the home path of the account type,
+// and it is the current item on that exact address only (`exactHrefs` of the shell).
+export const LANDLORD_HOME = homePathOf("landlord");
+
 export const LANDLORD_NAV: readonly NavItem[] = [
-  {
-    label: "Thêm nhà trọ",
-    href: "/landlord/properties/new",
-    icon: HousePlus,
-    permission: "property:create",
-  },
-  {
-    label: "Đăng tin",
-    href: "/landlord/listings/new",
-    icon: FilePlusCorner,
-    permission: "listing:create",
-  },
+  { label: "Tổng quan", href: LANDLORD_HOME, icon: LayoutDashboard },
+  ...navItemsOf(LANDLORD_TOOLS),
 ];
 
 export const ADMIN_NAV: readonly NavItem[] = [];
 
 // Links in the account menu: `all` for every signed in person, then the list of their own type.
-// Display only: what a person may do stays with `can()` and the backend.
+// Display only: what a person may do stays with `can()` and the backend. The way back to the
+// work area from the public pages (spec 0008, AC-14); the renter has no work area.
 export const ACCOUNT_LINKS: Record<"all" | AccountType, readonly NavItem[]> = {
   all: [],
   tenant: [],
-  landlord: [],
+  landlord: [
+    { label: "Khu chủ trọ", href: LANDLORD_HOME, icon: LayoutDashboard },
+  ],
   admin: [],
 };

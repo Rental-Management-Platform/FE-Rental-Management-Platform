@@ -4,7 +4,7 @@
 // `next` comes from the address bar, so anyone can write anything into it. It is trusted only
 // after `safeNextPath` has accepted it, and no redirect may leave the site.
 
-import type { User } from "@/lib/api/types";
+import type { AccountType, User } from "@/lib/api/types";
 
 const MAX_LENGTH = 2000;
 const AUTH_PAGES = ["/login", "/register"] as const;
@@ -61,16 +61,30 @@ export function safeNextPath(raw: string | null | undefined): string | null {
 }
 
 /**
- * The page to open once a person is signed in: `next` when it is safe, else the home page.
- * It takes the user so that a later feature can send a landlord or an admin to their own area
- * by editing this one function.
+ * The home page of an account type: the dashboard of its work area (spec 0008, AC-13). A renter
+ * (`tenant`) has no work area, so it is the public home page. The menu of each work area uses
+ * the same function for its "Tổng quan" item, so the two cannot drift apart.
+ */
+export function homePathOf(accountType: AccountType): string {
+  switch (accountType) {
+    case "landlord":
+      return "/landlord";
+    case "admin":
+      return "/admin";
+    case "tenant":
+      return "/";
+  }
+}
+
+/**
+ * The page to open once a person is signed in: `next` when it is safe, else the home page of
+ * their account type (spec 0008, AC-13, which amends spec 0005 AC-7).
  */
 export function afterAuthPath(
   next: string | null | undefined,
   user: Pick<User, "accountType">,
 ): string {
-  void user.accountType;
-  return safeNextPath(next) ?? "/";
+  return safeNextPath(next) ?? homePathOf(user.accountType);
 }
 
 /**

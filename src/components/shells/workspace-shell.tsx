@@ -65,8 +65,9 @@ function WorkspaceNavItems({ items, currentHref, onNavigate }: NavItemsProps) {
 // fallback. An item that needs a permission appears once the session says the person has it.
 function WorkspaceNavLinks({
   items,
+  exactHrefs,
   onNavigate,
-}: Omit<NavItemsProps, "currentHref">) {
+}: Omit<NavItemsProps, "currentHref"> & { exactHrefs: readonly string[] }) {
   const pathname = usePathname();
   const state = useSession();
   const visible = visibleNavItems(items, state);
@@ -76,6 +77,7 @@ function WorkspaceNavLinks({
       currentHref={currentHrefOf(
         pathname,
         visible.map((item) => item.href),
+        exactHrefs,
       )}
       onNavigate={onNavigate}
     />
@@ -85,9 +87,11 @@ function WorkspaceNavLinks({
 function WorkspaceSidebar({
   title,
   items,
+  exactHrefs,
 }: {
   title: string;
   items: readonly NavItem[];
+  exactHrefs: readonly string[];
 }) {
   // Below `lg` the menu is a sheet: choosing a link closes it.
   const { setOpenMobile } = useSidebar();
@@ -117,7 +121,11 @@ function WorkspaceSidebar({
                   />
                 }
               >
-                <WorkspaceNavLinks items={items} onNavigate={closeSheet} />
+                <WorkspaceNavLinks
+                  items={items}
+                  exactHrefs={exactHrefs}
+                  onNavigate={closeSheet}
+                />
               </Suspense>
             </nav>
           </SidebarGroupContent>
@@ -145,6 +153,11 @@ interface WorkspaceShellProps {
   title: string;
   /** A client component, because an item holds an icon, which a server component cannot pass. */
   items: readonly NavItem[];
+  /**
+   * Items that are the current page on their own address only, never on a page below it: the
+   * "Tổng quan" item, which would otherwise be current on every page of the area (spec 0008).
+   */
+  exactHrefs?: readonly string[];
   children: ReactNode;
 }
 
@@ -154,12 +167,13 @@ interface WorkspaceShellProps {
 export function WorkspaceShell({
   title,
   items,
+  exactHrefs = [],
   children,
 }: WorkspaceShellProps) {
   return (
     <SidebarProvider className="flex-1">
       <SkipLink />
-      <WorkspaceSidebar title={title} items={items} />
+      <WorkspaceSidebar title={title} items={items} exactHrefs={exactHrefs} />
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
           <SidebarTrigger />
