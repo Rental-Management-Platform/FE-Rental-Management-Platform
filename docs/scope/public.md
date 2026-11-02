@@ -5,13 +5,13 @@ Phần dành cho khách và người tìm trọ: tìm tin, xem tin, lưu tin, h�
 ## Slice 1: Vòng lặp lõi
 
 ### 8. Find listings · needs a decision
-Trang danh sách tin công khai, điện thoại trước: ô tìm kiếm theo từ khóa, thẻ tin (ảnh bìa, tiêu đề, giá, diện tích, `fullAddress`), phân trang. Là nơi khách vào đầu tiên và là trang gốc của trang web (hợp đồng không có trang chủ riêng). Có metadata cho SEO.
-**Done when:** khách tìm theo từ khóa và chuyển trang được, địa chỉ URL phản ánh tìm kiếm, trạng thái trống, lỗi và 429 hiển thị đúng, trang có metadata SEO và dùng mượt trên điện thoại.
+Trang danh sách tin công khai, điện thoại trước: ô tìm kiếm theo từ khóa, thẻ tin (ảnh bìa lấy từ `coverImageUrl`, tiêu đề, giá, diện tích, `fullAddress`), phân trang. Chưa có ảnh bìa thì hiện ảnh thay thế, ảnh trả 404 thì ẩn ô ảnh chứ không báo lỗi. Cách ghép địa chỉ ảnh dùng chung với #9 và #10 (xem AC-12 của spec 0007); mục nào xây trước thì tạo ra nó. Là nơi khách vào đầu tiên và là trang gốc của trang web (hợp đồng không có trang chủ riêng). Có metadata cho SEO.
+**Done when:** khách tìm theo từ khóa và chuyển trang được, địa chỉ URL phản ánh tìm kiếm, thẻ tin hiện ảnh bìa thật (chưa có ảnh thì hiện ảnh thay thế, ảnh lỗi thì ẩn ô ảnh), trạng thái trống, lỗi và 429 hiển thị đúng, trang có metadata SEO và dùng mượt trên điện thoại.
 - [ ] Design it (spec): `/architect find listings`
 
 ### 9. Listing detail · needs a decision
-Trang `/<slug>-<code>`: nội dung tin, địa chỉ, giá, nhà trọ. Số điện thoại chỉ hiện khi đã đăng nhập, khách thấy nút "Đăng nhập để xem số điện thoại". Nếu `slug` trả về khác địa chỉ thì sửa lại thanh địa chỉ. Ảnh, phí và tiện ích được thêm ở Slice 2. Có metadata và thẻ chia sẻ cho SEO.
-**Done when:** khách mở được tin và không thấy số điện thoại, người đã đăng nhập thấy số, `slug` sai tự sửa trên thanh địa chỉ, tin không còn báo 404 dễ hiểu, metadata và thẻ chia sẻ đầy đủ.
+Trang `/<slug>-<code>`: nội dung tin, địa chỉ, giá, nhà trọ. Số điện thoại chỉ hiện khi đã đăng nhập, khách thấy nút "Đăng nhập để xem số điện thoại". Nếu `slug` trả về khác địa chỉ thì sửa lại thanh địa chỉ. Thư viện ảnh lấy từ `images[]` (tối đa 5 ảnh; chưa có ảnh thì hiện ảnh thay thế, ảnh trả 404 thì ẩn ô ảnh chứ không báo lỗi), dùng chung cách ghép địa chỉ ảnh với #8 (xem AC-12 của spec 0007). Phí và tiện ích được thêm ở Slice 2 (#11). Có metadata và thẻ chia sẻ cho SEO.
+**Done when:** khách mở được tin và không thấy số điện thoại, người đã đăng nhập thấy số, tin có ảnh thì xem được thư viện ảnh (chưa có ảnh thì hiện ảnh thay thế), `slug` sai tự sửa trên thanh địa chỉ, tin không còn báo 404 dễ hiểu, metadata và thẻ chia sẻ đầy đủ.
 - [ ] Design it (spec): `/architect listing detail`
 
 ## Slice 3: Tìm và gắn bó

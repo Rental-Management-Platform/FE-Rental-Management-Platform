@@ -31,7 +31,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 7 | Post a listing | Slice 1 | in-progress |
 | 8 | Find listings | Slice 1 | planned |
 | 9 | Listing detail | Slice 1 | planned |
-| 10 | Listing photos | Slice 2 | planned |
+| 10 | Listing photos | Slice 2 | in-progress |
 | 11 | Property fees and amenities | Slice 2 | planned |
 | 12 | Manage my properties and listings | Slice 2 | planned |
 | 13 | Search filters and sort | Slice 3 | planned |
@@ -59,7 +59,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 2 planned.
 * [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 6 planned, 2 dropped (#16, #29).
-* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 1 done, 1 in-progress, 5 planned.
+* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 1 done, 2 in-progress, 4 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26). 7 planned.
 
 ## Các giai đoạn
@@ -80,6 +80,7 @@ Ngoài phạm vi lần này, giữ lại để kế hoạch còn trung thực.
 
 * **Chế độ tối**: giao diện tối cho mọi màn hình · needs a decision
 * **Chọn cỡ chữ (thường hoặc lớn)**: cho người muốn chữ to hơn mà không phải phóng trình duyệt; sinh ra từ spec 0004 · needs a decision
+* **Kéo thả tệp vào khối ảnh**: chủ trọ kéo ảnh từ máy thả vào khối ảnh của tin; cần thêm trạng thái kéo qua và cách dùng bằng bàn phím; sinh ra từ spec 0007 · needs a decision
 * **Chọn nơi chạy khi demo trên mạng (hosting)**: chọn nơi đặt FE và API trước khi demo online. Cookie đăng nhập là `SameSite=Strict`, nên hai nơi khác site cần proxy; xem mục "If hosting changes" trong spec 0001 · needs a decision
 * **Cứng hóa lớp phiên khi hai tab đổi tài khoản**: tab B còn là khách ở `/login` trong khi tab A đã đăng nhập, rồi B đăng nhập tài khoản khác thì cookie làm mới đổi, còn tab A vẫn hiện người cũ. Sau mỗi lần làm mới cần gọi `/auth/me` và so `user.id`. Phải sửa spec 0002; sinh ra từ spec 0005 · needs a decision
 * **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, danh sách đang theo dõi, thông báo, thống kê cho chủ trọ (kể cả lượt lưu tin), đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ.

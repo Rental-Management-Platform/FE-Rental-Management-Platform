@@ -11,7 +11,7 @@ Biểu mẫu tạo nhà trọ ở mức mỏng nhất: tên, số nhà và tên 
 code in `src/features/property/`, `src/app/(landlord)/landlord/properties/new/`, `src/components/shells/nav-config.ts` (mục menu "Thêm nhà trọ")
 
 ### 7. Post a listing · in-progress
-Đăng tin từ một nhà trọ: tiêu đề, mô tả, giá, diện tích, tiền cọc và ngày vào ở (hai ô sau không bắt buộc). Tin hiện ngay, đăng xong mở được trang công khai. Cùng biểu mẫu này dùng để sửa tin (mở bằng `GET /me/listings/:id`, chỉ gửi ô đã đổi, sửa được ở mọi trạng thái kể cả tin bị admin ẩn; bỏ tiền cọc hoặc ngày vào ở thì gửi `null`). Việc chặn theo hạn mức làm ở Slice 4.
+Đăng tin từ một nhà trọ: tiêu đề, mô tả, giá, diện tích, tiền cọc và ngày vào ở (hai ô sau không bắt buộc). Tin hiện ngay, đăng xong mở được trang công khai. Cùng biểu mẫu này dùng để sửa tin (mở bằng `GET /me/listings/:id`, chỉ gửi ô đã đổi, sửa được ở mọi trạng thái kể cả tin bị admin ẩn; bỏ tiền cọc hoặc ngày vào ở thì gửi `null`). Việc chặn theo hạn mức làm ở Slice 4. Ảnh của tin do #10 làm, gắn vào đúng biểu mẫu này.
 **Done when:** chủ trọ đăng được tin và sửa được tin, tin xuất hiện ngay ở trang tìm tin của khách, lỗi từng ô hiện đúng, chưa có nhà trọ thì dẫn đi tạo nhà trọ trước.
 - [x] Design it (spec): `/architect post a listing`
 - [x] Build it: `/develop post a listing`
@@ -25,10 +25,17 @@ spec [0006](../specs/0006-post-a-listing/index.md) · Chọn: một biểu mẫu
 
 ## Slice 2: Tin phong phú hơn
 
-### 10. Listing photos
-Thêm ảnh từng cái một (tối đa 5, JPEG, PNG hoặc WebP), xóa ảnh, ảnh bìa ở thẻ tin và thư viện ảnh ở trang chi tiết. Chưa có ảnh thì hiện ảnh thay thế.
-**Done when:** tải lên và xóa ảnh được, nút thêm ẩn khi đủ 5 ảnh, `IMAGE_INVALID`, `LISTING_IMAGE_LIMIT` và `PAYLOAD_TOO_LARGE` hiện bằng `message` của backend, ảnh trả 404 thì ẩn ô ảnh chứ không báo lỗi.
+### 10. Listing photos · in-progress
+Khối ảnh của chủ trọ, đặt ngay dưới màn kết quả sau khi đăng tin và trên trang sửa tin, nằm ngoài biểu mẫu và lưu từng ảnh ngay khi tải lên. Chọn nhiều ảnh một lần (JPEG, PNG hoặc WebP, mỗi ảnh tối đa 5 MiB, tối đa 5 ảnh), FE gửi lần lượt từng ảnh một, mỗi ảnh có nút xóa kèm hỏi xác nhận. Chưa có API đổi thứ tự: muốn đổi ảnh bìa thì xóa ảnh bìa, ảnh kế tiếp thành bìa. Ảnh bìa ở thẻ tin và thư viện ảnh ở trang chi tiết do #8 và #9 vẽ.
+**Done when:** đăng tin xong thêm được ảnh ngay, sửa tin thì thấy, thêm và xóa được ảnh; nút thêm khóa lúc đang gửi và ẩn khi đủ 5 ảnh; `IMAGE_INVALID`, `LISTING_IMAGE_LIMIT`, `PAYLOAD_TOO_LARGE` và `RATE_LIMITED` hiện bằng `message` của backend; ảnh quá giờ không bị tải trùng; tin đang ẩn thì ảnh không xem được vẫn xóa được và có lời giải thích.
+- [x] Design it (spec): `/architect listing photos`
 - [ ] Build it: `/develop listing photos`
+  - [ ] M1 Sợi chỉ mỏng: một ảnh tải lên thật và hiện ở trang sửa tin, kèm `mediaUrl`, luật kiểm tệp và giới hạn giờ riêng cho ảnh (AC-1 đến AC-5, AC-12, AC-13)
+  - [ ] M2 Hàng đợi và lỗi: chọn nhiều ảnh, gửi lần lượt, thử lại và bỏ, dừng hàng đợi đúng lúc, đọc lại tin sau khi quá giờ, cảnh báo khi đóng tab (AC-3, AC-4, AC-7, AC-8, AC-9, AC-11, AC-14)
+  - [ ] M3 Xóa ảnh và ảnh không tải được: hộp xác nhận, chuyển tiêu điểm, khung thay thế cho tin đang ẩn (AC-6, AC-10, AC-14)
+  - [ ] M4 Nối với màn kết quả và hoàn thiện: khối ảnh dưới màn kết quả, các trạng thái trong `/dev/ui`, `npm run check` và `npm run build` (AC-1, AC-8, AC-14, AC-15)
+- [ ] Verify it: `/check verify listing photos` (cần backend chạy)
+spec [0007](../specs/0007-listing-photos/index.md) · Chọn: một khối ảnh dùng chung cho màn kết quả và trang sửa tin, ảnh lưu ngay và tách khỏi nút Lưu, chọn nhiều ảnh nhưng gửi lần lượt từng ảnh một, kiểm loại và dung lượng ở FE (backend vẫn là người quyết), quá giờ thì đọc lại tin trước khi cho thử lại để không tải trùng, giới hạn giờ 60 giây chỉ cho ảnh, xóa có hỏi xác nhận, tin đang ẩn thì hiện khung thay thế và giữ bản xem trước trên máy, có một dòng nhắc về thông tin kèm theo ảnh, không kéo thả.
 
 ### 11. Property fees and amenities
 Thêm vào biểu mẫu nhà trọ: tối đa 6 khoản phí (mỗi loại một lần), tiện ích chọn từ `GET /amenities`, tọa độ không bắt buộc (đủ cả hai hoặc không có). Hiện phí và tiện ích ở trang chi tiết tin. Khi sửa thì gửi lại toàn bộ danh sách.
