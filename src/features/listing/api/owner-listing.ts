@@ -25,16 +25,26 @@ export const ownerListingKey = (id: string) => ["listing", "mine", id] as const;
 
 /**
  * `GET /me/listings/:id` (api-for-frontend.md, 6.21): the listing in every status, with the
- * property and the admin's reason. It opens the edit form once, so the two refetches that
- * happen by themselves are off: the form is never rebuilt under the person's typing.
+ * property and the admin's reason. The one call behind the query below, and behind the read the
+ * photo zone makes after a timeout (spec 0007, AC-9).
+ */
+export const fetchOwnerListing = (
+  api: ApiClient,
+  id: string,
+  signal?: AbortSignal,
+) =>
+  api.get<OwnerListingDetail>(`/me/listings/${encodeURIComponent(id)}`, {
+    signal,
+  });
+
+/**
+ * The listing as a query. It opens the edit form once, so the two refetches that happen by
+ * themselves are off: the form is never rebuilt under the person's typing.
  */
 export const ownerListingQuery = (api: ApiClient, id: string) =>
   queryOptions({
     queryKey: ownerListingKey(id),
-    queryFn: ({ signal }) =>
-      api.get<OwnerListingDetail>(`/me/listings/${encodeURIComponent(id)}`, {
-        signal,
-      }),
+    queryFn: ({ signal }) => fetchOwnerListing(api, id, signal),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });

@@ -71,7 +71,11 @@ export function EditListing() {
       return (
         <div className="flex min-w-0 flex-col gap-6">
           {/* Outside the form: a photo is saved when it is uploaded, not by "Lưu thay đổi". */}
-          <ListingPhotos key={`photos-${data.id}`} listingId={data.id} />
+          <ListingPhotos
+            key={`photos-${data.id}`}
+            listingId={data.id}
+            onBlocked={setBlocked}
+          />
           <EditListingForm
             // A different listing starts a different form. The keys differ because the two are
             // siblings.
