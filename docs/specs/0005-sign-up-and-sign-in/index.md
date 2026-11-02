@@ -283,6 +283,13 @@ Every AC appears in at least one task and every task names an AC.
 - [ ] Root `AGENTS.md` `## Rules`: add "access checks use `RequireSession` and `Can`, never a hand written role check" (`/sync`).
 - [ ] The `verify.md` of spec 0002 has lab steps that stop being runnable. `/check verify` rereads it when it next runs.
 
+## Amended by 0008
+
+Spec [0008](../0008-landlord-and-admin-dashboards/index.md) changes these points. The text above is left as it was written.
+
+- AC-7 and the landing rule: `afterAuthPath(next, user)` returns `next` when `safeNextPath` accepts it, else `homePathOf(user.accountType)` from `src/lib/next-path.ts`, which is `/landlord` for a landlord, `/admin` for an admin and `/` for a renter. Sign in, sign up and a signed in person who opens `/login` all go through `useAuthRedirect`, so all three behave the same. The safety rules for `next` do not change.
+- The Consequence "Everyone lands on `/` after signing in until #12 and #20 add their areas" no longer holds, and the Follow-up "Items #12 and #20 may change `afterAuthPath`" is done by spec 0008.
+
 ## Rationale
 
 Reasoning and options: see [rationale.md](rationale.md).

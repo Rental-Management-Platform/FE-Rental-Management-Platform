@@ -379,6 +379,14 @@ Spec [0005](../0005-sign-up-and-sign-in/index.md) changes these points. The text
 - `ErrorState` takes an optional `message` that replaces the text read from the error, because a state about the session has no error object. Its `error` is optional too, and an optional `page` makes its title the page's one `h1`, as in `NotFoundState`. `LoadingState` takes an optional `fields` for the number of rows of its form skeleton.
 - AC-6: `applyFieldErrors` moves focus in the order of its `fields` list, which is the order on screen.
 
+## Amended by 0008
+
+Spec [0008](../0008-landlord-and-admin-dashboards/index.md) changes these points. The text above is left as it was written.
+
+- The two workspace menus are no longer written by hand. `LANDLORD_NAV` and `ADMIN_NAV` in `nav-config.ts` are a "Tổng quan" item followed by `navItemsOf(LANDLORD_TOOLS)` and `navItemsOf(ADMIN_TOOLS)` from `src/components/shells/workspace-tools.ts`, which keeps the ready tools in list order. So the rule "a feature adds its item to `nav-config.ts` in the same change that ships its page" now reads "a feature changes its tool from `soon` to `ready`, with an address, in `workspace-tools.ts`", and that one edit turns on the menu item and the dashboard card. `PUBLIC_NAV` works as before.
+- `ACCOUNT_LINKS.landlord` holds "Khu chủ trọ" (`/landlord`) and `ACCOUNT_LINKS.admin` holds "Quản trị" (`/admin`), so a signed in landlord or admin gets back to their area from the public pages. The renter list stays empty.
+- `currentHrefOf(pathname, hrefs, exactHrefs = [])` takes an optional third argument, the items that are current on their own address only, and `WorkspaceShell` takes a matching optional `exactHrefs` prop. "Tổng quan" is the one item that uses it, so it is not marked on a page below the dashboard. The two public callers pass nothing and behave as before.
+
 ## Rationale
 
 Reasoning and options: see [rationale.md](rationale.md).
