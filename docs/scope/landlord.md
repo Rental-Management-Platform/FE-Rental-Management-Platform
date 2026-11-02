@@ -30,7 +30,7 @@ Khối ảnh của chủ trọ, đặt ngay dưới màn kết quả sau khi đ�
 **Done when:** đăng tin xong thêm được ảnh ngay, sửa tin thì thấy, thêm và xóa được ảnh; nút thêm khóa lúc đang gửi và ẩn khi đủ 5 ảnh; `IMAGE_INVALID`, `LISTING_IMAGE_LIMIT`, `PAYLOAD_TOO_LARGE` và `RATE_LIMITED` hiện bằng `message` của backend; ảnh quá giờ không bị tải trùng; tin đang ẩn thì ảnh không xem được vẫn xóa được và có lời giải thích.
 - [x] Design it (spec): `/architect listing photos`
 - [ ] Build it: `/develop listing photos`
-  - [ ] M1 Sợi chỉ mỏng: một ảnh tải lên thật và hiện ở trang sửa tin, kèm `mediaUrl`, luật kiểm tệp và giới hạn giờ riêng cho ảnh (AC-1 đến AC-5, AC-12, AC-13)
+  - [x] M1 Sợi chỉ mỏng: một ảnh tải lên thật và hiện ở trang sửa tin, kèm `mediaUrl`, luật kiểm tệp và giới hạn giờ riêng cho ảnh (AC-1 đến AC-5, AC-12, AC-13)
   - [ ] M2 Hàng đợi và lỗi: chọn nhiều ảnh, gửi lần lượt, thử lại và bỏ, dừng hàng đợi đúng lúc, đọc lại tin sau khi quá giờ, cảnh báo khi đóng tab (AC-3, AC-4, AC-7, AC-8, AC-9, AC-11, AC-14)
   - [ ] M3 Xóa ảnh và ảnh không tải được: hộp xác nhận, chuyển tiêu điểm, khung thay thế cho tin đang ẩn (AC-6, AC-10, AC-14)
   - [ ] M4 Nối với màn kết quả và hoàn thiện: khối ảnh dưới màn kết quả, các trạng thái trong `/dev/ui`, `npm run check` và `npm run build` (AC-1, AC-8, AC-14, AC-15)

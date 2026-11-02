@@ -1,7 +1,7 @@
 # 0007. Photo block for listings in the landlord area of the web frontend
 
 **Date**: 2026-11-02
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
