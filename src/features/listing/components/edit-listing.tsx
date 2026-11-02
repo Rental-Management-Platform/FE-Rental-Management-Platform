@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShieldAlertIcon } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/states/error-state";
 import { ForbiddenState } from "@/components/states/forbidden-state";
@@ -37,6 +37,14 @@ export function EditListing() {
   const listing = useQuery(ownerListingQuery(api, id));
   // Set by a save that was answered "gone" or "not yours": it replaces the form.
   const [blocked, setBlocked] = useState<ListingBlock | null>(null);
+  const blockRef = useRef<HTMLDivElement>(null);
+
+  // The form and its focused button are gone, so focus would fall to the page. It goes to the
+  // state instead, and a screen reader reads it. A block found while loading needs no move:
+  // nothing had focus yet.
+  useEffect(() => {
+    if (blocked) blockRef.current?.focus();
+  }, [blocked]);
 
   const data = listing.data;
   const block =
@@ -45,10 +53,16 @@ export function EditListing() {
       ? listingBlock(listing.error)
       : null);
 
-  if (block === "not-found")
-    return <NotFoundState title="Không tìm thấy tin" />;
-  if (block === "forbidden") {
-    return <ForbiddenState message="Bạn không có quyền sửa tin này" />;
+  if (block) {
+    return (
+      <div ref={blockRef} tabIndex={-1} className="outline-none">
+        {block === "not-found" ? (
+          <NotFoundState title="Không tìm thấy tin" />
+        ) : (
+          <ForbiddenState message="Bạn không có quyền sửa tin này" />
+        )}
+      </div>
+    );
   }
 
   const renderMain = () => {
