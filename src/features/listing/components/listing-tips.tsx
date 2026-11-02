@@ -4,7 +4,7 @@ const TIPS = [
   "Nêu rõ khu vực và điểm nổi bật trong tiêu đề, ví dụ có gác hoặc gần chợ.",
   "Mô tả giờ giấc, chỗ để xe và các khoản phí ngoài tiền thuê.",
   "Tin hiện ngay khi đăng, không có bước duyệt.",
-  "Ảnh chưa thêm được ở bước này.",
+  "Ảnh rõ và sáng giúp người thuê tin hơn. Ảnh đầu tiên là ảnh bìa của tin.",
 ] as const;
 
 // The tips zone at the side from `xl`, shared by the post page and the edit page.

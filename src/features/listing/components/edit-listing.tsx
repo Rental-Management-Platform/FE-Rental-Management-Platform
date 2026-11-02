@@ -19,6 +19,7 @@ import {
   type ListingBlock,
 } from "../api/owner-listing";
 import { EditListingForm } from "./edit-listing-form";
+import { ListingPhotos } from "./listing-photos";
 import { ListingStatusBadge } from "./listing-status-badge";
 import { ListingTips } from "./listing-tips";
 
@@ -68,15 +69,20 @@ export function EditListing() {
   const renderMain = () => {
     if (data !== undefined) {
       return (
-        <EditListingForm
-          // A different listing starts a different form.
-          key={data.id}
-          listing={data}
-          onSaved={(saved) =>
-            queryClient.setQueryData(ownerListingKey(id), saved)
-          }
-          onBlocked={setBlocked}
-        />
+        <div className="flex min-w-0 flex-col gap-6">
+          {/* Outside the form: a photo is saved when it is uploaded, not by "Lưu thay đổi". */}
+          <ListingPhotos key={`photos-${data.id}`} listingId={data.id} />
+          <EditListingForm
+            // A different listing starts a different form. The keys differ because the two are
+            // siblings.
+            key={`form-${data.id}`}
+            listing={data}
+            onSaved={(saved) =>
+              queryClient.setQueryData(ownerListingKey(id), saved)
+            }
+            onBlocked={setBlocked}
+          />
+        </div>
       );
     }
     return listing.isError ? (

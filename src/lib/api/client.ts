@@ -34,6 +34,11 @@ export interface RequestOptions {
    * `cancelQueries` cancels nothing.
    */
   signal?: AbortSignal;
+  /**
+   * The time limit of each attempt of this call, in place of the client's default (20 seconds).
+   * Only a call that is slow by nature sets it, such as a photo upload (spec 0007, AC-13).
+   */
+  timeoutMs?: number;
 }
 
 type CallOptions = Omit<RequestOptions, "method" | "path" | "body">;
@@ -123,7 +128,7 @@ export function createApiClient(deps: ApiClientDeps): SessionApiClient {
     const hasBody = options.body !== undefined;
     const isForm = options.body instanceof FormData;
 
-    const timeout = AbortSignal.timeout(timeoutMs);
+    const timeout = AbortSignal.timeout(options.timeoutMs ?? timeoutMs);
     const signal = AbortSignal.any(
       [timeout, options.signal, sessionSignal].filter(
         (item): item is AbortSignal => item !== undefined,
