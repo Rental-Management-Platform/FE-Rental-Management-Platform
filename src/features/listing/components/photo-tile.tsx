@@ -5,6 +5,7 @@ import {
   ArrowRightIcon,
   CircleAlertIcon,
   ImageOffIcon,
+  Trash2Icon,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -36,6 +37,19 @@ export type PhotoTileProps =
        * public, and an `img` request carries no token (spec 0007, AC-10).
        */
       fallbackSrc?: string | null;
+      /** Names the delete button of this tile for the focus moves of the zone. */
+      photoId: string;
+      /** The place on screen, counted from 1: it names the button ("Xóa ảnh 2"). */
+      place: number;
+      /**
+       * False while this is the only saved photo: a listing keeps at least one (spec 0007, AC-6).
+       * The button then stays in the tab order with `aria-disabled`, so a screen reader hears why.
+       */
+      canDelete: boolean;
+      /** The id of the line that says why the button is off, named by `aria-describedby`. */
+      deleteReasonId: string | undefined;
+      /** Opens the confirm dialog. The zone checks `canDelete` again, so a press while off does nothing. */
+      onDelete: () => void;
     }
   | {
       kind: "queued";
@@ -170,12 +184,34 @@ function TileCaption(props: PhotoTileProps) {
   switch (props.kind) {
     case "saved":
       return (
-        <div className="flex min-h-8 items-center gap-2">
-          {props.isCover ? (
-            <Badge>{props.label}</Badge>
-          ) : (
-            <span className="text-sm text-muted-foreground">{props.label}</span>
-          )}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-h-8 min-w-0 items-center">
+            {props.isCover ? (
+              <Badge>{props.label}</Badge>
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                {props.label}
+              </span>
+            )}
+          </div>
+          {/* `aria-disabled`, not `disabled`: it keeps its place in the tab order (AC-6). */}
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-lg"
+            data-photo-action={`${props.photoId}:delete`}
+            aria-label={
+              props.isCover ? "Xóa ảnh bìa" : `Xóa ảnh ${props.place}`
+            }
+            aria-disabled={props.canDelete ? undefined : true}
+            aria-describedby={
+              props.canDelete ? undefined : props.deleteReasonId
+            }
+            className="aria-disabled:pointer-events-none aria-disabled:opacity-50"
+            onClick={props.onDelete}
+          >
+            <Trash2Icon aria-hidden="true" />
+          </Button>
         </div>
       );
     case "picked":

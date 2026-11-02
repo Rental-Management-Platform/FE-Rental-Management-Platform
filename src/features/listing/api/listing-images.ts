@@ -167,6 +167,39 @@ const failureText = (error: unknown) => {
   return requestId === null ? message : `${message} Mã hỗ trợ: ${requestId}`;
 };
 
+/**
+ * What a failed delete means for the zone (spec 0007, AC-6):
+ * - `gone`: the photo was removed already (404 `NOT_FOUND`), which is the result the person wanted.
+ * - `required`: it is the last photo, because another tab removed the other one first (409
+ *   `LISTING_IMAGE_REQUIRED`). The zone shows the backend `message` and reads the listing again.
+ * - `blocked`: the listing is gone or not mine, the page takes over.
+ * - `failed`: anything else, the zone shows `message`.
+ * - `aborted`: the session changed under the request, there is nothing to show.
+ */
+export type DeleteFailure =
+  | { kind: "gone" }
+  | { kind: "required"; message: string }
+  | { kind: "blocked"; block: ListingBlock; message: string }
+  | { kind: "failed"; message: string }
+  | { kind: "aborted" };
+
+/** Sorts a failed delete into the case the zone acts on. */
+export function classifyDeleteError(error: unknown): DeleteFailure {
+  if (isAbortError(error)) return { kind: "aborted" };
+  const message = failureText(error);
+  if (!isApiError(error)) return { kind: "failed", message };
+  const block = listingBlock(error);
+  if (block !== null) return { kind: "blocked", block, message };
+  switch (error.code) {
+    case "NOT_FOUND":
+      return { kind: "gone" };
+    case "LISTING_IMAGE_REQUIRED":
+      return { kind: "required", message };
+    default:
+      return { kind: "failed", message };
+  }
+}
+
 /** Sorts a failed upload (or the read after it) into the case the queue acts on. */
 export function classifyUploadError(error: unknown): UploadFailure {
   if (isAbortError(error)) return { kind: "aborted" };
