@@ -1,7 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ADMIN_NAV, LANDLORD_HOME, LANDLORD_NAV } from "./nav-config";
+import {
+  ADMIN_HOME,
+  ADMIN_NAV,
+  LANDLORD_HOME,
+  LANDLORD_NAV,
+} from "./nav-config";
 import { WorkspaceShell } from "./workspace-shell";
 
 // Client components, because the nav arrays hold icons and a server layout cannot pass those
@@ -21,7 +26,11 @@ export function LandlordShell({ children }: { children: ReactNode }) {
 
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
-    <WorkspaceShell title="Quản trị" items={ADMIN_NAV}>
+    <WorkspaceShell
+      title="Quản trị"
+      items={ADMIN_NAV}
+      exactHrefs={[ADMIN_HOME]}
+    >
       {children}
     </WorkspaceShell>
   );

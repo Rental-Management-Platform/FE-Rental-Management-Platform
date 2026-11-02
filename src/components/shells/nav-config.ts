@@ -1,7 +1,12 @@
-import { LayoutDashboard, Search, type LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  Search,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
 import { homePathOf } from "@/lib/next-path";
-import { LANDLORD_TOOLS, navItemsOf } from "./workspace-tools";
+import { ADMIN_TOOLS, LANDLORD_TOOLS, navItemsOf } from "./workspace-tools";
 
 export type NavItem = {
   label: string;
@@ -36,7 +41,14 @@ export const LANDLORD_NAV: readonly NavItem[] = [
   ...navItemsOf(LANDLORD_TOOLS),
 ];
 
-export const ADMIN_NAV: readonly NavItem[] = [];
+export const ADMIN_HOME = homePathOf("admin");
+
+// Every admin tool is still soon, so the admin menu holds "Tổng quan" alone until #20 and the
+// rest turn their tools on.
+export const ADMIN_NAV: readonly NavItem[] = [
+  { label: "Tổng quan", href: ADMIN_HOME, icon: LayoutDashboard },
+  ...navItemsOf(ADMIN_TOOLS),
+];
 
 // Links in the account menu: `all` for every signed in person, then the list of their own type.
 // Display only: what a person may do stays with `can()` and the backend. The way back to the
@@ -47,5 +59,5 @@ export const ACCOUNT_LINKS: Record<"all" | AccountType, readonly NavItem[]> = {
   landlord: [
     { label: "Khu chủ trọ", href: LANDLORD_HOME, icon: LayoutDashboard },
   ],
-  admin: [],
+  admin: [{ label: "Quản trị", href: ADMIN_HOME, icon: ShieldCheck }],
 };
