@@ -11,7 +11,7 @@ Dashboard liệt kê đầy đủ mọi công cụ quản lý của khu ngay t�
 - [x] Design it (spec): `/architect landlord and admin dashboards`
 - [ ] Build it: `/develop landlord and admin dashboards`
   - [x] M1 Sợi chỉ mỏng (chủ trọ): một danh sách công cụ dùng chung cho thẻ và menu, trang `/landlord` với thẻ bấm được và thẻ mờ "Sắp có", lọc theo quyền, mục "Tổng quan" chỉ sáng đúng địa chỉ của nó, đăng nhập xong vào `/landlord`, liên kết "Khu chủ trọ" ở menu tài khoản, và một con số thật là số nhà trọ (AC-1 đến AC-8, AC-12 đến AC-14, mới phần chủ trọ và số nhà trọ)
-  - [ ] M2 Đủ số liệu của chủ trọ: số tin đang hiện và hạn mức, số tin bị quản trị viên ẩn, gói hoặc dùng thử, lỗi từng ô có nút "Thử lại", chờ khi gặp 429, ẩn ô khi thiếu quyền, nhãn "Bắt đầu từ đây" khi chưa có nhà trọ (AC-7, AC-8, AC-10, AC-11)
+  - [x] M2 Đủ số liệu của chủ trọ: số tin đang hiện và hạn mức, số tin bị quản trị viên ẩn, gói hoặc dùng thử, lỗi từng ô có nút "Thử lại", chờ khi gặp 429, ẩn ô khi thiếu quyền, nhãn "Bắt đầu từ đây" khi chưa có nhà trọ (AC-7, AC-8, AC-10, AC-11)
   - [ ] M3 Dashboard admin: trang `/admin` với tám thẻ mờ, mục "Tổng quan" trong menu admin, số tài khoản và tài khoản bị khóa, số tin bị ẩn, doanh thu và số đơn đã trả có nhãn "thanh toán thử", liên kết "Quản trị", đăng nhập xong vào `/admin` (AC-1, AC-2, AC-9, AC-12 đến AC-14)
   - [ ] M4 Hoàn thiện: kiểm ở 320, 390, 1280 và 1440 px, thứ tự tiêu đề và vòng focus của thẻ, các trạng thái của thẻ trong `/dev/ui`, cặp tương phản mới nếu có, ghi chú sửa vào spec 0003 và 0005, `npm run check` và `npm run build` (AC-15, AC-16)
 - [ ] Verify it: `/check verify landlord and admin dashboards`
