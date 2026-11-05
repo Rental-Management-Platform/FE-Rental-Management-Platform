@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { isApiError } from "@/lib/api/errors";
 import type { Page, PublicListingSummary } from "@/lib/api/types";
 import { formatCount } from "@/lib/format";
+import { listingPath } from "@/lib/listing-path";
 import { getListings } from "../api/get-listings";
 import {
   LISTING_PAGE_SIZE,
@@ -77,7 +78,11 @@ export async function Results({
             {result.items.map((listing, index) => (
               // `grid` lets the card fill the cell, so cards of one row are equally high.
               <li key={listing.id} className="grid">
-                <ListingCard listing={listing} eagerPhoto={index === 0} />
+                <ListingCard
+                  listing={listing}
+                  href={listingPath(listing.slug, listing.code)}
+                  eagerPhoto={index === 0}
+                />
               </li>
             ))}
           </ul>
