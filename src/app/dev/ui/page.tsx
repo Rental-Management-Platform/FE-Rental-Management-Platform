@@ -21,6 +21,7 @@ import { DatePickerSection } from "./date-picker-section";
 import { FeedbackSection } from "./feedback";
 import { FormDemo } from "./form-demo";
 import { ListingCardsSection } from "./listing-cards";
+import { ListingDetailSection } from "./listing-detail";
 import { OverlaysSection } from "./overlays";
 import { PhotosSection } from "./photos";
 import { Section } from "./section";
@@ -291,6 +292,7 @@ export default function DevUiPage() {
       <DataDisplaySection />
       <PhotosSection />
       <ListingCardsSection />
+      <ListingDetailSection />
       <ShellsSection />
       <CanDemo />
 

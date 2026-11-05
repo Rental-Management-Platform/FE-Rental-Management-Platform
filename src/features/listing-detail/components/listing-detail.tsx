@@ -19,10 +19,12 @@ import {
   formatDateOnly,
   formatMoney,
 } from "@/lib/format";
+import { env } from "@/lib/env";
 import { listingPath, parseListingPath } from "@/lib/listing-path";
 import { mediaUrl } from "@/lib/media";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { getListing } from "../api/get-listing";
+import { breadcrumbJsonLd, serializeJsonLd } from "../json-ld";
 import { ListingAddressFix } from "./address-fix";
 import { GuestViewCounter } from "./guest-view-counter";
 import { ListingContact } from "./listing-contact";
@@ -79,6 +81,21 @@ export async function ListingDetail({ params }: { params: Params }) {
           corrects the address bar when the slug is wrong (AC-11). */}
       <GuestViewCounter code={listing.code} />
       <ListingAddressFix path={canonicalPath} />
+
+      {/* Structured data for search engines (AC-16): one breadcrumb, no phone number. The text
+          has every `<` escaped, so a title can never close the script tag. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            breadcrumbJsonLd({
+              siteUrl: env.NEXT_PUBLIC_SITE_URL,
+              title: listing.title,
+              path: canonicalPath,
+            }),
+          ),
+        }}
+      />
 
       <PageHeader
         breadcrumb={

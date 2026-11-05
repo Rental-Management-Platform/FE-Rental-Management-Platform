@@ -72,7 +72,8 @@ const MINIMAL: ListingSummary = {
 
 const GRID = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
 
-// The detail page is not built yet (#9), so the sample link goes to the sample detail screen.
+// The sample link goes to the sample detail screen, which needs no API: the real detail page
+// (spec 0010) needs a listing code that exists.
 const SAMPLE_HREF = "/dev/ui/screens/listing-detail";
 
 function Cards({
