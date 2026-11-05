@@ -1,7 +1,7 @@
 # 0010. Listing detail: the public page of one listing
 
 **Date**: 2026-11-03
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
