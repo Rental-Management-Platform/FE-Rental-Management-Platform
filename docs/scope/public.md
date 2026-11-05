@@ -22,9 +22,9 @@ Trang `/<slug>-<code>`: nội dung tin, địa chỉ, giá, nhà trọ. Số đi
 **Done when:** khách mở được tin và không thấy số điện thoại, người đã đăng nhập thấy số, tin có ảnh thì xem được thư viện ảnh (chưa có ảnh thì hiện ảnh thay thế), `slug` sai tự sửa trên thanh địa chỉ, tin không còn báo 404 dễ hiểu, metadata và thẻ chia sẻ đầy đủ.
 - [x] Design it (spec): `/architect listing detail`
 - [ ] Build it: `/develop listing detail`
-code in `src/lib/listing-path.ts`, `src/features/listing-detail/` (`api/get-listing.ts`, `components/listing-detail.tsx`, `components/listing-detail-skeleton.tsx`), `src/app/(public)/[slugCode]/` (`page.tsx`, `not-found.tsx`), `src/features/listing-search/components/results.tsx` (liên kết của thẻ tin)
+code in `src/lib/listing-path.ts`, `src/features/listing-detail/` (`api/get-listing.ts`, `components/listing-detail.tsx`, `components/listing-detail-skeleton.tsx`, `components/listing-gallery.tsx`), `src/app/(public)/[slugCode]/` (`page.tsx`, `not-found.tsx`), `src/features/listing-search/components/results.tsx` (liên kết của thẻ tin), `src/features/listing-search/components/listings-failure.tsx` (thêm `title`), `src/lib/format.ts` (`formatPhone`)
   - [x] M1 Sợi chỉ mỏng: bộ phân tích địa chỉ `src/lib/listing-path.ts`, đọc tin ở máy chủ với tư cách khách (`getListing`), trang `/[slugCode]` hiện tin thật, kiểm mã rác không gọi API, trang "Không tìm thấy tin này", và thẻ tin ở trang tìm kiếm thành liên kết (AC-1 đến AC-4, AC-12, AC-18)
-  - [ ] M2 Trang đầy đủ: các khu lấy từ trang mẫu, `formatPhone`, bố cục hai cột, khung chờ, thư viện ảnh (ảnh lớn không cắt, dải ảnh nhỏ), khối báo lỗi khi đọc tin (AC-5, AC-6, AC-13, AC-19, AC-20)
+  - [x] M2 Trang đầy đủ: các khu lấy từ trang mẫu, `formatPhone`, bố cục hai cột, khung chờ, thư viện ảnh (ảnh lớn không cắt, dải ảnh nhỏ), khối báo lỗi khi đọc tin (AC-5, AC-6, AC-13, AC-19, AC-20)
   - [ ] M3 Lớp theo người xem: thẻ liên hệ cho khách và cho người đã đăng nhập, các trạng thái lỗi của số điện thoại, đếm lượt xem của khách, sửa `slug` trên thanh địa chỉ (AC-7 đến AC-11)
   - [ ] M4 Công cụ tìm kiếm và hoàn thiện: metadata, ảnh chia sẻ, JSON-LD, `sitemap.ts` và dòng sitemap trong `robots.txt`, phần của trang này trong `/dev/ui`, kiểm ở 320 và 390 px, `npm run check` và `npm run build` (AC-14 đến AC-17, AC-20)
 - [ ] Verify it: `/check verify listing detail`
