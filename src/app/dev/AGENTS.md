@@ -10,8 +10,9 @@ Pages for developers only. Everything under `/dev` answers 404 in a production b
 ## Rules
 
 - Sample screens make no network call and show no photos (`coverImageUrl` is `null`). Rows are fixed objects in `ui/screens/sample-data.ts`, typed with `src/lib/api/types.ts`, so a wrong field fails `npm run typecheck`.
-- Money, area and dates on the sample screens use `ui/screens/sample-format.ts` (`vi-VN`, `Asia/Ho_Chi_Minh`) until a feature puts the same in `src/lib/format.ts`.
+- Money, area and dates on the sample screens use `ui/screens/sample-format.ts` (`vi-VN`, `Asia/Ho_Chi_Minh`). Real features use `src/lib/format.ts`.
 - Nothing outside `/dev` imports from here. A real feature lifts the markup of a sample screen into its own folder.
+- A feature that ships a page also adds a section to `ui/` that shows its states, as `listing-cards.tsx`, `listing-detail.tsx`, `dashboard-cards.tsx` and `photos.tsx` do ([spec 0008](../../../docs/specs/0008-landlord-and-admin-dashboards/index.md)).
 - Everything here is built from the tokens and the shared components, so it also works as a check that the design system holds together.
 
 _Drafted by /sync from the introducing change, worth a quick human pass._

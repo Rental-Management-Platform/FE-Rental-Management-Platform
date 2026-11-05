@@ -20,7 +20,7 @@ Quản lý gói (bảng gồm cả gói đã tắt, biểu mẫu tạo và sửa
 - [ ] Build it: `/develop plans and trial settings`
 
 ### 23. Wards and amenities catalog
-Hai bảng nhỏ (phường, xã, đặc khu và tiện ích) có thêm, đổi tên, xóa. Mã chỉ nhập lúc tạo (phường 5 chữ số, tỉnh 2 chữ số, khóa tiện ích gồm chữ thường, số và gạch dưới). Không có ô quận huyện.
+Hai bảng nhỏ (phường, xã, đặc khu và tiện ích) có thêm, đổi tên, xóa. Mã chỉ nhập lúc tạo (phường 5 chữ số, tỉnh 2 chữ số, khóa tiện ích gồm chữ thường, số và gạch dưới). Không có ô quận huyện. Phường trong danh mục có thêm `bounds` (hộp bao dùng để giới hạn chỗ ghim tọa độ nhà trọ, #33): phường admin thêm qua API luôn có `bounds: null` và admin không sửa được trường này, nên biểu mẫu thêm phường không có ô nhập hộp.
 **Done when:** thêm, đổi tên, xóa được, `CATALOG_CODE_TAKEN` hiện ở ô mã, `CATALOG_IN_USE` báo đang có nhà trọ dùng và gợi ý đổi tên thay vì xóa.
 - [ ] Build it: `/develop wards and amenities catalog`
 

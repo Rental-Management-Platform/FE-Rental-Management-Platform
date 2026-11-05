@@ -4,11 +4,12 @@ Shared code that has no UI: the API client, the session, form helpers, env and s
 
 ## Where things live
 
-- `api/`: `createApiClient` (`client.ts`), pure request helpers (`http.ts`: `buildUrl`, `parseResponse`, `readRetryAfter`), the one error shape (`errors.ts`: `ApiError`, `isApiError`, `describeError`), wait times after a 429 (`rate-limits.ts`) and the query retry default (`query-retry.ts`). Types of the API answers are in `types.ts`.
+- `api/`: `createApiClient` (`client.ts`), pure request helpers (`http.ts`: `buildUrl`, `parseResponse`, `readRetryAfter`), the one error shape (`errors.ts`: `ApiError`, `isApiError`, `describeError`), wait times after a 429 (`rate-limits.ts`) and the query retry default (`query-retry.ts`). `server.ts` holds `serverGet`, the public read for Server Components, and `abort.ts` holds the abort signal helpers. Types of the API answers are in `types.ts`.
 - `session/`: `createSession` holds the access token, `AuthProvider` and the hooks `useSession`, `useApi` and `useSessionActions`, `can(state, permission)`, and the end of session reasons.
 - `forms/`: `applyFieldErrors` and `useFormFailure` turn a failed submit into field messages, a form level message and a 429 countdown.
 - `env.ts` (browser) and `env.server.ts` (server only): the only places that read environment variables, both validated with Zod.
-- `format.ts` (`formatWait`), `use-countdown.ts`, `use-return-focus.ts` (focus back to the opener for a dialog or sheet that has no trigger), `focus-ring.ts`, `site.ts` (site name and description), `utils.ts` (`cn`).
+- `next-path.ts` (`safeNextPath`, `homePathOf`, `afterAuthPath`: the page a person lands on after sign in, by account type), `format.ts` (`formatMoney`, `formatCount`, `formatArea`, `formatDateTime`, `formatDateOnly`, `formatPhone`, `formatWait`), `use-countdown.ts`, `use-return-focus.ts` (focus back to the opener for a dialog or sheet that has no trigger), `focus-ring.ts`, `site.ts` (site name and description), `utils.ts` (`cn`).
+- `media.ts` (`mediaUrl`: the address of a photo from the path the API returned, or `null` when it is not a public photo path) and `listing-path.ts` (`parseListingPath`, `listingPath`: the `/<slug>-<code>` address of a listing, where only the code is sent to the API).
 
 ## Rules
 
@@ -18,7 +19,7 @@ Shared code that has no UI: the API client, the session, form helpers, env and s
 - Only a server answer can end a session. A network error, a 5xx or a 429 never does.
 - Queries retry once, and only when a retry can help. Mutations never retry.
 - `can()` checks a permission only. Hiding a control is a convenience, and the backend decides.
-- Money, area and date formatting joins `format.ts` with the first feature that shows a price. Until then the sample screens use their own helper in `src/app/dev/ui/screens/`.
-- The server reads public data as a guest and never holds a token. The server reader (`src/lib/api/server.ts`) is not built yet.
+- Money, count, area and date formatting live in `format.ts` (`vi-VN`, `Asia/Ho_Chi_Minh`). Real features use it; only the sample screens keep their own helper in `src/app/dev/ui/screens/`.
+- The server reads public data as a guest and never holds a token. A Server Component reads through `serverGet` in `src/lib/api/server.ts`: no `Authorization` header, no cookie, never cached, a 10 second limit, and every failure is an `ApiError`.
 
 _Drafted by /sync from the introducing change, worth a quick human pass._

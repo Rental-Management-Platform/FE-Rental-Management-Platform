@@ -31,11 +31,13 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 7 | Post a listing | Slice 1 | done |
 | 31 | Landlord and admin dashboards | Slice 1 | in-progress |
 | 8 | Find listings | Slice 1 | done |
-| 9 | Listing detail | Slice 1 | planned |
+| 9 | Listing detail | Slice 1 | done |
+| 32 | Searchable ward picker | Slice 1 | planned |
+| 13 | Search filters and sort | Slice 1 | planned |
 | 10 | Listing photos | Slice 2 | done |
 | 11 | Property fees and amenities | Slice 2 | planned |
+| 33 | Property location map | Slice 2 | in-progress |
 | 12 | Manage my properties and listings | Slice 2 | planned |
-| 13 | Search filters and sort | Slice 3 | planned |
 | 14 | Favorites | Slice 3 | planned |
 | 15 | Landlord profile and follow | Slice 3 | planned |
 | 16 | Home page | Slice 3 | dropped |
@@ -59,17 +61,17 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 2 planned.
-* [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 1 done, 5 planned, 2 dropped (#16, #29).
-* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19). 3 done, 4 planned.
+* [Public](public.md): khách và người tìm trọ, kể cả bảng giá (#8, #9, #13, #14, #15, #16, #18, #29). 2 done, 4 planned, 2 dropped (#16, #29).
+* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 3 done, 1 in-progress, 5 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26). 7 planned.
 * [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 in-progress.
 
 ## Các giai đoạn
 
 * **Foundation**: nền tảng trước khi có tính năng nào.
-* **Slice 1, vòng lặp lõi**: chủ trọ đăng ký, tạo nhà trọ, đăng tin; khách tìm thấy tin và mở xem. Sợi chỉ mỏng nhưng thật, đã là bộ khung chạy được. Thêm dashboard của hai khu (#31) để vào các trang quản lý bằng cách bấm.
-* **Slice 2, tin phong phú hơn**: ảnh, phí, tiện ích, và khu quản lý tin của chủ trọ.
-* **Slice 3, tìm và gắn bó**: lọc, yêu thích, hồ sơ chủ trọ (trang chủ đã bỏ).
+* **Slice 1, vòng lặp lõi**: chủ trọ đăng ký, tạo nhà trọ, đăng tin; khách tìm thấy tin (kể cả lọc theo phường, khoảng giá và sắp xếp, #13) và mở xem. Sợi chỉ mỏng nhưng thật, đã là bộ khung chạy được. Thêm dashboard của hai khu (#31) để vào các trang quản lý bằng cách bấm.
+* **Slice 2, tin phong phú hơn**: ảnh, phí, tiện ích, vị trí trên bản đồ, và khu quản lý tin của chủ trọ.
+* **Slice 3, tìm và gắn bó**: yêu thích, hồ sơ chủ trọ (bộ lọc đã chuyển lên Slice 1, trang chủ đã bỏ).
 * **Slice 4, gói và thanh toán thử**: trạng thái dùng thử, bảng giá, mua gói.
 * **Slice 5, khu admin**: người dùng, kiểm duyệt, gói, danh mục, quyền, đơn, doanh thu.
 * **Slice 6, tài khoản và hoàn thiện**: khôi phục mật khẩu, hồ sơ cá nhân (bản đồ đã bỏ).
@@ -83,11 +85,12 @@ Ngoài phạm vi lần này, giữ lại để kế hoạch còn trung thực.
 * **Chế độ tối**: giao diện tối cho mọi màn hình · needs a decision
 * **Chọn cỡ chữ (thường hoặc lớn)**: cho người muốn chữ to hơn mà không phải phóng trình duyệt; sinh ra từ spec 0004 · needs a decision
 * **Kéo thả tệp vào khối ảnh**: chủ trọ kéo ảnh từ máy thả vào khối ảnh của tin; cần thêm trạng thái kéo qua và cách dùng bằng bàn phím; sinh ra từ spec 0007 · needs a decision
-* **Chọn nơi chạy khi demo trên mạng (hosting)**: chọn nơi đặt FE và API trước khi demo online. Cookie đăng nhập là `SameSite=Strict`, nên hai nơi khác site cần proxy; xem mục "If hosting changes" trong spec 0001 · needs a decision
+* **Chọn nơi chạy khi demo trên mạng (hosting)**: chọn nơi đặt FE và API trước khi demo online. Cookie đăng nhập là `SameSite=Strict`, nên hai nơi khác site cần proxy; xem mục "If hosting changes" trong spec 0001. Sau khi chọn, dán thử một liên kết tin vào Zalo và Telegram để xem thẻ xem trước; nếu không có thẻ thì đặt `htmlLimitedBots` (spec 0010) · needs a decision
 * **Cứng hóa lớp phiên khi hai tab đổi tài khoản**: tab B còn là khách ở `/login` trong khi tab A đã đăng nhập, rồi B đăng nhập tài khoản khác thì cookie làm mới đổi, còn tab A vẫn hiện người cũ. Sau mỗi lần làm mới cần gọi `/auth/me` và so `user.id`. Phải sửa spec 0002; sinh ra từ spec 0005 · needs a decision
 * **Liên kết về dashboard từ trang "không có quyền"**: người của loại tài khoản khác mở nhầm `/landlord` hay `/admin` thấy trang báo không có quyền, nên có thêm nút về dashboard của chính họ; sinh ra từ spec 0008 · needs a decision
-* **Ảnh chia sẻ mặc định cho trang tìm tin**: trang `/` chưa có ảnh trong thẻ chia sẻ (Open Graph chỉ có chữ); #9 làm thẻ chia sẻ cho từng tin và có thể dùng chung một ảnh mặc định; sinh ra từ spec 0009 · needs a decision
-* **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, danh sách đang theo dõi, thông báo, thống kê cho chủ trọ (kể cả lượt lưu tin), đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ.
+* **Ảnh chia sẻ mặc định cho trang tìm tin**: trang `/` chưa có ảnh trong thẻ chia sẻ (Open Graph chỉ có chữ); #9 (spec 0010) làm thẻ chia sẻ cho từng tin bằng ảnh đầu của tin, nên tin chưa có ảnh vẫn chỉ có chữ; một ảnh mặc định cho trang này và cho các tin đó cần một ảnh đã được thiết kế sẵn; sinh ra từ spec 0009 và 0010 · needs a decision
+* **Đổi nhà cung cấp bản đồ trước khi có người dùng thật**: bản đồ và tìm địa chỉ của #33 dùng hình bản đồ OpenStreetMap và Nominatim công cộng (không khóa, không đảm bảo, một yêu cầu mỗi giây cho cả trang), hợp với bản demo nhưng không hợp với lượng truy cập thật; khi cần thì chọn nhà cung cấp có điều khoản cho phép (MapTiler và Goong đã được cân nhắc, xem rationale của spec 0011); chỉ phải đổi `config.ts` và `api/nominatim.ts`; sinh ra từ spec 0011 · needs a decision
+* **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, danh sách đang theo dõi, thông báo, thống kê cho chủ trọ (kể cả lượt lưu tin), đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ, lọc tin công khai theo diện tích, tiện ích, tiền cọc hay ngày vào ở (hợp đồng mục 6.19 chỉ có từ khóa, phường, khoảng giá và sắp xếp).
 * **Backend đã bỏ khỏi kế hoạch, đừng làm**: duyệt tin trước khi hiện, VNPay, xác thực chủ trọ bằng giấy tờ, báo cáo tin xấu, liên hệ chủ trọ có giới hạn mỗi ngày, đẩy tin và tin nổi bật, kiểm tra tại chỗ, quảng cáo, dashboard thu chi, tìm quanh một địa điểm, đổi loại tài khoản.
 
 ## Legend
