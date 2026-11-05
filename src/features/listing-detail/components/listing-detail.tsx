@@ -2,7 +2,6 @@ import { MapPinIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,26 +10,22 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { isApiError, type ApiError } from "@/lib/api/errors";
 import type { ListingDetail as ListingDetailData } from "@/lib/api/types";
 import {
   formatArea,
   formatCount,
   formatDateOnly,
-  formatDateTime,
   formatMoney,
 } from "@/lib/format";
-import { parseListingPath } from "@/lib/listing-path";
+import { listingPath, parseListingPath } from "@/lib/listing-path";
 import { mediaUrl } from "@/lib/media";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { getListing } from "../api/get-listing";
+import { ListingAddressFix } from "./address-fix";
+import { GuestViewCounter } from "./guest-view-counter";
+import { ListingContact } from "./listing-contact";
 import { ListingGallery, type GalleryPhoto } from "./listing-gallery";
 
 // What Next.js hands a page as `params`.
@@ -73,11 +68,18 @@ export async function ListingDetail({ params }: { params: Params }) {
   }
 
   const { landlord, property } = listing;
-  const landlordName = landlord.name ?? "Chủ trọ";
   const hasDescription = listing.description.trim() !== "";
+  // The address from the answer, never the one in the address bar: the sign in links and the fix
+  // of the address bar both go to it.
+  const canonicalPath = listingPath(listing.slug, listing.code);
 
   return (
     <>
+      {/* These two draw nothing. One makes the backend count a guest's visit (AC-10), the other
+          corrects the address bar when the slug is wrong (AC-11). */}
+      <GuestViewCounter code={listing.code} />
+      <ListingAddressFix path={canonicalPath} />
+
       <PageHeader
         breadcrumb={
           <Breadcrumb>
@@ -148,8 +150,8 @@ export async function ListingDetail({ params }: { params: Params }) {
           </CardContent>
         </Card>
 
-        {/* The contact card of spec 0010 (AC-7 to AC-11) replaces the body of this zone in M3.
-            Until then it shows who posted the listing, with no phone area. */}
+        {/* The contact zone reads the session in the browser (AC-7 to AC-9). The server HTML has no
+            phone number: a guest read answers `landlord.phone` as null. */}
         <aside
           aria-label="Liên hệ chủ trọ"
           className={
@@ -158,25 +160,12 @@ export async function ListingDetail({ params }: { params: Params }) {
               : "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:self-start"
           }
         >
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Avatar size="lg">
-                  <AvatarFallback>
-                    {landlordName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex min-w-0 flex-col">
-                  <CardTitle>
-                    <h2 className="truncate text-base">{landlordName}</h2>
-                  </CardTitle>
-                  <CardDescription>
-                    Đăng tin ngày {formatDateTime(listing.createdAt)}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
+          <ListingContact
+            code={listing.code}
+            path={canonicalPath}
+            landlord={{ id: landlord.id, name: landlord.name }}
+            createdAt={listing.createdAt}
+          />
         </aside>
 
         {hasDescription && (
