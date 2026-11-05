@@ -14,10 +14,6 @@ const COUNT = new Intl.NumberFormat("vi-VN");
 /** 1248 becomes "1.248". */
 export const formatCount = (n: number) => COUNT.format(n);
 
-/** "0901234567" becomes "0901 234 567". Any other shape is shown as it came. */
-export const formatPhone = (phone: string) =>
-  phone.replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3");
-
 const FEE_KIND_LABEL: Record<FeeKind, string> = {
   electricity: "Điện",
   water: "Nước",

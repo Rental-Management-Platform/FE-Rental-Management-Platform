@@ -28,15 +28,11 @@ import {
   formatDateOnly,
   formatDateTime,
   formatMoney,
+  formatPhone,
 } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 import { LISTING_DETAIL } from "../sample-data";
-import {
-  feeKindLabel,
-  formatCount,
-  formatFee,
-  formatPhone,
-} from "../sample-format";
+import { feeKindLabel, formatCount, formatFee } from "../sample-format";
 import { ChoiceGroup, SampleControls } from "../sample-state";
 import { SCREENS_HOME } from "../screens";
 

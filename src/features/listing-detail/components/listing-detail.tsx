@@ -2,6 +2,7 @@ import { MapPinIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,19 +11,47 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { isApiError } from "@/lib/api/errors";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { isApiError, type ApiError } from "@/lib/api/errors";
 import type { ListingDetail as ListingDetailData } from "@/lib/api/types";
-import { formatMoney } from "@/lib/format";
+import {
+  formatArea,
+  formatCount,
+  formatDateOnly,
+  formatDateTime,
+  formatMoney,
+} from "@/lib/format";
 import { parseListingPath } from "@/lib/listing-path";
+import { mediaUrl } from "@/lib/media";
+import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { getListing } from "../api/get-listing";
+import { ListingGallery, type GalleryPhoto } from "./listing-gallery";
 
 // What Next.js hands a page as `params`.
 type Params = Promise<{ slugCode: string }>;
 
-// The listing page body, read on the server as a guest (spec 0010, AC-1 to AC-4 and AC-12). It
-// reads `params`, so the page keeps it inside a <Suspense> boundary and the site header stays in
-// the static shell. The page reads no cookie, header or token: everyone gets the same HTML.
+const NOT_SET = "Chưa ghi";
+
+// The photos in the order of `position`, each with its address. A path that is not a public photo
+// path gives `null` and is dropped here, so the gallery never gets an address it must not draw.
+const galleryPhotos = (listing: ListingDetailData): GalleryPhoto[] =>
+  [...listing.images]
+    .sort((a, b) => a.position - b.position)
+    .flatMap((image) => {
+      const src = mediaUrl(image.url);
+      return src === null ? [] : [{ id: image.id, src }];
+    });
+
+// The listing page body, read on the server as a guest (spec 0010, AC-1 to AC-5, AC-12 and
+// AC-13). It reads `params`, so the page keeps it inside a <Suspense> boundary and the site
+// header stays in the static shell. The page reads no cookie, header or token: everyone gets the
+// same HTML.
 export async function ListingDetail({ params }: { params: Params }) {
   const { slugCode } = await params;
 
@@ -35,12 +64,17 @@ export async function ListingDetail({ params }: { params: Params }) {
   try {
     listing = await getListing(path.code);
   } catch (error) {
+    // Anything that is not an `ApiError` is a bug: the route's `error.tsx` shows it.
+    if (!isApiError(error)) throw error;
     // A listing that is hidden, deleted or never existed. Called from the catch clause, so
     // nothing around it can swallow the interrupt.
-    if (isApiError(error) && error.code === "LISTING_NOT_FOUND") notFound();
-    // Any other failure goes to the route's `error.tsx` until the read failure block is built.
-    throw error;
+    if (error.code === "LISTING_NOT_FOUND") notFound();
+    return <ReadFailure error={error} />;
   }
+
+  const { landlord, property } = listing;
+  const landlordName = landlord.name ?? "Chủ trọ";
+  const hasDescription = listing.description.trim() !== "";
 
   return (
     <>
@@ -71,26 +105,142 @@ export async function ListingDetail({ params }: { params: Params }) {
         }
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <h2 className="text-base">Mô tả</h2>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="gap-4">
-          <p className="text-2xl font-semibold text-primary">
-            {formatMoney(listing.price)}
-            <span className="text-base font-normal text-muted-foreground">
-              {" "}
-              mỗi tháng
-            </span>
-          </p>
-          {/* Plain text from the API: shown as text, with its line breaks, never as HTML. */}
-          <p className="max-w-prose whitespace-pre-line">
-            {listing.description}
-          </p>
-        </CardContent>
-      </Card>
+      {/* One column on a phone, in this order: photos, price and facts, contact, description,
+          property. From `lg` the contact zone moves to a sticky column on the right. */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="lg:col-start-1">
+          <ListingGallery
+            title={listing.title}
+            photos={galleryPhotos(listing)}
+          />
+        </div>
+
+        <Card className="lg:col-start-1">
+          <CardContent className="gap-4">
+            <h2 className="sr-only">Giá và thông tin chính</h2>
+            <p className="text-2xl font-semibold text-primary">
+              {formatMoney(listing.price)}
+              <span className="text-base font-normal text-muted-foreground">
+                {" "}
+                mỗi tháng
+              </span>
+            </p>
+            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <Fact label="Diện tích" value={formatArea(listing.areaM2)} />
+              <Fact
+                label="Tiền cọc"
+                value={
+                  listing.deposit === null
+                    ? NOT_SET
+                    : formatMoney(listing.deposit)
+                }
+              />
+              <Fact
+                label="Vào ở từ"
+                value={
+                  listing.availableFrom === null
+                    ? NOT_SET
+                    : formatDateOnly(listing.availableFrom)
+                }
+              />
+              <Fact label="Lượt xem" value={formatCount(listing.viewCount)} />
+            </dl>
+          </CardContent>
+        </Card>
+
+        {/* The contact card of spec 0010 (AC-7 to AC-11) replaces the body of this zone in M3.
+            Until then it shows who posted the listing, with no phone area. */}
+        <aside
+          aria-label="Liên hệ chủ trọ"
+          className={
+            hasDescription
+              ? "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-start"
+              : "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:self-start"
+          }
+        >
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Avatar size="lg">
+                  <AvatarFallback>
+                    {landlordName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex min-w-0 flex-col">
+                  <CardTitle>
+                    <h2 className="truncate text-base">{landlordName}</h2>
+                  </CardTitle>
+                  <CardDescription>
+                    Đăng tin ngày {formatDateTime(listing.createdAt)}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+        </aside>
+
+        {hasDescription && (
+          <Card className="lg:col-start-1">
+            <CardHeader>
+              <CardTitle>
+                <h2 className="text-base">Mô tả</h2>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Plain text from the API: shown as text, with its line breaks and long words
+                  wrapped, never as HTML. */}
+              <p className="max-w-prose break-words whitespace-pre-line">
+                {listing.description}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className="lg:col-start-1">
+          <CardHeader>
+            <CardTitle>
+              <h2 className="text-base">Nhà trọ</h2>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col">
+              <p className="font-medium">{property.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {property.fullAddress}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5">
+      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dd className="font-semibold tabular-nums">{value}</dd>
+    </div>
+  );
+}
+
+// Any failure of the main read other than "not found" (spec 0010, AC-13): a 429, a 5xx, a
+// timeout, no network, an answer that could not be read. `ListingsFailure` carries the countdown
+// of a 429, the support code of a 5xx, and a "Thử lại" that asks the server to render again.
+function ReadFailure({ error }: { error: ApiError }) {
+  return (
+    <>
+      <PageHeader title="Không mở được tin này" />
+      <ListingsFailure
+        status={error.status}
+        code={error.code}
+        message={error.message}
+        requestId={error.requestId}
+        retryAfterSeconds={error.retryAfterSeconds}
+        retryAfterExact={error.retryAfterExact}
+        title="Không tải được tin này"
+      />
     </>
   );
 }

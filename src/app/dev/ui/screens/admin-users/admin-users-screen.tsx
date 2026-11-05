@@ -54,7 +54,7 @@ import type {
   AdminUserListItem,
   UserStatus,
 } from "@/lib/api/types";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatPhone } from "@/lib/format";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import {
   CURRENT_ADMIN_ID,
@@ -65,7 +65,7 @@ import {
   queryUsers,
   type UserFilters,
 } from "../sample-data";
-import { ACCOUNT_TYPE_LABEL, formatCount, formatPhone } from "../sample-format";
+import { ACCOUNT_TYPE_LABEL, formatCount } from "../sample-format";
 import {
   SampleControls,
   StateChoice,

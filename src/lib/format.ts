@@ -36,6 +36,10 @@ export const formatDateTime = (iso: IsoDateTime) => DAY.format(new Date(iso));
 export const formatDateOnly = (date: DateOnly) =>
   DAY.format(new Date(`${date}T00:00:00+07:00`));
 
+/** "0901234567" becomes "0901 234 567". Any other shape is shown as it came. */
+export const formatPhone = (phone: string) =>
+  phone.replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3");
+
 const MINUTE = 60;
 const HOUR = 3600;
 

@@ -24,7 +24,8 @@ export type ListingsFailureProps = Pick<
  * What the results area shows when the list could not be read (spec 0009, AC-11). A 429 shows
  * the wait counting down, and "Thử lại" stays disabled until it ends. Any other failure shows the
  * backend or client message, with the support code for a 5xx only. "Thử lại" asks the server to
- * render the page again, and the server never retries by itself.
+ * render the page again, and the server never retries by itself. The detail page (spec 0010,
+ * AC-13) uses it too and passes its own `title`.
  */
 export function ListingsFailure({
   status,
@@ -33,7 +34,8 @@ export function ListingsFailure({
   requestId,
   retryAfterSeconds,
   retryAfterExact,
-}: ListingsFailureProps) {
+  title = "Không tải được danh sách tin",
+}: ListingsFailureProps & { title?: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -74,11 +76,7 @@ export function ListingsFailure({
 
   return (
     <div aria-busy={isPending}>
-      <ErrorState
-        error={error}
-        title="Không tải được danh sách tin"
-        onRetry={retry}
-      />
+      <ErrorState error={error} title={title} onRetry={retry} />
     </div>
   );
 }
