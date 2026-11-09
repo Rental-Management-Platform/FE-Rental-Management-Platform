@@ -63,11 +63,18 @@ export function WriteBlock({ role, ...rest }: WriteBlockProps) {
 function GuestRow() {
   const pathname = usePathname();
   const search = useSearchParams().toString();
-  const href = authHref(
-    "/login",
-    search === "" ? pathname : `${pathname}?${search}`,
+  return (
+    <GuestRowView
+      href={authHref(
+        "/login",
+        search === "" ? pathname : `${pathname}?${search}`,
+      )}
+    />
   );
+}
 
+/** The row of a guest. It only draws, so `/dev/ui` can show it with no router. */
+export function GuestRowView({ href }: { href: string }) {
   return (
     <div className="border-b pb-5">
       <Button asChild variant="outline" size="lg">
@@ -283,8 +290,11 @@ function WriterBlock({
   );
 }
 
-// The renter may not review yet: only a landlord who answered them in chat opens the way (AC-6).
-function ReviewHint() {
+/**
+ * The renter may not review yet: only a landlord who answered them in chat opens the way (AC-6).
+ * It lives in the write block's border row, so it has none of its own.
+ */
+export function ReviewHint() {
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border p-4">
       <p>Nhắn tin với chủ trọ và đợi họ trả lời để đánh giá.</p>
@@ -295,9 +305,11 @@ function ReviewHint() {
   );
 }
 
-// `GET /review` failed. The public list still shows. A 429 shows the wait counting down, and
-// "Thử lại" stays off until it ends.
-function MineFailure({
+/**
+ * `GET /review` failed. The public list still shows. A 429 shows the wait counting down, and
+ * "Thử lại" stays off until it ends.
+ */
+export function MineFailure({
   error,
   onRetry,
 }: {

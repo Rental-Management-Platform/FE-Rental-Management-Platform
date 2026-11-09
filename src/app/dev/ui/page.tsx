@@ -26,6 +26,7 @@ import { ListingCardsSection } from "./listing-cards";
 import { ListingDetailSection } from "./listing-detail";
 import { OverlaysSection } from "./overlays";
 import { PhotosSection } from "./photos";
+import { ReviewsSection } from "./reviews";
 import { Section } from "./section";
 import { ShellsSection } from "./shells-section";
 import { StatesSection } from "./states";
@@ -296,6 +297,7 @@ export default function DevUiPage() {
       <ListingCardsSection />
       <ListingDetailSection />
       <LandlordProfileSection />
+      <ReviewsSection />
       <ChatSection />
       <ShellsSection />
       <CanDemo />
