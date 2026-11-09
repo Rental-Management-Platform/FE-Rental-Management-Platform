@@ -18,6 +18,7 @@ import { isApiError } from "@/lib/api/errors";
 import { formatPhone } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 import { useCountdown } from "@/lib/use-countdown";
+import type { ReactNode } from "react";
 import type { ContactView } from "./contact-view";
 
 type ContactPanelProps = {
@@ -29,6 +30,11 @@ type ContactPanelProps = {
   signInHref: string;
   registerHref: string;
   onRetry: () => void;
+  /**
+   * The chat part (spec 0012, AC-3): a divider and the "Nhắn cho chủ trọ" control, or nothing.
+   * It sits outside the live region below, so a button appearing is not read out.
+   */
+  chat?: ReactNode;
 };
 
 /**
@@ -43,6 +49,7 @@ export function ContactPanel({
   signInHref,
   registerHref,
   onRetry,
+  chat,
 }: ContactPanelProps) {
   return (
     <Card>
@@ -103,6 +110,7 @@ export function ContactPanel({
 
         {view.kind === "failed" && <Failure view={view} onRetry={onRetry} />}
       </CardContent>
+      {chat}
     </Card>
   );
 }

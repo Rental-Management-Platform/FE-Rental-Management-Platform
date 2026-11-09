@@ -178,6 +178,8 @@ export async function ListingDetail({ params }: { params: Params }) {
           }
         >
           <ListingContact
+            id={listing.id}
+            title={listing.title}
             code={listing.code}
             path={canonicalPath}
             landlord={{ id: landlord.id, name: landlord.name }}

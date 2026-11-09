@@ -26,6 +26,7 @@ import {
 } from "@/lib/session/messages";
 import { ACCOUNT_LINKS, type NavItem } from "./nav-config";
 import { MenuLink } from "./nav-link";
+import { visibleNavItems } from "./visible-nav-items";
 
 export interface AccountMenuViewProps {
   state: SessionState;
@@ -63,7 +64,9 @@ export function AccountMenuView({
     );
   }
 
-  const items = links ?? linksFor(state.user);
+  // An item that names a permission shows only to a person who has it (spec 0012, AC-19). Both
+  // the menu and the list in the sheet draw from this one list.
+  const items = visibleNavItems(links ?? linksFor(state.user), state);
   return variant === "list" ? (
     <UserList
       user={state.user}

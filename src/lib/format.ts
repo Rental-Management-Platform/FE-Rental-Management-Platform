@@ -10,6 +10,10 @@ const MONEY = new Intl.NumberFormat("vi-VN", {
 });
 const AREA = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 });
 const COUNT = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
+const RATING = new Intl.NumberFormat("vi-VN", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
 const DAY = new Intl.DateTimeFormat("vi-VN", {
   timeZone: TIME_ZONE,
   day: "2-digit",
@@ -22,6 +26,9 @@ export const formatMoney = (dong: number) => MONEY.format(dong);
 
 /** A whole count, grouped the Vietnamese way: 1234 becomes "1.234". */
 export const formatCount = (count: number) => COUNT.format(count);
+
+/** A star average with one decimal, the Vietnamese way: 4.25 becomes "4,3" and 4 becomes "4,0". */
+export const formatRating = (average: number) => RATING.format(average);
 
 /** 22.5 becomes "22,5 m²". */
 export const formatArea = (m2: number) => `${AREA.format(m2)} m²`;

@@ -6,6 +6,7 @@ import {
   KeyRound,
   ListChecks,
   MapPinned,
+  MessagesSquare,
   ReceiptText,
   ShieldAlert,
   Tags,
@@ -13,6 +14,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { LANDLORD_CHAT_BASE } from "@/features/chat/access";
 import type { PermissionKey } from "@/lib/api/types";
 import type { SessionState } from "@/lib/session/create-session";
 import type { NavItem } from "./nav-config";
@@ -104,6 +106,17 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     permission: "listing:read",
     stat: "myListings",
     status: "soon",
+  },
+  {
+    // Spec 0012, AC-19. The unread count on the card (`stat: "unreadChat"`) comes with M2.
+    id: "chat.inbox",
+    group: "Tin nhắn",
+    label: "Tin nhắn",
+    description: "Trả lời những người tìm trọ đã nhắn cho bạn.",
+    icon: MessagesSquare,
+    permission: "conversation:read",
+    status: "ready",
+    href: LANDLORD_CHAT_BASE,
   },
   {
     id: "billing.mine",

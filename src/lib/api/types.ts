@@ -1,5 +1,5 @@
 // Copied by hand from api-for-frontend.md, "Phụ lục B. Kiểu TypeScript của phản hồi" and the
-// request bodies listed under it (backend state of 2026-10-23). When the API changes, update
+// request bodies listed under it (backend state of 2026-11-05). When the API changes, update
 // this file from the contract.
 //
 // Two changes from the contract text: every type is exported, and the contract's `ApiError`
@@ -92,6 +92,15 @@ export const ERROR_CODES = [
   "ORDER_STATE_INVALID",
   "LANDLORD_NOT_FOUND",
   "CANNOT_FOLLOW_SELF",
+  "CONVERSATION_NOT_FOUND",
+  "CANNOT_CHAT_WITH_SELF",
+  "CHAT_PEER_UNAVAILABLE",
+  "REVIEW_NOT_FOUND",
+  "REVIEW_NOT_ELIGIBLE",
+  "REVIEW_ALREADY_EXISTS",
+  "CANNOT_REVIEW_SELF",
+  "REVIEW_HIDDEN",
+  "REVIEW_STATE_INVALID",
   "DB_UNAVAILABLE",
   "INTERNAL_ERROR",
   "HTTP_ERROR",
@@ -415,4 +424,89 @@ export interface UpdateSettingBody {
 }
 export interface UpdateAccountTypeBody {
   permissions: PermissionKey[]; // replaces the whole list
+}
+
+// ---------- Chat (api-for-frontend.md 6.39, A.9; spec 0012 AC-23) ----------
+export interface ChatMessage {
+  id: Uuid;
+  seq: number; // 1, 2, 3 with no gaps: the true order of a conversation
+  senderId: Uuid;
+  isMine: boolean;
+  body: string; // raw text, shown as {body}, never as HTML
+  createdAt: IsoDateTime;
+}
+export interface ConversationItem {
+  id: Uuid;
+  myRole: "tenant" | "landlord";
+  listing: {
+    id: Uuid;
+    code: string;
+    slug: string;
+    title: string;
+    price: number;
+    coverImageUrl: string | null; // always null when isPublic is false
+    isPublic: boolean;
+  };
+  otherUser: { id: Uuid; name: string | null }; // no phone, no email
+  lastMessage: Omit<ChatMessage, "id">;
+  lastMessageAt: IsoDateTime;
+  createdAt: IsoDateTime;
+  unreadCount: number; // messages from the other side that I have not read
+}
+// GET /conversations/:id/messages, items always ascending by seq
+export interface ChatMessagesPage {
+  items: ChatMessage[];
+  hasMore: boolean;
+  lastSeq: number;
+}
+// GET /me/conversations/unread-count
+export interface UnreadSummary {
+  unreadConversations: number;
+  unreadMessages: number;
+}
+// POST /listings/:id/conversations
+export interface OpenConversationResult {
+  conversation: ConversationItem;
+  message: ChatMessage;
+}
+
+// ---------- Landlord reviews (api-for-frontend.md 6.40; spec 0012 AC-23) ----------
+// Copied once here for #35 and #36. Nothing in chat reads them.
+export type ReviewStatus = "visible" | "hidden_by_admin";
+// An item of GET /landlords/:id/reviews
+export interface PublicReview {
+  id: Uuid;
+  stars: number;
+  comment: string | null; // raw text: show it as text, never as HTML
+  author: { name: string | null }; // no email, phone or author id
+  isMine: boolean | null; // null for a guest
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+}
+// My own review: GET /landlords/:id/review, and the result of POST and PATCH
+export interface MyReview {
+  id: Uuid;
+  stars: number;
+  comment: string | null;
+  status: ReviewStatus;
+  hiddenReason: string | null; // the last reason an admin gave, while hidden_by_admin
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+}
+// GET /landlords/:id/review
+export interface MyReviewState {
+  review: MyReview | null;
+  canReview: boolean;
+}
+// GET /moderation/reviews, and the result of hide and unhide
+export interface AdminReview {
+  id: Uuid;
+  status: ReviewStatus;
+  stars: number;
+  comment: string | null;
+  hiddenReason: string | null;
+  author: { id: Uuid; name: string | null };
+  landlord: { id: Uuid; name: string | null };
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
 }

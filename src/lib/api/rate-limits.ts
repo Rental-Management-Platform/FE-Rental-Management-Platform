@@ -43,6 +43,11 @@ export const RATE_LIMIT_RULES: readonly RateLimitRule[] = [
   ...rule("POST", ["/landlords/:id/follow", "/listings/:id/favorite"], HOUR),
   ...rule("DELETE", ["/landlords/:id/follow", "/listings/:id/favorite"], HOUR),
   ...rule("PATCH", ["/me/profile"], HOUR),
+  // Chat (spec 0012, AC-21). Opening a conversation is 20 an hour and sending is 30 a minute.
+  // The five chat reads and `POST /conversations/:id/read` fall to the 60 second default, which
+  // is what the contract says for them.
+  ...rule("POST", ["/listings/:id/conversations"], HOUR),
+  ...rule("POST", ["/conversations/:id/messages"], MINUTE),
   ...rule(
     "GET",
     [

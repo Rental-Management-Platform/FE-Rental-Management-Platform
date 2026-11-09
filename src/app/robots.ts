@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         "/reset-password",
         "/favorites",
         "/account",
+        "/tin-nhan",
         "/*?q=",
         "/*&q=",
       ],

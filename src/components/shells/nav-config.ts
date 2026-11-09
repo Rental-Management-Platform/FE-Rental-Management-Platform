@@ -1,9 +1,11 @@
 import {
   LayoutDashboard,
+  MessageCircle,
   Search,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
+import { LANDLORD_CHAT_BASE, TENANT_CHAT_BASE } from "@/features/chat/access";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
 import { homePathOf } from "@/lib/next-path";
 import { ADMIN_TOOLS, LANDLORD_TOOLS, navItemsOf } from "./workspace-tools";
@@ -52,12 +54,27 @@ export const ADMIN_NAV: readonly NavItem[] = [
 
 // Links in the account menu: `all` for every signed in person, then the list of their own type.
 // Display only: what a person may do stays with `can()` and the backend. The way back to the
-// work area from the public pages (spec 0008, AC-14); the renter has no work area.
+// work area from the public pages (spec 0008, AC-14); the renter has no work area. "Tin nhắn"
+// is the inbox of each side (spec 0012, AC-19): the address is the one `chatBasePath` gives, and
+// the item shows only to someone who may read conversations.
 export const ACCOUNT_LINKS: Record<"all" | AccountType, readonly NavItem[]> = {
   all: [],
-  tenant: [],
+  tenant: [
+    {
+      label: "Tin nhắn",
+      href: TENANT_CHAT_BASE,
+      icon: MessageCircle,
+      permission: "conversation:read",
+    },
+  ],
   landlord: [
     { label: "Khu chủ trọ", href: LANDLORD_HOME, icon: LayoutDashboard },
+    {
+      label: "Tin nhắn",
+      href: LANDLORD_CHAT_BASE,
+      icon: MessageCircle,
+      permission: "conversation:read",
+    },
   ],
   admin: [{ label: "Quản trị", href: ADMIN_HOME, icon: ShieldCheck }],
 };
