@@ -9,7 +9,7 @@ import { RateLimitNotice } from "@/components/states/rate-limit-notice";
 import { Button } from "@/components/ui/button";
 import { LISTINGS_ANCHOR } from "@/features/landlord-profile/landlord-id";
 import { isAbortError } from "@/lib/api/abort";
-import { isApiError } from "@/lib/api/errors";
+import { describeError, isApiError } from "@/lib/api/errors";
 import type { MyReviewState } from "@/lib/api/types";
 import { authHref } from "@/lib/next-path";
 import { useSession } from "@/lib/session/auth-provider";
@@ -26,6 +26,11 @@ import {
   toPatchBody,
   type ReviewValues,
 } from "../schemas/review-schema";
+import {
+  ALREADY_DELETED_MESSAGE,
+  classifyReviewError,
+  type ReviewAction,
+} from "../review-errors";
 import { DeleteReviewDialog } from "./delete-review-dialog";
 import { MyReviewEditor, MyReviewRow } from "./my-review-row";
 import { ReviewForm } from "./review-form";
@@ -85,13 +90,23 @@ function WriterBlock({
 }: Omit<WriteBlockProps, "role">) {
   const session = useSession();
   const actions = useReviewActions(landlordId);
-  const state = useReviewForm(EMPTY_REVIEW);
+  const state = useReviewForm(EMPTY_REVIEW, "create");
   const pinnedFocus = useFocusRequest<HTMLHeadingElement>();
   const editFocus = useFocusRequest<HTMLButtonElement>();
   const returnFocus = useReturnFocus(() => zoneHeading.current);
   // The id of the review being edited. Keyed on the review, so an editor left open for a review
   // that was deleted somewhere else never turns up on the next one.
   const [editingId, setEditingId] = useState<string | null>(null);
+  // What the last failed write said, for a failure that makes the part that sent it give way: the
+  // form of a renter who is not eligible or had already reviewed, or the editor of a review that
+  // an admin hid or that was deleted elsewhere. The form and the editor show the message themselves
+  // while they are open, and this one is for after they are gone (AC-14). A failure that leaves
+  // them open (a field message, a 429, the network) never comes here, so an old message cannot
+  // turn up next to a state it has nothing to do with.
+  const [notice, setNotice] = useState<{
+    from: ReviewAction;
+    message: string;
+  } | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteFailure, setDeleteFailure] = useState<unknown>(null);
   const deleteSecondsLeft = useCountdown(deleteFailure);
@@ -116,15 +131,27 @@ function WriterBlock({
   // the sentence is announced. A failure keeps the draft and drops the focus request.
   const post = async (values: ReviewValues) => {
     clearAnnouncement();
+    setNotice(null);
     pinnedFocus.request();
     try {
       await actions.create(toCreateBody(values));
     } catch (error) {
       pinnedFocus.cancel();
+      rememberNotice(error, "create");
       throw error;
     }
     state.form.reset(EMPTY_REVIEW);
     announce("Đã đăng đánh giá của bạn.");
+  };
+
+  const rememberNotice = (error: unknown, action: ReviewAction) => {
+    const { message, reload } = classifyReviewError(error, action);
+    if (reload.mine) {
+      setNotice({
+        from: action,
+        message: message ?? describeError(error).message,
+      });
+    }
   };
 
   const closeEditor = () => {
@@ -143,7 +170,13 @@ function WriterBlock({
       return;
     }
     clearAnnouncement();
-    await actions.update(body);
+    setNotice(null);
+    try {
+      await actions.update(body);
+    } catch (error) {
+      rememberNotice(error, "update");
+      throw error;
+    }
     closeEditor();
     announce("Đã lưu thay đổi.");
   };
@@ -163,11 +196,16 @@ function WriterBlock({
     clearAnnouncement();
     setDeleteFailure(null);
     try {
-      await actions.remove();
-      // A notice left from an earlier failed post is about a review that no longer exists.
+      const outcome = await actions.remove();
+      // A notice left from an earlier failed write is about a review that no longer exists.
       state.clearFailure();
+      setNotice(null);
       setDeleteOpen(false);
-      announce("Đã xóa đánh giá.");
+      announce(
+        outcome === "already-gone"
+          ? ALREADY_DELETED_MESSAGE
+          : "Đã xóa đánh giá.",
+      );
     } catch (error) {
       // The session changed under the request: there is nothing to show.
       if (!isAbortError(error)) setDeleteFailure(error);
@@ -195,6 +233,7 @@ function WriterBlock({
           canDelete={canDelete}
           onEdit={() => {
             clearAnnouncement();
+            setNotice(null);
             setEditingId(review.id);
           }}
           onDelete={openDelete}
@@ -210,21 +249,26 @@ function WriterBlock({
         </>
       ) : null
     ) : (
-      <>
-        {/* The form is gone, so what the last send said is shown here (a renter who is not
-            eligible, or who already reviewed). */}
-        <FailureNotice
-          failure={state.failure}
-          message={state.form.formState.errors.root?.server?.message}
-        />
-        <ReviewHint />
-      </>
+      <ReviewHint />
     );
+
+  // The form and the editor show their own failure while they are open, so a notice from one of
+  // them is only drawn here once that one is gone. The failure of an edit is still shown when the
+  // form of a new review has taken the row's place (the review was deleted elsewhere). It stays
+  // until the next send, edit or delete.
+  const formShown = review === null && canReview && canCreate;
+  const noticeShown =
+    notice !== null && (notice.from === "create" ? !formShown : !editing);
 
   return (
     <>
       {content !== null && (
-        <div className="flex flex-col gap-4 border-b pb-5">{content}</div>
+        <div className="flex flex-col gap-4 border-b pb-5">
+          {noticeShown && (
+            <FailureNotice failure={null} message={notice.message} />
+          )}
+          {content}
+        </div>
       )}
       <DeleteReviewDialog
         open={deleteOpen}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, type FormEvent } from "react";
+import { useEffect, useId, useRef, type FormEvent } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
@@ -57,6 +57,7 @@ export function ReviewForm({
   const {
     control,
     handleSubmit,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = form;
   const comment = useWatch({ control, name: "comment" });
@@ -68,6 +69,13 @@ export function ReviewForm({
   const labels = LABELS[mode];
   // Set in the handler itself, so two clicks that both pass validation cannot both send.
   const inflight = useRef(false);
+
+  // The form of a new review lives above the part that swaps it for the pinned row or the hint, so
+  // the error of an old send is still in its state when it comes back. It was about a state that
+  // is gone, so it is dropped when the form appears. The draft itself is kept.
+  useEffect(() => {
+    clearErrors("root.server");
+  }, [clearErrors]);
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     void handleSubmit(async (values) => {

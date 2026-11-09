@@ -133,7 +133,7 @@ export function MyReviewEditor({
   onCancel,
 }: MyReviewEditorProps) {
   const headingId = useId();
-  const state = useReviewForm(valuesOfReview(review));
+  const state = useReviewForm(valuesOfReview(review), "update");
   const { setFocus } = state.form;
 
   useEffect(() => {

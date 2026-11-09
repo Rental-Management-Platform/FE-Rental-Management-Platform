@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { describeError } from "@/lib/api/errors";
+import { classifyReviewError } from "../review-errors";
 
 type DeleteReviewDialogProps = {
   open: boolean;
@@ -64,7 +65,10 @@ export function DeleteReviewDialog({
         {failure !== null && (
           <FailureNotice
             failure={failure}
-            message={describeError(failure).message}
+            message={
+              classifyReviewError(failure, "delete").message ??
+              describeError(failure).message
+            }
           />
         )}
         <AlertDialogFooter>

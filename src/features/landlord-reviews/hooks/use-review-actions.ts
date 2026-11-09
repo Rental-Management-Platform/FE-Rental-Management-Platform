@@ -10,30 +10,47 @@ import type {
 import { useApi } from "@/lib/session/auth-provider";
 import { createReview, deleteReview, updateReview } from "../api/review-api";
 import { reviewKeys } from "../api/review-keys";
+import { classifyReviewError, type ReviewAction } from "../review-errors";
+
+/** How a delete ended: it worked, or there was nothing left to delete (it counts as done). */
+export type DeleteOutcome = "deleted" | "already-gone";
 
 /**
- * The writes of the reviews zone (spec 0013, AC-8, AC-9 and AC-10). There is no optimistic change:
- * the row changes when the server has answered. None of them retries by itself, because a write is
- * not safe to repeat. Each returns the promise of its call, so the component that sent it can clear
- * itself, move focus and announce the result once the cache is up to date.
+ * The writes of the reviews zone (spec 0013, AC-8, AC-9, AC-10 and AC-14). There is no optimistic
+ * change: the row changes when the server has answered. None of them retries by itself, because a
+ * write is not safe to repeat. Each returns the promise of its call, so the component that sent it
+ * can clear itself, move focus and announce the result once the cache is up to date.
  *
  * After a write the answer goes straight into the `mine` key, the lists of this landlord are read
  * again, and so is the shared profile query of the landlord (`landlordKeys.profile`), which is how
- * the stars and the counts at the top of the page change (AC-16).
+ * the stars and the counts at the top of the page change (AC-16). After a failure, what
+ * `classifyReviewError` says is stale is read again, so the zone shows what is true now.
  */
 export function useReviewActions(landlordId: string) {
   const api = useApi();
   const queryClient = useQueryClient();
   const mineKey = reviewKeys.mine(landlordId);
 
-  // The lists and the numbers at the top of the profile changed with any write.
-  const refreshAfterWrite = () => {
-    void queryClient.invalidateQueries({
-      queryKey: reviewKeys.lists(landlordId),
-    });
-    void queryClient.invalidateQueries({
+  const invalidateLists = () =>
+    queryClient.invalidateQueries({ queryKey: reviewKeys.lists(landlordId) });
+  const invalidateProfile = () =>
+    queryClient.invalidateQueries({
       queryKey: landlordKeys.profile(landlordId),
     });
+
+  // The lists and the numbers at the top of the profile changed with any write.
+  const refreshAfterWrite = () => {
+    void invalidateLists();
+    void invalidateProfile();
+  };
+
+  const reloadAfterFailure = (error: unknown, action: ReviewAction) => {
+    const { reload } = classifyReviewError(error, action);
+    if (reload.mine) {
+      void queryClient.invalidateQueries({ queryKey: mineKey });
+    }
+    if (reload.lists) void invalidateLists();
+    if (reload.profile) void invalidateProfile();
   };
 
   const create = useMutation({
@@ -45,6 +62,7 @@ export function useReviewActions(landlordId: string) {
       });
       refreshAfterWrite();
     },
+    onError: (error) => reloadAfterFailure(error, "create"),
   });
 
   const update = useMutation({
@@ -57,10 +75,23 @@ export function useReviewActions(landlordId: string) {
       });
       refreshAfterWrite();
     },
+    onError: (error) => reloadAfterFailure(error, "update"),
   });
 
   const remove = useMutation({
-    mutationFn: () => deleteReview(api, landlordId),
+    // A review that is not there any more is what the person wanted: the call ends as a success,
+    // and the caller says "Đánh giá đã được xóa trước đó." (AC-14).
+    mutationFn: async (): Promise<DeleteOutcome> => {
+      try {
+        await deleteReview(api, landlordId);
+        return "deleted";
+      } catch (error) {
+        if (classifyReviewError(error, "delete").alreadyDone) {
+          return "already-gone";
+        }
+        throw error;
+      }
+    },
     onSuccess: async () => {
       queryClient.setQueryData<MyReviewState>(mineKey, {
         review: null,
@@ -74,6 +105,7 @@ export function useReviewActions(landlordId: string) {
       // delete that worked.
       await queryClient.refetchQueries({ queryKey: mineKey });
     },
+    onError: (error) => reloadAfterFailure(error, "delete"),
   });
 
   return {
