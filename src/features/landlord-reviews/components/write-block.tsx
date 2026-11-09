@@ -3,14 +3,19 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useRef, useState, type RefObject } from "react";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { RateLimitNotice } from "@/components/states/rate-limit-notice";
 import { Button } from "@/components/ui/button";
 import { LISTINGS_ANCHOR } from "@/features/landlord-profile/landlord-id";
+import { isAbortError } from "@/lib/api/abort";
 import { isApiError } from "@/lib/api/errors";
 import type { MyReviewState } from "@/lib/api/types";
 import { authHref } from "@/lib/next-path";
+import { useSession } from "@/lib/session/auth-provider";
+import { can } from "@/lib/session/can";
 import { useCountdown } from "@/lib/use-countdown";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import type { ReviewRole } from "../access";
 import { useFocusRequest } from "../hooks/use-focus-request";
 import { useReviewActions } from "../hooks/use-review-actions";
@@ -18,9 +23,11 @@ import { useReviewForm } from "../hooks/use-review-form";
 import {
   EMPTY_REVIEW,
   toCreateBody,
+  toPatchBody,
   type ReviewValues,
 } from "../schemas/review-schema";
-import { MyReviewRow } from "./my-review-row";
+import { DeleteReviewDialog } from "./delete-review-dialog";
+import { MyReviewEditor, MyReviewRow } from "./my-review-row";
 import { ReviewForm } from "./review-form";
 import { WriteBlockSkeleton } from "./reviews-zone-skeleton";
 
@@ -31,6 +38,8 @@ type WriteBlockProps = {
   mine: UseQueryResult<MyReviewState>;
   announce: (text: string) => void;
   clearAnnouncement: () => void;
+  /** The heading of the zone: where focus goes when the thing that had it is gone. */
+  zoneHeading: RefObject<HTMLElement | null>;
 };
 
 /**
@@ -39,24 +48,9 @@ type WriteBlockProps = {
  * the pinned review, the form, the hint, or a failure notice. A `reader` (a landlord, an admin) and
  * a viewer whose session is still loading see nothing. The public list shows under it in every case.
  */
-export function WriteBlock({
-  landlordId,
-  role,
-  mine,
-  announce,
-  clearAnnouncement,
-}: WriteBlockProps) {
+export function WriteBlock({ role, ...rest }: WriteBlockProps) {
   if (role === "guest") return <GuestRow />;
-  if (role === "writer") {
-    return (
-      <WriterBlock
-        landlordId={landlordId}
-        mine={mine}
-        announce={announce}
-        clearAnnouncement={clearAnnouncement}
-      />
-    );
-  }
+  if (role === "writer") return <WriterBlock {...rest} />;
   return null;
 }
 
@@ -80,16 +74,42 @@ function GuestRow() {
 
 // The part of the write block for a renter. It owns the form of a new review, so the draft lives
 // above the part that swaps the form for the pinned row or the hint, and a read of `mine` never
-// clears it (AC-7).
+// clears it (AC-7). It owns the delete dialog too, because the row the dialog opens from is gone
+// once the delete works, and the dialog must still be there to close and to give focus away.
 function WriterBlock({
   landlordId,
   mine,
   announce,
   clearAnnouncement,
+  zoneHeading,
 }: Omit<WriteBlockProps, "role">) {
+  const session = useSession();
   const actions = useReviewActions(landlordId);
   const state = useReviewForm(EMPTY_REVIEW);
   const pinnedFocus = useFocusRequest<HTMLHeadingElement>();
+  const editFocus = useFocusRequest<HTMLButtonElement>();
+  const returnFocus = useReturnFocus(() => zoneHeading.current);
+  // The id of the review being edited. Keyed on the review, so an editor left open for a review
+  // that was deleted somewhere else never turns up on the next one.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteFailure, setDeleteFailure] = useState<unknown>(null);
+  const deleteSecondsLeft = useCountdown(deleteFailure);
+  // Set in the handler itself, so two quick presses cannot both send.
+  const deleting = useRef(false);
+
+  if (mine.isPending) return <WriteBlockSkeleton />;
+
+  if (mine.data === undefined) {
+    return (
+      <MineFailure error={mine.error} onRetry={() => void mine.refetch()} />
+    );
+  }
+
+  const { review, canReview } = mine.data;
+  const canCreate = can(session, "review:create");
+  const canUpdate = can(session, "review:update");
+  const canDelete = can(session, "review:delete");
 
   // The order of AC-8: the answer is in the `mine` key and the lists and the profile are asked to
   // read again (both inside `create`), then the form is cleared, focus goes to the pinned row, and
@@ -107,37 +127,115 @@ function WriterBlock({
     announce("Đã đăng đánh giá của bạn.");
   };
 
-  if (mine.isPending) return <WriteBlockSkeleton />;
+  const closeEditor = () => {
+    // "Sửa" is not on screen while the editor is open, so focus goes to it once it is back.
+    editFocus.request();
+    setEditingId(null);
+  };
 
-  if (mine.data === undefined) {
-    return (
-      <MineFailure error={mine.error} onRetry={() => void mine.refetch()} />
-    );
-  }
+  // AC-9. Only the fields that changed go out. When nothing changed no request is made and the
+  // editor just closes, because the backend moves `updatedAt` even for an identical value.
+  const save = async (values: ReviewValues) => {
+    if (review === null) return;
+    const body = toPatchBody(values, review);
+    if (body === null) {
+      closeEditor();
+      return;
+    }
+    clearAnnouncement();
+    await actions.update(body);
+    closeEditor();
+    announce("Đã lưu thay đổi.");
+  };
 
-  const { review, canReview } = mine.data;
+  const openDelete = () => {
+    returnFocus.remember();
+    setDeleteFailure(null);
+    setDeleteOpen(true);
+  };
 
-  return (
-    <div className="flex flex-col gap-4 border-b pb-5">
-      {review !== null ? (
-        <MyReviewRow review={review} headingRef={pinnedFocus.ref} />
-      ) : canReview ? (
+  // AC-10. `remove` settles after the read of `mine` that follows the delete, so the dialog stays
+  // open until the card is replaced by what is true now. It closes here, and its close handler
+  // gives focus to the heading of the zone (the "Xóa" button it opened from is gone).
+  const confirmDelete = async () => {
+    if (deleting.current) return;
+    deleting.current = true;
+    clearAnnouncement();
+    setDeleteFailure(null);
+    try {
+      await actions.remove();
+      // A notice left from an earlier failed post is about a review that no longer exists.
+      state.clearFailure();
+      setDeleteOpen(false);
+      announce("Đã xóa đánh giá.");
+    } catch (error) {
+      // The session changed under the request: there is nothing to show.
+      if (!isAbortError(error)) setDeleteFailure(error);
+    } finally {
+      deleting.current = false;
+    }
+  };
+
+  const editing =
+    review !== null &&
+    editingId === review.id &&
+    review.status === "visible" &&
+    canUpdate;
+
+  const content =
+    review !== null ? (
+      editing ? (
+        <MyReviewEditor review={review} onSave={save} onCancel={closeEditor} />
+      ) : (
+        <MyReviewRow
+          review={review}
+          headingRef={pinnedFocus.ref}
+          editRef={editFocus.ref}
+          canUpdate={canUpdate}
+          canDelete={canDelete}
+          onEdit={() => {
+            clearAnnouncement();
+            setEditingId(review.id);
+          }}
+          onDelete={openDelete}
+        />
+      )
+    ) : canReview ? (
+      // A renter without `review:create` has nothing to write with: no form, and no hint either,
+      // because the hint would send them to chat for something they cannot do.
+      canCreate ? (
         <>
           <h3 className="text-base">Viết đánh giá của bạn</h3>
           <ReviewForm state={state} mode="create" onSubmit={post} />
         </>
-      ) : (
-        <>
-          {/* The form is gone, so what the last send said is shown here (a renter who is not
-              eligible, or who already reviewed). */}
-          <FailureNotice
-            failure={state.failure}
-            message={state.form.formState.errors.root?.server?.message}
-          />
-          <ReviewHint />
-        </>
+      ) : null
+    ) : (
+      <>
+        {/* The form is gone, so what the last send said is shown here (a renter who is not
+            eligible, or who already reviewed). */}
+        <FailureNotice
+          failure={state.failure}
+          message={state.form.formState.errors.root?.server?.message}
+        />
+        <ReviewHint />
+      </>
+    );
+
+  return (
+    <>
+      {content !== null && (
+        <div className="flex flex-col gap-4 border-b pb-5">{content}</div>
       )}
-    </div>
+      <DeleteReviewDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        isDeleting={actions.removing}
+        failure={deleteFailure}
+        secondsLeft={deleteSecondsLeft}
+        onConfirm={() => void confirmDelete()}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      />
+    </>
   );
 }
 

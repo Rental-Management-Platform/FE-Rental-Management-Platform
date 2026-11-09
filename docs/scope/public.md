@@ -90,7 +90,7 @@ Cần chốt khi thiết kế: danh sách chỉ dựng ở trình duyệt (khôn
 - [x] Design it (spec): `/architect landlord reviews`
 - [ ] Build it: `/develop landlord reviews` (chỉ xây sau khi #15 xong và đáp ứng mục "What #15 must provide" của spec)
   - [x] M1 Sợi chỉ mỏng: một người tìm trọ viết đánh giá và thấy nó được ghim và được đếm. Luật tần suất cho ba API ghi, `reviewRole`, khóa và truy vấn, khu đánh giá với danh sách trang đầu và dòng mời đăng nhập, khối viết với biểu mẫu mỏng, thẻ ghim, làm mới hồ sơ, `StarRating` nếu #15 chưa có (AC-1 đến AC-8, AC-15, AC-16, AC-20)
-  - [ ] M2 Sửa, xóa và trạng thái bị ẩn: biểu mẫu sửa chỉ gửi trường đã đổi, hộp thoại xóa, thẻ bị ẩn kèm lý do, dời focus và dòng thông báo (AC-5 phần bị ẩn, AC-9, AC-10, AC-17)
+  - [x] M2 Sửa, xóa và trạng thái bị ẩn: biểu mẫu sửa chỉ gửi trường đã đổi, hộp thoại xóa, thẻ bị ẩn kèm lý do, dời focus và dòng thông báo (AC-5 phần bị ẩn, AC-9, AC-10, AC-17)
   - [ ] M3 Phân trang và trạng thái của danh sách: `reviewPage`, `ListPagination` kiểu nút, dòng cho trang chỉ có đánh giá của mình hoặc quá số trang, lỗi đọc, kiểm trên điện thoại 390 px (AC-11 đến AC-13, AC-19)
   - [ ] M4 Lỗi và an toàn: `classifyReviewError` cho mọi mã lỗi, đếm ngược 429, rà riêng tư (AC-14, AC-18)
   - [ ] M5 Xem thử (bỏ qua được nếu hết giờ): phần đánh giá trong `/dev/ui` trên dữ liệu giả, có 25 đánh giá qua ba trang (AC-21)

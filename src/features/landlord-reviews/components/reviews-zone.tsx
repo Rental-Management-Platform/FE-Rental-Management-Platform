@@ -78,6 +78,7 @@ function Zone({ landlordId }: { landlordId: string }) {
           mine={mine}
           announce={announce}
           clearAnnouncement={clear}
+          zoneHeading={headingRef}
         />
 
         {role === "loading" || list.isPending ? (
