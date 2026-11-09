@@ -1,7 +1,7 @@
 # 0012. Chat với chủ trọ: nhắn tin giữa người tìm trọ và chủ trọ
 
 **Date**: 2026-11-07
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

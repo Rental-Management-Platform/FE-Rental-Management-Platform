@@ -13,6 +13,7 @@ Pages for developers only. Everything under `/dev` answers 404 in a production b
 - Money, area and dates on the sample screens use `ui/screens/sample-format.ts` (`vi-VN`, `Asia/Ho_Chi_Minh`). Real features use `src/lib/format.ts`.
 - Nothing outside `/dev` imports from here. A real feature lifts the markup of a sample screen into its own folder.
 - A feature that ships a page also adds a section to `ui/` that shows its states, as `listing-cards.tsx`, `listing-detail.tsx`, `dashboard-cards.tsx` and `photos.tsx` do ([spec 0008](../../../docs/specs/0008-landlord-and-admin-dashboards/index.md)).
+- A section that needs fake API data keeps it in a `<name>-sample.ts` beside it (`chat-sample.ts`, `reviews-sample.ts`): fixed objects typed with the API types, no network call, no randomness, and a fixed clock where a time shows, so the page reads the same on every load.
 - Everything here is built from the tokens and the shared components, so it also works as a check that the design system holds together.
 
 _Drafted by /sync from the introducing change, worth a quick human pass._

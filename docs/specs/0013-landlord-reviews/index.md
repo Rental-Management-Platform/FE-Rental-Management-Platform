@@ -1,7 +1,7 @@
 # 0013. Landlord reviews: rate a landlord on their public profile
 
 **Date**: 2026-11-09
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

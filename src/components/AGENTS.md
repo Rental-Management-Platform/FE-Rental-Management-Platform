@@ -10,6 +10,7 @@ Shared UI for every feature. The look is fixed by [design.md](../../design.md) a
 - `layout/page-header.tsx`: `PageHeader`, the one `h1` of a page.
 - `shells/`: the page frames (`PublicShell`, `AuthShell`, and `WorkspaceShell`, which `LandlordShell` and `AdminShell` use), the account menu, `nav-config.ts` and `workspace-tools.ts` (the tool lists of the landlord and admin areas, which draw both the dashboard cards and the side menu).
 - `list-pagination.tsx`: page links from `{ page, pageSize, total }`.
+- `star-rating.tsx`: `StarRating`, stars for a score from 0 to 5 (one review, or an average such as 4.3), display only and read by a screen reader as one image ("4 trên 5 sao"). The star input for writing a review lives with its feature in `src/features/reviews/`.
 - `can.tsx`: `Can`, which only hides what a person has no permission for. The backend still decides ([spec 0005](../../docs/specs/0005-sign-up-and-sign-in/index.md)).
 - `listing-card.tsx` and `listing-photo.tsx`: `ListingCard` (one listing on a list page, a link when it gets an `href`) and `ListingPhoto` (a 16:9 box that shows the photo, the placeholder when there is no address, or nothing when the photo fails to load). Photo addresses come from `mediaUrl` ([spec 0009](../../docs/specs/0009-find-listings/index.md)).
 - `../hooks/use-mobile.ts` comes with the sidebar component.

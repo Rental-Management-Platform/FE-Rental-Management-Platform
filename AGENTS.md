@@ -43,7 +43,7 @@ Stored in `docs/specs/`, one folder per decision: `docs/specs/NNNN-title/index.m
 
 - Style: functional. Pure functions by default, side effects (fetch, storage, navigation) at the edges (hooks, Server Components, handlers), no mutable module state, composition over classes.
 - Types: TypeScript `strict`, no `any` (ESLint errors on it). Expected API failures use the typed `ApiError` (`src/lib/api/errors.ts`, spec 0002). API fields keep the backend's `null`.
-- Layout: `src/features/<name>/{components,api,hooks,schemas}`, shared UI in `src/components`, shared code in `src/lib`, routes in `src/app` (groups `(public)`, `(auth)`, `(landlord)`, `(admin)`).
+- Layout: `src/features/<name>/{components,api,hooks,schemas}`, shared UI in `src/components`, shared code in `src/lib`, routes in `src/app` (groups `(public)`, `(auth)`, `(tenant)`, `(landlord)`, `(admin)`).
 - Data: the server reads public data as a guest and never holds a token. Anything that needs a login runs in the browser with the access token in memory only.
 - Env: read only through `src/lib/env.ts` (browser) and `src/lib/env.server.ts` (server only), both validated with Zod.
 - Forms: React Hook Form + Zod for light checks. The backend is the real validator, so map its `errors[].field` onto fields.
@@ -86,5 +86,6 @@ Declined: `emilkowalski/skills@ask-sonner`, `addyosmani/web-quality-skills@acces
 - [src/components/AGENTS.md](src/components/AGENTS.md): shared UI, shadcn components, page frames, shared states and form pieces
 - [src/lib/AGENTS.md](src/lib/AGENTS.md): API client, session, form helpers, env and formatters
 - [src/app/dev/AGENTS.md](src/app/dev/AGENTS.md): developer only pages (`/dev/ui`, sample screens, session lab), a 404 in production
+- [src/features/reviews/AGENTS.md](src/features/reviews/AGENTS.md): the shared core of landlord reviews and room reviews, and how a subject plugs into it
 
 _Drafted by /audit from the repo, worth a quick human pass. Edit freely: once a line stops matching this draft, later runs treat it as curated and will flag rather than overwrite it._
