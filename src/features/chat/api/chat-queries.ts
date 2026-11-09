@@ -3,6 +3,7 @@ import {
   queryOptions,
   type QueryClient,
 } from "@tanstack/react-query";
+import { isAbortError } from "@/lib/api/abort";
 import type { ApiClient } from "@/lib/api/client";
 import type { ChatMessage, Uuid } from "@/lib/api/types";
 import { mergeMessages } from "../merge-messages";
@@ -22,6 +23,28 @@ const MAX_POLL_ROUNDS = 5;
 
 const lastSeqOf = (messages: readonly ChatMessage[]): number | null =>
   messages.at(-1)?.seq ?? null;
+
+/** Told after each poll whether it worked, so the caller can count failures in a row. */
+export type Track = (failed: boolean) => void;
+
+// Wraps a read so it reports its result. A poll that was cancelled (the person left the page, or
+// a newer ask took its place) is neither a success nor a failure. TanStack counts failures from 0
+// at every fetch, so the count that doubles the wait has to be kept by the caller (AC-10).
+const tracked =
+  <Args extends unknown[], R>(
+    track: Track | undefined,
+    run: (...args: Args) => Promise<R>,
+  ) =>
+  async (...args: Args): Promise<R> => {
+    try {
+      const result = await run(...args);
+      track?.(false);
+      return result;
+    } catch (error) {
+      if (!isAbortError(error)) track?.(true);
+      throw error;
+    }
+  };
 
 /**
  * What one read of the messages of a conversation gives back (spec 0012, AC-10).
@@ -67,10 +90,12 @@ export async function readMessages(
 }
 
 /** The messages of a conversation: ascending by `seq`, and gone from the cache when closed. */
-export const messagesQuery = (api: ApiClient, id: Uuid) =>
+export const messagesQuery = (api: ApiClient, id: Uuid, track?: Track) =>
   queryOptions({
     queryKey: chatKeys.messages(id),
-    queryFn: ({ signal, client }) => readMessages(api, client, id, signal),
+    queryFn: tracked(track, ({ signal, client }) =>
+      readMessages(api, client, id, signal),
+    ),
     // Closing a conversation drops its messages, so opening it again starts from the newest 30
     // and never from a copy that may be missing messages.
     gcTime: 0,
@@ -86,11 +111,12 @@ export const conversationQuery = (api: ApiClient, id: Uuid) =>
   });
 
 /** One page of the inbox. The page before stays on screen while the next one loads. */
-export const inboxQuery = (api: ApiClient, page: number) =>
+export const inboxQuery = (api: ApiClient, page: number, track?: Track) =>
   queryOptions({
     queryKey: chatKeys.inbox(page),
-    queryFn: ({ signal }) =>
+    queryFn: tracked(track, ({ signal }) =>
       getInbox(api, { page, pageSize: INBOX_PAGE_SIZE }, signal),
+    ),
     placeholderData: keepPreviousData,
     retry: false,
   });
@@ -122,10 +148,10 @@ export const UNREAD_STALE_MS = 10_000;
  * landlord dashboard card read the same key, so one request and one cache entry serve both. The
  * card does not poll on its own: the indicator in the same page frame does.
  */
-export const unreadQueryOptions = (api: ApiClient) =>
+export const unreadQueryOptions = (api: ApiClient, track?: Track) =>
   queryOptions({
     queryKey: chatKeys.unread(),
-    queryFn: ({ signal }) => getUnread(api, signal),
+    queryFn: tracked(track, ({ signal }) => getUnread(api, signal)),
     staleTime: UNREAD_STALE_MS,
     // The next poll is the retry (see `messagesQuery`).
     retry: false,

@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isApiError } from "@/lib/api/errors";
 import { useSession } from "@/lib/session/auth-provider";
 import { useCountdown } from "@/lib/use-countdown";
+import { useNow } from "@/lib/use-now";
 import { useInbox } from "../hooks/use-inbox";
 import { parseInboxPage } from "../schemas/inbox-params";
 import { InboxRow } from "./inbox-row";
@@ -40,7 +41,9 @@ const pageHref = (basePath: string, page: number) =>
 export function InboxScreen({ basePath }: InboxScreenProps) {
   const page = parseInboxPage(useSearchParams().get("page"));
   const session = useSession();
-  const inbox = useInbox(page);
+  const { query: inbox, failing } = useInbox(page);
+  // The labels "Hôm nay" and "Hôm qua" follow this, so they change by themselves at midnight.
+  const now = useNow();
   // The words differ by account type. The gate has already let only these two types in.
   const side =
     session.status === "user" && session.user.accountType === "landlord"
@@ -67,10 +70,20 @@ export function InboxScreen({ basePath }: InboxScreenProps) {
         inbox.data.items.length === 0 && <InboxPastEnd basePath={basePath} />}
       {inbox.data !== undefined && inbox.data.items.length > 0 && (
         <>
+          {failing && (
+            <p role="status" className="text-sm text-muted-foreground">
+              Không cập nhật được tin mới. Đang thử lại.
+            </p>
+          )}
           <Card className="gap-0 py-0">
             <ul className="divide-y">
               {inbox.data.items.map((item) => (
-                <InboxRow key={item.id} item={item} basePath={basePath} />
+                <InboxRow
+                  key={item.id}
+                  item={item}
+                  basePath={basePath}
+                  now={now}
+                />
               ))}
             </ul>
           </Card>

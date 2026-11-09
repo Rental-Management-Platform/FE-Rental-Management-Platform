@@ -12,19 +12,22 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { ChatMessage, ConversationItem, Uuid } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
+import { useNow } from "@/lib/use-now";
 import { conversationQuery } from "../api/chat-queries";
 import { isConversationId } from "../conversation-id";
 import { useComposer } from "../hooks/use-composer";
 import { useMarkRead } from "../hooks/use-mark-read";
+import { useOlderMessages } from "../hooks/use-older-messages";
 import { useSendMessage } from "../hooks/use-send-message";
 import { useStickyBottom } from "../hooks/use-sticky-bottom";
 import { useThreadMessages } from "../hooks/use-thread-messages";
 import { threadBlock } from "../thread-block";
 import { Composer } from "./composer";
+import { ConversationListingCard } from "./conversation-listing-card";
 import { MessageList } from "./message-list";
 import { ThreadBlocked } from "./thread-blocked";
 import { ThreadSkeleton } from "./thread-skeleton";
@@ -37,9 +40,12 @@ interface ThreadScreenProps {
 }
 
 /**
- * One conversation (spec 0012, AC-8). The two pages of this screen, one for renters and one for
- * landlords, differ only in `basePath`. The id comes from the address, and an address that cannot
- * be an id is "not found" without a request.
+ * One conversation (spec 0012, AC-8 and AC-9). The two pages of this screen, one for renters and
+ * one for landlords, differ only in `basePath`. The id comes from the address, and an address that
+ * cannot be an id is "not found" without a request.
+ *
+ * It fills the height its page gives it (`h-full`), so the list scrolls inside a column whose last
+ * part is the message box: the box is always in view, with the on screen keyboard open too.
  */
 export function ThreadScreen({ basePath }: ThreadScreenProps) {
   const { id } = useParams<{ id: string }>();
@@ -62,7 +68,7 @@ export function ThreadScreen({ basePath }: ThreadScreenProps) {
 function Thread({ id, basePath }: { id: Uuid; basePath: string }) {
   const api = useApi();
   const head = useQuery(conversationQuery(api, id));
-  const messages = useThreadMessages(id);
+  const { query: messages, failing } = useThreadMessages(id);
 
   const blocked = threadBlock([head, messages]);
   if (blocked) {
@@ -86,6 +92,7 @@ function Thread({ id, basePath }: { id: Uuid; basePath: string }) {
       id={id}
       head={head.data}
       messages={messages.data}
+      failing={failing}
       basePath={basePath}
     />
   );
@@ -95,19 +102,29 @@ interface ConversationProps {
   id: Uuid;
   head: ConversationItem;
   messages: readonly ChatMessage[];
+  /** Two asks for newer messages in a row failed. */
+  failing: boolean;
   basePath: string;
 }
 
-function Conversation({ id, head, messages, basePath }: ConversationProps) {
+function Conversation({
+  id,
+  head,
+  messages,
+  failing,
+  basePath,
+}: ConversationProps) {
   const composer = useComposer();
   const send = useSendMessage(id);
-  const { scrollRef, onScroll, atBottom } = useStickyBottom(messages);
+  const now = useNow();
+  const sticky = useStickyBottom(messages);
+  const older = useOlderMessages(id, sticky.scrollRef, messages[0]?.seq);
   // Marks the conversation read once its newest message is really in front of the person.
-  useMarkRead({ id, head, messages, atBottom });
+  useMarkRead({ id, head, messages, atBottom: sticky.atBottom });
   const name = head.otherUser.name ?? UNKNOWN_NAME;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-full min-h-0 flex-col gap-4">
       <PageHeader
         breadcrumb={
           <Breadcrumb>
@@ -124,27 +141,35 @@ function Conversation({ id, head, messages, basePath }: ConversationProps) {
             </BreadcrumbList>
           </Breadcrumb>
         }
-        title={`Trò chuyện với ${name}`}
-        description={<span className="break-words">{head.listing.title}</span>}
+        title={name}
       />
-      <Card>
-        <CardContent>
-          <MessageList
-            messages={messages}
-            otherName={name}
-            scrollRef={scrollRef}
-            onScroll={onScroll}
-          />
-        </CardContent>
+      <Card className="min-h-0 flex-1 gap-0 py-0">
+        <ConversationListingCard listing={head.listing} otherName={name} />
         <Separator />
-        <CardContent>
+        <MessageList
+          messages={messages}
+          otherName={name}
+          now={now}
+          older={older}
+          scrollRef={sticky.scrollRef}
+          onScroll={sticky.onScroll}
+          unseen={sticky.unseen}
+          scrollToBottom={sticky.scrollToBottom}
+        />
+        <Separator />
+        <div className="flex shrink-0 flex-col gap-2 p-3">
+          {failing && (
+            <p role="status" className="text-sm text-muted-foreground">
+              Không cập nhật được tin mới. Đang thử lại.
+            </p>
+          )}
           <Composer
             composer={composer}
             onSend={(body) => send.mutateAsync(body)}
             placeholder="Nhập tin nhắn"
             focusWhenMouse
           />
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
