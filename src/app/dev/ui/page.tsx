@@ -21,6 +21,7 @@ import { DataDisplaySection } from "./data-display";
 import { DatePickerSection } from "./date-picker-section";
 import { FeedbackSection } from "./feedback";
 import { FormDemo } from "./form-demo";
+import { LandlordProfileSection } from "./landlord-profile";
 import { ListingCardsSection } from "./listing-cards";
 import { ListingDetailSection } from "./listing-detail";
 import { OverlaysSection } from "./overlays";
@@ -294,6 +295,7 @@ export default function DevUiPage() {
       <PhotosSection />
       <ListingCardsSection />
       <ListingDetailSection />
+      <LandlordProfileSection />
       <ChatSection />
       <ShellsSection />
       <CanDemo />

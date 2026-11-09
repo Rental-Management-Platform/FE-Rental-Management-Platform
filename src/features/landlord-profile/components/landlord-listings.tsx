@@ -1,10 +1,6 @@
-import { BookOpenIcon, HouseIcon } from "lucide-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ListPagination } from "@/components/list-pagination";
 import { ListingCard } from "@/components/listing-card";
-import { EmptyState } from "@/components/states/empty-state";
-import { Button } from "@/components/ui/button";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import {
   LISTING_PAGE_SIZE,
@@ -16,6 +12,7 @@ import { formatCount } from "@/lib/format";
 import { listingPath } from "@/lib/listing-path";
 import { getLandlordListings } from "../api/get-landlord-listings";
 import { LISTINGS_ANCHOR, landlordListingsHref } from "../landlord-id";
+import { NoListings, PastLastPage } from "./listings-states";
 
 // What Next.js hands a page as `searchParams`.
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -115,24 +112,10 @@ export async function LandlordListings({
           {pagination}
         </>
       ) : result.total === 0 ? (
-        <EmptyState
-          icon={HouseIcon}
-          title="Chủ trọ chưa có tin nào đang hiện"
-          description="Hãy quay lại sau, chủ trọ có thể sẽ đăng tin mới."
-        />
+        <NoListings />
       ) : (
         <>
-          <EmptyState
-            icon={BookOpenIcon}
-            title="Trang này không có tin"
-            action={
-              <Button asChild variant="outline" size="lg">
-                <Link href={landlordListingsHref(landlordId, lastPage)}>
-                  Xem trang cuối
-                </Link>
-              </Button>
-            }
-          />
+          <PastLastPage landlordId={landlordId} lastPage={lastPage} />
           {pagination}
         </>
       )}
