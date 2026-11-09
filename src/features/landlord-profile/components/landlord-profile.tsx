@@ -1,22 +1,12 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { isApiError, type ApiError } from "@/lib/api/errors";
 import type { LandlordProfile as LandlordProfileData } from "@/lib/api/types";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { getLandlordProfile } from "../api/get-landlord-profile";
 import { isLandlordId } from "../landlord-id";
-import { FAILED_TITLE, landlordName } from "../text";
-import { ProfileStats } from "./profile-stats";
-import { RatingLine } from "./rating-line";
+import { FAILED_TITLE } from "../text";
+import { LandlordProfileView } from "./landlord-profile-view";
 
 // What Next.js hands a page as `params`.
 type Params = Promise<{ id: string }>;
@@ -25,7 +15,7 @@ type Params = Promise<{ id: string }>;
  * The profile page body, read on the server as a guest (api-for-frontend.md, 6.31). It reads
  * `params`, so the page keeps it inside a <Suspense> boundary and the site header stays in the
  * static shell. The page reads no cookie, header or token: everyone gets the same HTML, and what
- * depends on the viewer (the follow state) is added in the browser.
+ * depends on the viewer (the follow state) is added in the browser by `LandlordProfileView`.
  */
 export async function LandlordProfileScreen({ params }: { params: Params }) {
   const { id } = await params;
@@ -46,32 +36,7 @@ export async function LandlordProfileScreen({ params }: { params: Params }) {
     return <ReadFailure error={error} />;
   }
 
-  const name = landlordName(profile.name);
-
-  return (
-    <>
-      <PageHeader
-        breadcrumb={
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/">Tìm trọ</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="min-w-0">
-                <BreadcrumbPage className="truncate">{name}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        }
-        title={<span className="break-words">{name}</span>}
-        description={<RatingLine {...profile} />}
-      />
-      <ProfileStats {...profile} />
-    </>
-  );
+  return <LandlordProfileView profile={profile} />;
 }
 
 // Any failure of the profile read other than "not found": a 429, a 5xx, a timeout, no network.
