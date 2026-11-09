@@ -342,6 +342,8 @@ export const LISTING_DETAIL: ListingDetail = {
   property: PROPERTY_HOA_HONG,
   isFavorite: null,
   landlord: { ...LANDLORDS.nam, phone: "0901234567" },
+  reviewCount: 12,
+  ratingAverage: 4.3,
 };
 
 // ---------- My listings (landlord) ----------

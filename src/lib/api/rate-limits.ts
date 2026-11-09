@@ -54,6 +54,12 @@ export const RATE_LIMIT_RULES: readonly RateLimitRule[] = [
   ...rule("POST", ["/landlords/:id/review"], HOUR),
   ...rule("PATCH", ["/landlords/:id/review"], HOUR),
   ...rule("DELETE", ["/landlords/:id/review"], HOUR),
+  // Listing reviews (spec 0014, AC-18). The same three writes for one room: 20 an hour each, blocked
+  // for an hour. The two reads (`GET /listings/:id/review` and `/reviews`) fall to the 60 second
+  // default, which matches the contract (300 a minute).
+  ...rule("POST", ["/listings/:id/review"], HOUR),
+  ...rule("PATCH", ["/listings/:id/review"], HOUR),
+  ...rule("DELETE", ["/listings/:id/review"], HOUR),
   ...rule(
     "GET",
     [

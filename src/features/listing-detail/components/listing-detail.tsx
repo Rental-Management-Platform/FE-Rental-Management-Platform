@@ -1,6 +1,7 @@
 import { MapPinIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import {
   Breadcrumb,
@@ -23,6 +24,9 @@ import { env } from "@/lib/env";
 import { listingPath, parseListingPath } from "@/lib/listing-path";
 import { mediaUrl } from "@/lib/media";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
+import { ListingReviews } from "@/features/listing-reviews/components/listing-reviews";
+import { LISTING_REVIEWS_HEADING } from "@/features/listing-reviews/texts";
+import { ReviewsZoneSkeleton } from "@/features/reviews/components/reviews-zone-skeleton";
 import { getListing } from "../api/get-listing";
 import { breadcrumbJsonLd, serializeJsonLd } from "../json-ld";
 import { ListingAddressFix } from "./address-fix";
@@ -173,8 +177,8 @@ export async function ListingDetail({ params }: { params: Params }) {
           aria-label="Liên hệ chủ trọ"
           className={
             hasDescription
-              ? "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-start"
-              : "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:self-start"
+              ? "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-start"
+              : "lg:sticky lg:top-24 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:self-start"
           }
         >
           <ListingContact
@@ -219,6 +223,30 @@ export async function ListingDetail({ params }: { params: Params }) {
             </div>
           </CardContent>
         </Card>
+
+        {/* The room reviews (spec 0014, AC-1 and AC-2): the last card, always open. The block reads
+            the address and the session in the browser, so it has its own boundary, and the server
+            HTML holds only the skeleton: the heading, the score and a few rows, never a review. */}
+        <div className="min-w-0 lg:col-start-1">
+          <Suspense
+            fallback={
+              <ReviewsZoneSkeleton
+                heading={LISTING_REVIEWS_HEADING}
+                reviewCount={listing.reviewCount}
+                ratingAverage={listing.ratingAverage}
+              />
+            }
+          >
+            <ListingReviews
+              id={listing.id}
+              code={listing.code}
+              title={listing.title}
+              landlord={{ id: landlord.id, name: landlord.name }}
+              reviewCount={listing.reviewCount}
+              ratingAverage={listing.ratingAverage}
+            />
+          </Suspense>
+        </div>
       </div>
     </>
   );

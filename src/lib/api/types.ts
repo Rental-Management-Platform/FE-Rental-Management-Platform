@@ -252,6 +252,8 @@ export interface ListingDetail extends Omit<ListingSummary, "landlord"> {
   property: PropertyInListing;
   isFavorite: boolean | null;
   landlord: { id: Uuid; name: string | null; phone: string | null }; // phone is null for a guest
+  reviewCount: number; // visible reviews of this room (spec 0014), a whole number from 0
+  ratingAverage: number | null; // one decimal, null exactly when reviewCount is 0
 }
 // GET /me/listings
 export interface OwnerListingSummary extends Omit<ListingSummary, "landlord"> {
@@ -263,7 +265,7 @@ export interface OwnerListingSummary extends Omit<ListingSummary, "landlord"> {
 // GET /me/listings/:id and the result of POST, PATCH, hide, show
 export interface OwnerListingDetail extends Omit<
   ListingDetail,
-  "landlord" | "isFavorite"
+  "landlord" | "isFavorite" | "reviewCount" | "ratingAverage"
 > {
   status: ListingStatus;
   moderationReason: string | null;
