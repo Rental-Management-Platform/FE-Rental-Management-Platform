@@ -1,6 +1,6 @@
 # Admin
 
-Khu quản trị: người dùng, kiểm duyệt tin, gói, danh mục, quyền, đơn và doanh thu. Máy tính trước. Mọi số tiền ở đây là tiền của thanh toán thử. Xem [index](index.md) để biết thứ tự toàn bộ.
+Khu quản trị: người dùng, kiểm duyệt tin và đánh giá, gói, danh mục, quyền, đơn và doanh thu. Máy tính trước. Mọi số tiền ở đây là tiền của thanh toán thử. Xem [index](index.md) để biết thứ tự toàn bộ.
 
 ## Slice 5: Khu admin
 
@@ -13,6 +13,11 @@ Khung khu admin và trang người dùng đầu tiên, nơi định ra mẫu b�
 Bảng tin cho admin từ `GET /moderation/listings` (tìm, lọc theo trạng thái và chủ trọ), ẩn hoặc gỡ ẩn kèm lý do 1 đến 500 ký tự. Nhắc rằng gỡ ẩn không tự hiện tin, chủ trọ phải bấm Hiện.
 **Done when:** ẩn và gỡ ẩn thay dòng bằng kết quả mới, lý do bắt buộc, `LISTING_STATE_INVALID` thì tải lại dòng, lý do ẩn gần nhất hiện ở tin bị ẩn.
 - [ ] Build it: `/develop listing moderation`
+
+### 36. Review moderation
+Trang `/admin/reviews` từ `GET /moderation/reviews`, với bộ lọc `status`, `landlordId` và `authorId` nằm trong địa chỉ. Bảng có số sao, nhận xét, người viết, chủ trọ, ngày viết và nhãn trạng thái; dòng bị ẩn hiện thêm `hiddenReason`. Ẩn và Gỡ ẩn mở hộp nhập lý do bắt buộc (1 đến 500 ký tự), hộp dùng chung với #21 theo mẫu #20 định ra. Bấm tên người viết thì đặt bộ lọc `authorId`, bấm tên chủ trọ thì mở hồ sơ công khai `/chu-tro/[id]` (#15). Thêm mục `reviews` (quyền `review:moderate`) vào `ADMIN_TOOLS`. Cần #20 (khung admin và mẫu bảng) làm trước.
+**Done when:** ẩn và gỡ ẩn thay dòng bằng phần tử trả về, lý do bắt buộc, `REVIEW_STATE_INVALID` thì tải lại dòng, `REVIEW_NOT_FOUND` thì bỏ dòng và báo người viết vừa xóa, bộ lọc nằm trong địa chỉ và đổi bộ lọc thì về trang 1, giá trị lạ trong địa chỉ về mặc định, có dòng nhắc rằng gỡ ẩn đưa đánh giá thẳng về hiện.
+- [ ] Build it: `/develop review moderation`
 
 ### 22. Plans and trial settings
 Quản lý gói (bảng gồm cả gói đã tắt, biểu mẫu tạo và sửa dùng chung, công tắc đang bán, xóa có xác nhận) và hai tham số dùng thử (số ngày, số tin) với giới hạn `min` và `max` lấy từ phản hồi. Ghi chú đổi số ngày chỉ áp cho chủ trọ đăng ký sau đó.

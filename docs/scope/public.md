@@ -1,6 +1,6 @@
 # Public
 
-Phần dành cho khách và người tìm trọ: tìm tin, xem tin, lưu tin, hồ sơ chủ trọ, bảng giá. Điện thoại trước, cần SEO. Xem [index](index.md) để biết thứ tự toàn bộ.
+Phần dành cho khách và người tìm trọ: tìm tin, xem tin, lưu tin, nhắn tin với chủ trọ, hồ sơ và đánh giá chủ trọ, bảng giá. Điện thoại trước, cần SEO (trừ các trang nhắn tin, chỉ dành cho người đã đăng nhập). Xem [index](index.md) để biết thứ tự toàn bộ.
 
 ## Slice 1: Vòng lặp lõi
 
@@ -42,10 +42,46 @@ Nút tim trên thẻ tin và trang chi tiết (tim đầy, tim rỗng, và tim r
 **Done when:** bấm tim lưu và bỏ lưu được, nút khóa lúc đang gửi, trang Tin đã lưu bỏ thẻ khi bỏ tim, lưu tin vừa biến mất thì báo "tin không còn", chủ trọ và admin không thấy tim.
 - [ ] Build it: `/develop favorites`
 
+### 34. Chat with landlords · in-progress
+Người tìm trọ nhắn cho chủ trọ từ trang chi tiết tin, chủ trọ trả lời từ hộp thư. Hai bên dùng chung một bộ màn hình (hộp thư và cuộc trò chuyện) nhưng ở hai bộ đường dẫn: người tìm trọ ở `/tin-nhan` và `/tin-nhan/[id]` (nhóm route `(tenant)`, khung công khai), chủ trọ ở `/landlord/tin-nhan` và `/landlord/tin-nhan/[id]` (khu chủ trọ, giữ menu bên trái); đều `noindex` và nằm sau `RequireSession`. Gồm:
+- nút "Nhắn cho chủ trọ" trên trang chi tiết tin (khách dẫn tới đăng nhập; người tìm trọ có `conversation:create` tra `GET /me/conversations?listingId=` rồi mở cuộc trò chuyện sẵn có, hoặc gửi tin đầu qua một hộp thoại; chủ trọ và admin không có nút);
+- màn cuộc trò chuyện (tin mới nhất trước, "Xem tin cũ hơn" bằng `beforeSeq`, hỏi lại `afterSeq` khoảng 4 giây, khử trùng theo `seq`, ô soạn 1 đến 1000 ký tự có bộ đếm và đếm ngược khi gặp 429, ô soạn khóa khi gặp `CHAT_PEER_UNAVAILABLE`, thẻ tin nhỏ kèm nhãn "tin không còn hiển thị" khi `isPublic` là `false`);
+- hộp thư (phân trang, chấm chưa đọc, tiền tố "Bạn:", lời trống khác nhau cho người tìm trọ và chủ trọ);
+- chỉ báo chưa đọc (bong bóng tin nhắn có số, không phải cái chuông) ở đầu trang công khai và đầu khu làm việc (hiện `unreadConversations`, "99+", hỏi lại khoảng 20 giây), cùng việc đánh dấu đã đọc chỉ khi tab đang hiện;
+- liên kết "Tin nhắn" trong menu tài khoản của người tìm trọ và chủ trọ, và công cụ `chat.inbox` trong `LANDLORD_TOOLS` (thẻ dashboard có số cuộc trò chuyện chưa đọc).
+
+Chỉ tài khoản `tenant` hoặc `landlord` có `conversation:read` mới gọi API chat. Admin nhận 403 ở cả bảy API, nên không gọi.
+Dòng này làm luôn phần nền chung cho chat và đánh giá (#35): các kiểu của chat và đánh giá cùng 9 mã lỗi mới trong `src/lib/api/types.ts`, `formatRating` trong `src/lib/format.ts`, và `merge-messages.ts`.
+**Done when:** người tìm trọ nhắn được từ một tin và thấy cuộc trò chuyện trong hộp thư, chủ trọ thấy và trả lời từ hộp thư, tin mới của bên kia hiện sau vài giây mà không bị trùng, chấm chưa đọc và chỉ báo ở đầu trang đổi đúng sau khi mở một cuộc trò chuyện, khách bấm nút thì dẫn tới đăng nhập, chủ trọ và admin không có nút nhắn, admin không gọi API chat, tin không còn hiển thị vẫn nhắn được nhưng ẩn liên kết sang tin, người kia bị khóa thì ô soạn khóa mà lịch sử vẫn đọc được, `CONVERSATION_NOT_FOUND` báo "không tìm thấy cuộc trò chuyện" kèm đường về hộp thư, và dùng mượt trên điện thoại.
+- [x] Design it (spec): `/architect chat with landlords`
+- [ ] Build it: `/develop chat with landlords`
+code in `src/features/chat/` (`access.ts`, `merge-messages.ts`, `chat-entry.ts`, `thread-block.ts`, `conversation-cache.ts`, `conversation-id.ts`, `api/`, `hooks/`, `schemas/`, `components/`), `src/app/(tenant)/`, `src/app/(landlord)/landlord/tin-nhan/`, `src/features/listing-detail/components/listing-contact.tsx` và `contact-panel.tsx`, `src/components/shells/` (`nav-config.ts`, `workspace-tools.ts`, `account-menu-view.tsx`), `src/lib/api/` (`types.ts`, `rate-limits.ts`), `src/lib/format.ts`, `src/app/robots.ts`
+  - [x] M1 Sợi chỉ mỏng: một tin đi từ trang tin tới hộp thư của chủ trọ. Nền dùng chung (kiểu chat và đánh giá, 9 mã lỗi, `formatRating`, luật tần suất mới), nhóm route `(tenant)` và các trang chat của chủ trọ có lớp chặn, cuộc trò chuyện mỏng (30 tin mới nhất, gửi tin, hỏi lại 4 giây), hộp thư mỏng, nút và hộp thoại ở trang tin, lối vào cho chủ trọ (công cụ và menu tài khoản) (AC-1 đến AC-4, AC-6 đến AC-8, AC-10, AC-14, AC-15, AC-19 phần lối vào, AC-20, AC-21, AC-23)
+  - [ ] M2 Chưa đọc và chỉ báo: truy vấn đếm chưa đọc, chỉ báo ở khung công khai (cả điện thoại) và khung làm việc, đánh dấu đã đọc, dấu đậm và chấm ở hộp thư, số trên thẻ dashboard chủ trọ (AC-6 phần dấu chưa đọc, AC-17, AC-18, AC-19 phần thẻ dashboard)
+  - [ ] M3 Chiều sâu cuộc trò chuyện: xem tin cũ hơn giữ nguyên vị trí cuộn, dính đáy và nút "Tin mới", giờ và vạch ngày, ô soạn đủ luật (Enter theo con trỏ, bỏ qua khi đang gõ bộ gõ, bộ đếm), thẻ tin ở đầu trang với tin không còn hiển thị, luật hỏi lại đầy đủ, bàn phím ảo (AC-9 đến AC-14)
+  - [ ] M4 Lỗi, giới hạn và an toàn: lỗi khi gửi (hộp thoại và ô soạn, 429 đếm ngược, người kia bị khóa, mạng kèm lần hỏi bù), trạng thái của trang (không tìm thấy, không quyền, lỗi đọc đầu), rà riêng tư (AC-5, AC-7, AC-16, AC-20 đến AC-22)
+  - [ ] M5 Xem thử (bỏ qua được nếu hết giờ): phần chat trong `/dev/ui` trên dữ liệu giả (AC-24)
+- [ ] Verify it: `/check verify chat with landlords`
+spec [0012](../specs/0012-chat-with-landlords/index.md) · Chọn: hỏi lại bằng TanStack Query với con trỏ `seq` (cuộc trò chuyện 4 giây, hộp thư 10 giây, chỉ báo 20 giây, dừng khi tab ẩn), mọi lần ghi vào bộ nhớ tin nhắn đi qua hàm gộp thuần `mergeMessages` và `gcTime: 0` nên mỗi lần mở lại bắt đầu từ 30 tin mới nhất; hai bộ đường dẫn dùng chung một bộ màn hình (người tìm trọ ở `/tin-nhan` trong khung công khai, chủ trọ ở `/landlord/tin-nhan` trong khu chủ trọ) nên không phải sửa lớp chặn đăng nhập; tin đầu gửi bằng hộp thoại rồi chuyển sang cuộc trò chuyện, trang tin dò cuộc trò chuyện cũ ngay khi mở để nút ghi đúng "Xem tin nhắn của bạn"; Enter gửi trên máy tính có chuột, xuống dòng trên cảm ứng, bỏ qua khi đang gõ bằng bộ gõ; chỉ báo là bong bóng tin nhắn có số, thẻ dashboard dùng chung truy vấn với chỉ báo; không gửi lạc quan, không tự biến liên kết, admin không gọi API chat; nội dung tin chỉ nằm trong bộ nhớ truy vấn và trạng thái thành phần.
+
 ### 15. Landlord profile and follow
-Hồ sơ công khai của chủ trọ, mở từ tên chủ trọ: tên (không có tên thì ghi "Chủ trọ"), ngày tham gia, số người theo dõi, tổng lượt xem, số tin đang hiện, nút theo dõi, và danh sách tin đang hiện dùng đúng thẻ tin của trang tìm tin.
-**Done when:** hồ sơ và danh sách tin hiện cùng lúc, bấm theo dõi thì trạng thái và số người theo dõi đổi ngay, khách bấm thì dẫn tới đăng nhập, nút ẩn với chủ trọ, admin và hồ sơ của chính mình, `LANDLORD_NOT_FOUND` báo "không tìm thấy chủ trọ".
+Hồ sơ công khai của chủ trọ ở địa chỉ `/chu-tro/[id]`, mở từ tên chủ trọ (ở trang chi tiết tin, `contact-panel.tsx` biến tên chủ trọ thành liên kết): tên (không có tên thì ghi "Chủ trọ"), ngày tham gia, số người theo dõi, tổng lượt xem, số tin đang hiện, nút theo dõi, và danh sách tin đang hiện dùng đúng thẻ tin của trang tìm tin.
+Hồ sơ nay có chín trường: `reviewCount` và `ratingAverage` được thêm vào `LandlordProfile` (`src/lib/api/types.ts`), đầu trang hiện điểm sao kèm số đánh giá ("4,3 (12 đánh giá)", hoặc "Chưa có đánh giá" khi `reviewCount` là 0). Khóa truy vấn hồ sơ ở trình duyệt dùng chung cho nút theo dõi và dòng điểm sao, để #35 làm mới được điểm sao sau khi viết, sửa hay xóa đánh giá. Chừa sẵn khu "Đánh giá" sau khu tin để #35 điền vào. JSON-LD `aggregateRating` là tùy chọn, chỉ khi `reviewCount` lớn hơn 0 (cách dựng chốt ở #35).
+**Done when:** hồ sơ và danh sách tin hiện cùng lúc ở `/chu-tro/[id]`, đầu trang có điểm sao kèm số đánh giá (hoặc "Chưa có đánh giá"), bấm theo dõi thì trạng thái và số người theo dõi đổi ngay, khách bấm thì dẫn tới đăng nhập, nút ẩn với chủ trọ, admin và hồ sơ của chính mình, tên chủ trọ ở trang chi tiết tin dẫn tới hồ sơ, `LANDLORD_NOT_FOUND` báo "không tìm thấy chủ trọ".
 - [ ] Build it: `/develop landlord profile and follow`
+
+### 35. Landlord reviews · needs a decision
+Khu "Đánh giá" trên hồ sơ chủ trọ (#15), sau khu tin. Gồm:
+- dòng điểm sao và danh sách `GET /landlords/:id/reviews`: đọc đăng nhập tùy chọn, chờ phiên khôi phục xong, id người dùng nằm trong khóa truy vấn, bỏ đánh giá của chính mình khỏi danh sách, phân trang bằng tham số riêng `reviewPage` (không đụng phân trang của danh sách tin), số trang tính từ `total` và tiêu đề lấy `reviewCount` (cả hai vẫn tính đánh giá của mình), nhận xét hiện như chữ thô và giữ xuống dòng;
+- thẻ đánh giá của mình ghim đầu khu, là nơi duy nhất có nút sửa và xóa; khi `hidden_by_admin` thì hiện nhãn "bị quản trị viên ẩn" kèm `hiddenReason` và chỉ còn nút xóa;
+- biểu mẫu viết và sửa (1 đến 5 sao, nhận xét tùy chọn 1 đến 1000 ký tự; để trống thì không gửi lúc viết và gửi `null` lúc sửa) và hộp thoại xác nhận xóa;
+- khách thấy lời mời đăng nhập; chủ trọ và admin không thấy khối này và không gọi `GET /landlords/:id/review`.
+
+Chỉ `accountType` là `tenant` có `review:read` mới gọi `GET /landlords/:id/review`; nút viết, sửa, xóa cần lần lượt `review:create`, `review:update`, `review:delete`. Sao dùng màu có sẵn, không thêm cặp màu mới.
+Người tìm trọ chỉ đánh giá được chủ trọ đã trả lời trong chat (#34), nên khi chưa đủ điều kiện, dòng gợi ý đưa người dùng xuống khu tin của chủ trọ để mở một tin và nhắn.
+Cần chốt khi thiết kế: danh sách chỉ dựng ở trình duyệt (không dựng ở máy chủ), thẻ ghim cộng danh sách đã lọc, và JSON-LD `aggregateRating` chỉ khi `reviewCount` lớn hơn 0.
+**Done when:** người tìm trọ đủ điều kiện (`canReview` là `true`) viết được đánh giá và thấy nó ghim đầu khu ngay, sửa và xóa được, đánh giá bị ẩn hiện nhãn và lý do và chỉ còn nút xóa, người chưa đủ điều kiện thấy lời gợi ý thay cho biểu mẫu, khách thấy lời mời đăng nhập, chủ trọ và admin không thấy khối viết, danh sách phân trang đúng và không làm đổi trang của danh sách tin, điểm sao và số đánh giá đổi ngay sau khi viết, sửa hay xóa, `REVIEW_NOT_ELIGIBLE` và `REVIEW_ALREADY_EXISTS` thì tải lại trạng thái rồi vẽ lại, 429 hiện đếm ngược.
+- [ ] Design it (spec): `/architect landlord reviews`
 
 ### 16. Home page · dropped
 Bỏ ngày 2026-10-24: `api-for-frontend.md` không mô tả trang chủ, nên trang tìm tin (#8) là trang gốc. Nội dung cũ giữ lại để có lịch sử.
