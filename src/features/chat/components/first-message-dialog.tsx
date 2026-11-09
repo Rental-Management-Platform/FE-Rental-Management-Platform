@@ -26,6 +26,8 @@ interface FirstMessageDialogProps {
   landlordName: string;
   /** The inbox of the sender, where the new conversation lives (`<basePath>/<id>`). */
   basePath: string;
+  /** The id of a sentence that says what the button is for (spec 0014, AC-9). */
+  describedBy?: string;
 }
 
 /**
@@ -40,6 +42,7 @@ export function FirstMessageDialog({
   listingTitle,
   landlordName,
   basePath,
+  describedBy,
 }: FirstMessageDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -62,6 +65,7 @@ export function FirstMessageDialog({
       onSend={send}
       listingTitle={listingTitle}
       landlordName={landlordName}
+      describedBy={describedBy}
     />
   );
 }
@@ -73,6 +77,7 @@ interface FirstMessageDialogViewProps {
   onSend: (body: string) => Promise<unknown>;
   listingTitle: string;
   landlordName: string;
+  describedBy?: string;
 }
 
 /**
@@ -86,11 +91,17 @@ export function FirstMessageDialogView({
   onSend,
   listingTitle,
   landlordName,
+  describedBy,
 }: FirstMessageDialogViewProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="lg">
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          aria-describedby={describedBy}
+        >
           Nhắn cho chủ trọ
         </Button>
       </DialogTrigger>

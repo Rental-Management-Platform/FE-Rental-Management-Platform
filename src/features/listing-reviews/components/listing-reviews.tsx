@@ -1,12 +1,19 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef } from "react";
+import { chatBasePath } from "@/features/chat/access";
+import { byListingQuery } from "@/features/chat/api/chat-queries";
+import { mayChatAbout, toChatEntry } from "@/features/chat/chat-entry";
 import { reviewRole } from "@/features/reviews/access";
 import { RatingLine } from "@/features/reviews/components/rating-line";
 import { ReviewsZoneView } from "@/features/reviews/components/reviews-zone-view";
 import { useReviewPage } from "@/features/reviews/hooks/use-review-page";
 import type { ReviewSubject } from "@/features/reviews/types";
+import { isApiError } from "@/lib/api/errors";
 import { isUuid } from "@/lib/is-uuid";
-import { useSession } from "@/lib/session/auth-provider";
+import { useApi, useSession } from "@/lib/session/auth-provider";
 import { useListingSummary } from "../hooks/use-listing-summary";
 import { useMyListingReview } from "../hooks/use-my-review";
 import { useListingReviewActions } from "../hooks/use-review-actions";
@@ -17,6 +24,7 @@ import {
   LISTING_REVIEWS_ANCHOR,
   LISTING_REVIEWS_HEADING,
 } from "../texts";
+import { ListingHint } from "./listing-hint";
 
 type ListingReviewsProps = {
   /** The UUID `id` of the listing detail: the review calls take it, never the slug or the code. */
@@ -31,6 +39,10 @@ type ListingReviewsProps = {
   ratingAverage: number | null;
 };
 
+// The listing is hidden or deleted after the page opened: any of the reads says so with this code.
+const isListingGone = (error: unknown) =>
+  isApiError(error) && error.code === "LISTING_NOT_FOUND";
+
 /**
  * The "Đánh giá phòng" block at the bottom of the listing page (spec 0014, AC-1). It reads in the
  * browser only: the server HTML holds the skeleton with the heading and the score, and no review
@@ -42,7 +54,16 @@ export function ListingReviews(props: ListingReviewsProps) {
   return <Block {...props} />;
 }
 
-function Block({ id, code, reviewCount, ratingAverage }: ListingReviewsProps) {
+function Block({
+  id,
+  code,
+  title,
+  landlord,
+  reviewCount,
+  ratingAverage,
+}: ListingReviewsProps) {
+  const api = useApi();
+  const router = useRouter();
   const session = useSession();
   const role = reviewRole(session);
   const summary = useListingSummary(id, code, { reviewCount, ratingAverage });
@@ -52,6 +73,36 @@ function Block({ id, code, reviewCount, ratingAverage }: ListingReviewsProps) {
   const list = useListingReviewList(id, page);
   const mine = useMyListingReview(id, role === "writer");
   const actions = useListingReviewActions(id);
+
+  // The chat lookup is the one the contact card runs (same key), so it costs no second request.
+  // Only someone who may chat about this listing runs it, never while the session is `loading`.
+  const lookup = useQuery({
+    ...byListingQuery(api, id),
+    enabled: mayChatAbout(session, landlord.id),
+  });
+  const entry = toChatEntry(session, { landlord }, lookup);
+  const landlordName = landlord.name ?? "Chủ trọ";
+
+  // The listing is gone (AC-16). The server read of the page then answers `LISTING_NOT_FOUND` and
+  // the page becomes the not found page, so the block only has to ask the server once. The flag is
+  // a ref, so it survives the StrictMode double effect and never asks twice for one mount.
+  const refreshed = useRef(false);
+  const refreshPage = useCallback(() => {
+    if (refreshed.current) return;
+    refreshed.current = true;
+    router.refresh();
+  }, [router]);
+
+  // A read said the listing is gone: draw nothing and ask the server. A write that hits it first
+  // keeps the block on screen with "Tin này không còn." until the page changes (`onGone`).
+  const readGone =
+    isListingGone(list.error) ||
+    isListingGone(mine.error) ||
+    isListingGone(summary.error);
+  useEffect(() => {
+    if (readGone) refreshPage();
+  }, [readGone, refreshPage]);
+  if (readGone) return null;
 
   const subject: ReviewSubject = {
     list,
@@ -69,9 +120,22 @@ function Block({ id, code, reviewCount, ratingAverage }: ListingReviewsProps) {
       </p>
     ),
     guestLabel: LISTING_GUEST_LABEL,
-    // The hint (AC-9) and the rule for a vanished listing (AC-16) come with milestone 3.
-    hint: null,
-    onGone: () => undefined,
+    // A viewer who cannot chat about this listing gets no hint at all (AC-9). A guest has the
+    // sign in row, and the hint is only ever drawn for a `writer`.
+    hint:
+      entry.kind === "none" || entry.kind === "guest" ? null : (
+        <ListingHint
+          entry={entry}
+          listing={{ id, title }}
+          landlordName={landlordName}
+          basePath={
+            session.status === "user"
+              ? chatBasePath(session.user.accountType)
+              : null
+          }
+        />
+      ),
+    onGone: refreshPage,
   };
 
   return (
