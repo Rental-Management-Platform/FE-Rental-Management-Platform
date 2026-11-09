@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isApiError } from "@/lib/api/errors";
+import type { ConversationItem } from "@/lib/api/types";
 import { useSession } from "@/lib/session/auth-provider";
 import { useCountdown } from "@/lib/use-countdown";
 import { useNow } from "@/lib/use-now";
@@ -75,18 +76,7 @@ export function InboxScreen({ basePath }: InboxScreenProps) {
               Không cập nhật được tin mới. Đang thử lại.
             </p>
           )}
-          <Card className="gap-0 py-0">
-            <ul className="divide-y">
-              {inbox.data.items.map((item) => (
-                <InboxRow
-                  key={item.id}
-                  item={item}
-                  basePath={basePath}
-                  now={now}
-                />
-              ))}
-            </ul>
-          </Card>
+          <InboxList items={inbox.data.items} basePath={basePath} now={now} />
           <ListPagination
             page={inbox.data.page}
             pageSize={inbox.data.pageSize}
@@ -98,6 +88,27 @@ export function InboxScreen({ basePath }: InboxScreenProps) {
         </>
       )}
     </div>
+  );
+}
+
+/** The rows of one page in their zone. It only draws, so `/dev/ui` can show it on fake rows. */
+export function InboxList({
+  items,
+  basePath,
+  now,
+}: {
+  items: readonly ConversationItem[];
+  basePath: string;
+  now: Date;
+}) {
+  return (
+    <Card className="gap-0 py-0">
+      <ul className="divide-y">
+        {items.map((item) => (
+          <InboxRow key={item.id} item={item} basePath={basePath} now={now} />
+        ))}
+      </ul>
+    </Card>
   );
 }
 
@@ -127,7 +138,7 @@ export function InboxSkeleton() {
 }
 
 // Nothing here yet. The words differ: a renter starts a conversation, a landlord waits for one.
-function InboxEmpty({ side }: { side: "tenant" | "landlord" }) {
+export function InboxEmpty({ side }: { side: "tenant" | "landlord" }) {
   return side === "landlord" ? (
     <EmptyState
       icon={MessagesSquareIcon}

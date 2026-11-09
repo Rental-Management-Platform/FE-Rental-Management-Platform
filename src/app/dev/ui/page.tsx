@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { CanDemo } from "./can-demo";
 import { ColorsSection } from "./colors";
 import { ControlsSection } from "./controls";
+import { ChatSection } from "./chat";
 import { DashboardCardsSection } from "./dashboard-cards";
 import { DataDisplaySection } from "./data-display";
 import { DatePickerSection } from "./date-picker-section";
@@ -293,6 +294,7 @@ export default function DevUiPage() {
       <PhotosSection />
       <ListingCardsSection />
       <ListingDetailSection />
+      <ChatSection />
       <ShellsSection />
       <CanDemo />
 

@@ -12,7 +12,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Uuid } from "@/lib/api/types";
-import { useComposer } from "../hooks/use-composer";
+import {
+  useComposer,
+  type Composer as ComposerState,
+} from "../hooks/use-composer";
 import { useOpenConversation } from "../hooks/use-open-conversation";
 import { Composer } from "./composer";
 
@@ -52,7 +55,40 @@ export function FirstMessageDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <FirstMessageDialogView
+      open={open}
+      onOpenChange={setOpen}
+      composer={composer}
+      onSend={send}
+      listingTitle={listingTitle}
+      landlordName={landlordName}
+    />
+  );
+}
+
+interface FirstMessageDialogViewProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  composer: ComposerState;
+  onSend: (body: string) => Promise<unknown>;
+  listingTitle: string;
+  landlordName: string;
+}
+
+/**
+ * The button and the dialog, drawn from props only: no session, no router, no request. `/dev/ui`
+ * shows it with fake sends that fail in each way (spec 0012, AC-24).
+ */
+export function FirstMessageDialogView({
+  open,
+  onOpenChange,
+  composer,
+  onSend,
+  listingTitle,
+  landlordName,
+}: FirstMessageDialogViewProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="lg">
           Nhắn cho chủ trọ
@@ -67,7 +103,7 @@ export function FirstMessageDialog({
         </DialogHeader>
         <Composer
           composer={composer}
-          onSend={send}
+          onSend={onSend}
           placeholder="Phòng còn trống không ạ?"
         />
       </DialogContent>

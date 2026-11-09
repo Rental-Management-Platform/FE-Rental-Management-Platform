@@ -48,8 +48,28 @@ export function ChatIndicator({ size = "default" }: ChatIndicatorProps) {
 // Apart from `ChatIndicator` so the unread query is made only by someone who may chat.
 function Indicator({ size, href }: { size: "default" | "lg"; href: string }) {
   const { data } = useUnread();
-  const unread = data?.unreadConversations ?? 0;
+  return (
+    <ChatIndicatorView
+      size={size}
+      href={href}
+      unread={data?.unreadConversations ?? 0}
+    />
+  );
+}
 
+/**
+ * Draws the bubble for a given count and reads nothing, so `/dev/ui` can show 0, 7 and "99+" with
+ * no session and no network.
+ */
+export function ChatIndicatorView({
+  size,
+  href,
+  unread,
+}: {
+  size: "default" | "lg";
+  href: string;
+  unread: number;
+}) {
   return (
     <Button
       asChild

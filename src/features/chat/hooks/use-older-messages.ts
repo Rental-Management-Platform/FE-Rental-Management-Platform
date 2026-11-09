@@ -8,6 +8,16 @@ import { FIRST_PAGE_LIMIT, getMessages } from "../api/chat-api";
 import { chatKeys } from "../api/chat-keys";
 import { mergeMessages } from "../merge-messages";
 
+/** What the list needs from "Xem tin cũ hơn". A plain shape, so the gallery can fake it. */
+export interface OlderMessages {
+  isPending: boolean;
+  isError: boolean;
+  /** True while the older messages go in: the log region turns its announcements off. */
+  quiet: boolean;
+  /** Reads the 30 messages before `beforeSeq`. */
+  load: (beforeSeq: number) => void;
+}
+
 /**
  * "Xem tin cũ hơn" (spec 0012, AC-11): reads the 30 messages before the oldest one on screen and
  * merges them in at the top.
@@ -26,7 +36,7 @@ export function useOlderMessages(
   scrollRef: RefObject<HTMLDivElement | null>,
   /** The oldest `seq` on screen. It changing is what tells the effect the merge has landed. */
   firstSeq: number | undefined,
-) {
+): OlderMessages {
   const api = useApi();
   const queryClient = useQueryClient();
   // Distance from the bottom of the scroll area, taken before the merge. `null` when idle.
@@ -61,5 +71,10 @@ export function useOlderMessages(
     return () => cancelAnimationFrame(frame);
   }, [firstSeq, scrollRef]);
 
-  return { mutation, quiet };
+  return {
+    isPending: mutation.isPending,
+    isError: mutation.isError,
+    quiet,
+    load: (beforeSeq) => mutation.mutate(beforeSeq),
+  };
 }

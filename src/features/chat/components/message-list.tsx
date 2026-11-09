@@ -9,7 +9,7 @@ import type { ChatMessage } from "@/lib/api/types";
 import { FOCUS_RING } from "@/lib/focus-ring";
 import { chatDayLabel, formatClock, isSameChatDay } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { useOlderMessages } from "../hooks/use-older-messages";
+import type { OlderMessages } from "../hooks/use-older-messages";
 import type { StickyBottom } from "../hooks/use-sticky-bottom";
 
 interface MessageListProps extends Pick<
@@ -21,8 +21,8 @@ interface MessageListProps extends Pick<
   otherName: string;
   /** From `useNow`, so the divider says "Hôm nay" until midnight and "Hôm qua" after it. */
   now: Date;
-  /** "Xem tin cũ hơn": the mutation and whether its messages are going in right now. */
-  older: ReturnType<typeof useOlderMessages>;
+  /** "Xem tin cũ hơn": its state, and whether older messages are going in right now. */
+  older: OlderMessages;
 }
 
 /**
@@ -52,7 +52,6 @@ export function MessageList({
   const oldest = messages[0];
   // `seq` has no gaps and starts at 1, so anything above 1 means older messages exist.
   const hasOlder = oldest !== undefined && oldest.seq > 1;
-  const { mutation, quiet } = older;
 
   return (
     <div className="relative min-h-0 flex-1">
@@ -61,7 +60,7 @@ export function MessageList({
         onScroll={onScroll}
         role="log"
         aria-label="Tin nhắn"
-        aria-live={quiet ? "off" : undefined}
+        aria-live={older.quiet ? "off" : undefined}
         tabIndex={0}
         className={cn(
           FOCUS_RING,
@@ -70,7 +69,7 @@ export function MessageList({
       >
         {hasOlder && (
           <div className="flex flex-col items-center gap-2 pb-3">
-            {mutation.isError && (
+            {older.isError && (
               <p className="text-sm text-destructive">
                 Không tải được tin cũ hơn.
               </p>
@@ -79,15 +78,15 @@ export function MessageList({
               type="button"
               variant="outline"
               size="sm"
-              aria-disabled={mutation.isPending || undefined}
+              aria-disabled={older.isPending || undefined}
               onClick={() => {
-                if (!mutation.isPending) mutation.mutate(oldest.seq);
+                if (!older.isPending) older.load(oldest.seq);
               }}
             >
-              {mutation.isPending && <Spinner size="sm" />}
-              {mutation.isPending
+              {older.isPending && <Spinner size="sm" />}
+              {older.isPending
                 ? "Đang tải"
-                : mutation.isError
+                : older.isError
                   ? "Thử lại"
                   : "Xem tin cũ hơn"}
             </Button>
