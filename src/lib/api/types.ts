@@ -275,6 +275,7 @@ export interface FavoriteResult {
 }
 
 // ---------- Landlord profile ----------
+// GET /landlords/:id and the result of POST and DELETE /landlords/:id/follow: nine fields.
 export interface LandlordProfile {
   id: Uuid;
   name: string | null;
@@ -282,6 +283,8 @@ export interface LandlordProfile {
   followerCount: number;
   totalViewCount: number;
   publicListingCount: number;
+  reviewCount: number; // visible reviews, a whole number from 0
+  ratingAverage: number | null; // one decimal, null exactly when reviewCount is 0
   isFollowing: boolean | null; // null for a guest
 }
 

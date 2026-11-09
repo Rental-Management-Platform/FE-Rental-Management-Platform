@@ -5,6 +5,7 @@ import { byListingQuery } from "@/features/chat/api/chat-queries";
 import { chatBasePath } from "@/features/chat/access";
 import { mayChatAbout, toChatEntry } from "@/features/chat/chat-entry";
 import { ChatEntrySlot } from "@/features/chat/components/chat-entry-slot";
+import { landlordPath } from "@/features/landlord-profile/landlord-id";
 import { formatDateTime } from "@/lib/format";
 import { authHref } from "@/lib/next-path";
 import { useApi, useSession } from "@/lib/session/auth-provider";
@@ -65,6 +66,7 @@ export function ListingContact({
     <ContactPanel
       view={toContactView(session, landlord.id, query)}
       landlordName={landlordName}
+      landlordHref={landlordPath(landlord.id)}
       postedAt={formatDateTime(createdAt)}
       signInHref={signInHref}
       registerHref={authHref("/register", path)}

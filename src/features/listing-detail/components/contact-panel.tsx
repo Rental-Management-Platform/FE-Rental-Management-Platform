@@ -15,9 +15,11 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isApiError } from "@/lib/api/errors";
+import { FOCUS_RING } from "@/lib/focus-ring";
 import { formatPhone } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 import { useCountdown } from "@/lib/use-countdown";
+import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import type { ContactView } from "./contact-view";
 
@@ -25,6 +27,8 @@ type ContactPanelProps = {
   view: ContactView;
   /** The name from the listing, or "Chủ trọ" when the landlord has none. */
   landlordName: string;
+  /** The public profile of the landlord (scope #15). Without it the name is plain text. */
+  landlordHref?: string;
   /** The posted date, already formatted. */
   postedAt: string;
   signInHref: string;
@@ -45,6 +49,7 @@ type ContactPanelProps = {
 export function ContactPanel({
   view,
   landlordName,
+  landlordHref,
   postedAt,
   signInHref,
   registerHref,
@@ -62,7 +67,21 @@ export function ContactPanel({
           </Avatar>
           <div className="flex min-w-0 flex-col">
             <CardTitle>
-              <h2 className="truncate text-base">{landlordName}</h2>
+              <h2 className="truncate text-base">
+                {landlordHref ? (
+                  <Link
+                    href={landlordHref}
+                    className={cn(
+                      "rounded-sm underline-offset-4 hover:underline",
+                      FOCUS_RING,
+                    )}
+                  >
+                    {landlordName}
+                  </Link>
+                ) : (
+                  landlordName
+                )}
+              </h2>
             </CardTitle>
             <CardDescription>Đăng tin ngày {postedAt}</CardDescription>
           </div>
