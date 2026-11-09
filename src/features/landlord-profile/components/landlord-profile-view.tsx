@@ -12,13 +12,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { RatingLine } from "@/features/reviews/components/rating-line";
 import { isApiError } from "@/lib/api/errors";
 import type { LandlordProfile } from "@/lib/api/types";
 import { useLandlordProfile } from "../hooks/use-landlord-profile";
 import { landlordName, NOT_FOUND_TITLE } from "../text";
 import { FollowControl } from "./follow-control";
 import { ProfileStats } from "./profile-stats";
-import { RatingLine } from "./rating-line";
 
 type LandlordProfileViewProps = {
   /** What the server read as a guest. It is the first value of the shared profile query. */

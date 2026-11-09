@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { MyReview } from "@/lib/api/types";
 import { formatDateTime } from "@/lib/format";
 import { useReviewForm } from "../hooks/use-review-form";
+import type { ReviewClassifier } from "../review-errors";
 import { valuesOfReview, type ReviewValues } from "../schemas/review-schema";
 import { hasComment, isEdited } from "../text";
 import { ReviewForm } from "./review-form";
@@ -119,6 +120,8 @@ type MyReviewEditorProps = {
   /** Sends the changed fields, or closes with no request when nothing changed. */
   onSave: (values: ReviewValues) => Promise<unknown>;
   onCancel: () => void;
+  /** The classifier of the subject, for what a failed edit says. */
+  classify: ReviewClassifier;
 };
 
 /**
@@ -131,9 +134,10 @@ export function MyReviewEditor({
   review,
   onSave,
   onCancel,
+  classify,
 }: MyReviewEditorProps) {
   const headingId = useId();
-  const state = useReviewForm(valuesOfReview(review), "update");
+  const state = useReviewForm(valuesOfReview(review), "update", classify);
   const { setFocus } = state.form;
 
   useEffect(() => {

@@ -2,7 +2,7 @@
 // a wrong field fails `npm run typecheck`. Nothing here calls the network. No randomness, so the
 // page looks the same on every load.
 
-import { REVIEWS_PAGE_SIZE } from "@/features/landlord-reviews/review-list";
+import { REVIEWS_PAGE_SIZE } from "@/features/reviews/review-list";
 import type { MyReview, Page, PublicReview } from "@/lib/api/types";
 
 /** The address a sign in row sends back to. */

@@ -1,5 +1,5 @@
 import type { LandlordProfile } from "@/lib/api/types";
-import { formatCount, formatRating } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 
 /** What a landlord is called when the account has no name. */
@@ -32,15 +32,3 @@ export const profileDescription = ({
   `Hồ sơ chủ trọ${hasName(name) ? ` ${name}` : ""} trên ${SITE_NAME}: ` +
   `${formatCount(publicListingCount)} tin đang hiện, ` +
   `${formatCount(followerCount)} người theo dõi.`;
-
-/**
- * The line next to the stars (spec 0013, AC-20): "4,3 (12 đánh giá)", or "Chưa có đánh giá" when
- * there is no review. It never shows a score of 0, because the contract gives `null` for it.
- */
-export function ratingText(
-  reviewCount: number,
-  ratingAverage: number | null,
-): string {
-  if (reviewCount <= 0 || ratingAverage === null) return "Chưa có đánh giá";
-  return `${formatRating(ratingAverage)} (${formatCount(reviewCount)} đánh giá)`;
-}

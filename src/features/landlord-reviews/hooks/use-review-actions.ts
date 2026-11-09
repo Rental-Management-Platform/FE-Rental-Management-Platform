@@ -2,6 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { landlordKeys } from "@/features/landlord-profile/api/landlord-keys";
+import type { ReviewAction } from "@/features/reviews/review-errors";
+import type { DeleteOutcome, ReviewActions } from "@/features/reviews/types";
 import type {
   CreateReviewBody,
   MyReviewState,
@@ -10,23 +12,21 @@ import type {
 import { useApi } from "@/lib/session/auth-provider";
 import { createReview, deleteReview, updateReview } from "../api/review-api";
 import { reviewKeys } from "../api/review-keys";
-import { classifyReviewError, type ReviewAction } from "../review-errors";
-
-/** How a delete ended: it worked, or there was nothing left to delete (it counts as done). */
-export type DeleteOutcome = "deleted" | "already-gone";
+import { classifyLandlordReview } from "../review-errors";
 
 /**
- * The writes of the reviews zone (spec 0013, AC-8, AC-9, AC-10 and AC-14). There is no optimistic
- * change: the row changes when the server has answered. None of them retries by itself, because a
- * write is not safe to repeat. Each returns the promise of its call, so the component that sent it
- * can clear itself, move focus and announce the result once the cache is up to date.
+ * The writes of the landlord reviews area (spec 0013, AC-8, AC-9, AC-10 and AC-14). There is no
+ * optimistic change: the row changes when the server has answered. None of them retries by itself,
+ * because a write is not safe to repeat. Each returns the promise of its call, so the component
+ * that sent it can clear itself, move focus and announce the result once the cache is up to date.
  *
  * After a write the answer goes straight into the `mine` key, the lists of this landlord are read
  * again, and so is the shared profile query of the landlord (`landlordKeys.profile`), which is how
  * the stars and the counts at the top of the page change (AC-16). After a failure, what
- * `classifyReviewError` says is stale is read again, so the zone shows what is true now.
+ * `classifyLandlordReview` says is stale is read again, so the area shows what is true now. A
+ * landlord that is gone is not handled here: the zone's `onGone` reads the profile again.
  */
-export function useReviewActions(landlordId: string) {
+export function useReviewActions(landlordId: string): ReviewActions {
   const api = useApi();
   const queryClient = useQueryClient();
   const mineKey = reviewKeys.mine(landlordId);
@@ -45,12 +45,12 @@ export function useReviewActions(landlordId: string) {
   };
 
   const reloadAfterFailure = (error: unknown, action: ReviewAction) => {
-    const { reload } = classifyReviewError(error, action);
+    const { reload } = classifyLandlordReview(error, action);
     if (reload.mine) {
       void queryClient.invalidateQueries({ queryKey: mineKey });
     }
     if (reload.lists) void invalidateLists();
-    if (reload.profile) void invalidateProfile();
+    if (reload.summary) void invalidateProfile();
   };
 
   const create = useMutation({
@@ -86,7 +86,7 @@ export function useReviewActions(landlordId: string) {
         await deleteReview(api, landlordId);
         return "deleted";
       } catch (error) {
-        if (classifyReviewError(error, "delete").alreadyDone) {
+        if (classifyLandlordReview(error, "delete").alreadyDone) {
           return "already-gone";
         }
         throw error;

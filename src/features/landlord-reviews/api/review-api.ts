@@ -12,7 +12,7 @@ import type {
   PublicReview,
   UpdateReviewBody,
 } from "@/lib/api/types";
-import { REVIEWS_PAGE_SIZE } from "../review-list";
+import { REVIEWS_PAGE_SIZE } from "@/features/reviews/review-list";
 
 const enc = encodeURIComponent;
 

@@ -9,7 +9,7 @@ import {
   PastLastPage,
 } from "@/features/landlord-profile/components/listings-states";
 import { ProfileStats } from "@/features/landlord-profile/components/profile-stats";
-import { RatingLine } from "@/features/landlord-profile/components/rating-line";
+import { RatingLine } from "@/features/reviews/components/rating-line";
 import type { FollowView } from "@/features/landlord-profile/follow-view";
 import { NOT_FOUND_TITLE } from "@/features/landlord-profile/text";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";

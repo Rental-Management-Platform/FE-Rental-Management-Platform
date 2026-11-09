@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type DefaultValues, type Path } from "react-hook-form";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
-import { classifyReviewError, type ReviewAction } from "../review-errors";
+import type { ReviewAction, ReviewClassifier } from "../review-errors";
 import { reviewSchema, type ReviewValues } from "../schemas/review-schema";
 
 // The inputs in screen order, so a server message for one of them lands under it.
@@ -18,11 +18,13 @@ const FIELDS: readonly Path<ReviewValues>[] = ["stars", "comment"];
  * else.
  *
  * `action` says which write this form sends, because a few codes mean something different for
- * each (AC-14). Every failure keeps the draft.
+ * each (AC-14). `classify` is the classifier of the subject (a landlord, a room), which knows its
+ * codes and its words. Every failure keeps the draft.
  */
 export function useReviewForm(
   defaultValues: DefaultValues<ReviewValues>,
   action: Exclude<ReviewAction, "delete">,
+  classify: ReviewClassifier,
 ) {
   const form = useForm<ReviewValues>({
     resolver: zodResolver(reviewSchema),
@@ -35,7 +37,7 @@ export function useReviewForm(
   // own words (AC-14).
   const report = (error: unknown) => {
     failure.report(error);
-    const { message } = classifyReviewError(error, action);
+    const { message } = classify(error, action);
     if (message !== null) {
       form.setError("root.server", { type: "server", message });
     }

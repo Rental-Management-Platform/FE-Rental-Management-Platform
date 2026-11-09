@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { describeError } from "@/lib/api/errors";
-import { classifyReviewError } from "../review-errors";
+import type { ReviewClassifier } from "../review-errors";
 
 type DeleteReviewDialogProps = {
   open: boolean;
@@ -24,6 +24,8 @@ type DeleteReviewDialogProps = {
   failure: unknown;
   /** Seconds left of a 429, or 0: the confirm button is off until it ends. */
   secondsLeft: number;
+  /** The classifier of the subject: it turns what the delete threw into a sentence. */
+  classify: ReviewClassifier;
   onConfirm: () => void;
   /** From `useReturnFocus`: the dialog has no trigger of its own, it opens from the pinned row. */
   onCloseAutoFocus: (event: Event) => void;
@@ -43,6 +45,7 @@ export function DeleteReviewDialog({
   isDeleting,
   failure,
   secondsLeft,
+  classify,
   onConfirm,
   onCloseAutoFocus,
 }: DeleteReviewDialogProps) {
@@ -66,7 +69,7 @@ export function DeleteReviewDialog({
           <FailureNotice
             failure={failure}
             message={
-              classifyReviewError(failure, "delete").message ??
+              classify(failure, "delete").message ??
               describeError(failure).message
             }
           />

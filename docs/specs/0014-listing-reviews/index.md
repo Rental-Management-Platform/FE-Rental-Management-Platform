@@ -1,7 +1,7 @@
 # 0014. Listing reviews: rate a room on the listing page
 
 **Date**: 2026-11-10
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

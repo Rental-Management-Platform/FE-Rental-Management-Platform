@@ -3,11 +3,10 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useRef, useState, type RefObject } from "react";
+import { useRef, useState, type ReactNode, type RefObject } from "react";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { RateLimitNotice } from "@/components/states/rate-limit-notice";
 import { Button } from "@/components/ui/button";
-import { LISTINGS_ANCHOR } from "@/features/landlord-profile/landlord-id";
 import { isAbortError } from "@/lib/api/abort";
 import { describeError, isApiError } from "@/lib/api/errors";
 import type { MyReviewState } from "@/lib/api/types";
@@ -18,7 +17,6 @@ import { useCountdown } from "@/lib/use-countdown";
 import { useReturnFocus } from "@/lib/use-return-focus";
 import type { ReviewRole } from "../access";
 import { useFocusRequest } from "../hooks/use-focus-request";
-import { useReviewActions } from "../hooks/use-review-actions";
 import { useReviewForm } from "../hooks/use-review-form";
 import {
   EMPTY_REVIEW,
@@ -28,19 +26,29 @@ import {
 } from "../schemas/review-schema";
 import {
   ALREADY_DELETED_MESSAGE,
-  classifyReviewError,
   type ReviewAction,
+  type ReviewClassifier,
 } from "../review-errors";
+import type { ReviewActions } from "../types";
 import { DeleteReviewDialog } from "./delete-review-dialog";
 import { MyReviewEditor, MyReviewRow } from "./my-review-row";
 import { ReviewForm } from "./review-form";
 import { WriteBlockSkeleton } from "./reviews-zone-skeleton";
 
 type WriteBlockProps = {
-  landlordId: string;
   role: ReviewRole;
   /** `GET /review`, read by the zone (it runs only for a `writer`). */
   mine: UseQueryResult<MyReviewState>;
+  /** The writes of the subject. */
+  actions: ReviewActions;
+  /** The classifier of the subject: what a failed write means, in its words. */
+  classify: ReviewClassifier;
+  /** The label of the guest's row: "Đăng nhập để đánh giá chủ trọ". */
+  guestLabel: string;
+  /** What a renter who may not review yet sees. `null` draws nothing, not even the row. */
+  hint: ReactNode;
+  /** A write failed because the subject is gone: the subject decides what the page does. */
+  onGone: () => void;
   announce: (text: string) => void;
   clearAnnouncement: () => void;
   /** The heading of the zone: where focus goes when the thing that had it is gone. */
@@ -48,23 +56,25 @@ type WriteBlockProps = {
 };
 
 /**
- * The block under the heading that lets the viewer write (spec 0013, AC-6). A guest sees one row
- * that leads to sign in. A `writer` sees, first match wins: a skeleton while `GET /review` loads,
- * the pinned review, the form, the hint, or a failure notice. A `reader` (a landlord, an admin) and
- * a viewer whose session is still loading see nothing. The public list shows under it in every case.
+ * The block under the heading that lets the viewer write (spec 0013, AC-6, and spec 0014, AC-8). A
+ * guest sees one row that leads to sign in. A `writer` sees, first match wins: a skeleton while
+ * `GET /review` loads, the pinned review, the form, the hint, or a failure notice. A `reader` (a
+ * landlord, an admin) and a viewer whose session is still loading see nothing. The public list
+ * shows under it in every case. It calls no data hook: the subject hands in `mine` and the writes.
  */
-export function WriteBlock({ role, ...rest }: WriteBlockProps) {
-  if (role === "guest") return <GuestRow />;
+export function WriteBlock({ role, guestLabel, ...rest }: WriteBlockProps) {
+  if (role === "guest") return <GuestRow label={guestLabel} />;
   if (role === "writer") return <WriterBlock {...rest} />;
   return null;
 }
 
-// "Đăng nhập để đánh giá chủ trọ": the way back is this page, with its query (the `reviewPage`).
-function GuestRow() {
+// "Đăng nhập để đánh giá …": the way back is this page, with its query (the `reviewPage`).
+function GuestRow({ label }: { label: string }) {
   const pathname = usePathname();
   const search = useSearchParams().toString();
   return (
     <GuestRowView
+      label={label}
       href={authHref(
         "/login",
         search === "" ? pathname : `${pathname}?${search}`,
@@ -74,11 +84,11 @@ function GuestRow() {
 }
 
 /** The row of a guest. It only draws, so `/dev/ui` can show it with no router. */
-export function GuestRowView({ href }: { href: string }) {
+export function GuestRowView({ href, label }: { href: string; label: string }) {
   return (
     <div className="border-b pb-5">
       <Button asChild variant="outline" size="lg">
-        <Link href={href}>Đăng nhập để đánh giá chủ trọ</Link>
+        <Link href={href}>{label}</Link>
       </Button>
     </div>
   );
@@ -89,15 +99,17 @@ export function GuestRowView({ href }: { href: string }) {
 // clears it (AC-7). It owns the delete dialog too, because the row the dialog opens from is gone
 // once the delete works, and the dialog must still be there to close and to give focus away.
 function WriterBlock({
-  landlordId,
   mine,
+  actions,
+  classify,
+  hint,
+  onGone,
   announce,
   clearAnnouncement,
   zoneHeading,
-}: Omit<WriteBlockProps, "role">) {
+}: Omit<WriteBlockProps, "role" | "guestLabel">) {
   const session = useSession();
-  const actions = useReviewActions(landlordId);
-  const state = useReviewForm(EMPTY_REVIEW, "create");
+  const state = useReviewForm(EMPTY_REVIEW, "create", classify);
   const pinnedFocus = useFocusRequest<HTMLHeadingElement>();
   const editFocus = useFocusRequest<HTMLButtonElement>();
   const returnFocus = useReturnFocus(() => zoneHeading.current);
@@ -152,7 +164,10 @@ function WriterBlock({
   };
 
   const rememberNotice = (error: unknown, action: ReviewAction) => {
-    const { message, reload } = classifyReviewError(error, action);
+    const { message, reload, gone } = classify(error, action);
+    // The subject is gone: the subject decides what the page does (a read of the profile, a
+    // refresh of the listing page). The form still says it in its own words while it is on screen.
+    if (gone) onGone();
     if (reload.mine) {
       setNotice({
         from: action,
@@ -215,7 +230,10 @@ function WriterBlock({
       );
     } catch (error) {
       // The session changed under the request: there is nothing to show.
-      if (!isAbortError(error)) setDeleteFailure(error);
+      if (!isAbortError(error)) {
+        if (classify(error, "delete").gone) onGone();
+        setDeleteFailure(error);
+      }
     } finally {
       deleting.current = false;
     }
@@ -230,7 +248,12 @@ function WriterBlock({
   const content =
     review !== null ? (
       editing ? (
-        <MyReviewEditor review={review} onSave={save} onCancel={closeEditor} />
+        <MyReviewEditor
+          review={review}
+          onSave={save}
+          onCancel={closeEditor}
+          classify={classify}
+        />
       ) : (
         <MyReviewRow
           review={review}
@@ -256,7 +279,7 @@ function WriterBlock({
         </>
       ) : null
     ) : (
-      <ReviewHint />
+      (hint ?? null)
     );
 
   // The form and the editor show their own failure while they are open, so a notice from one of
@@ -283,25 +306,11 @@ function WriterBlock({
         isDeleting={actions.removing}
         failure={deleteFailure}
         secondsLeft={deleteSecondsLeft}
+        classify={classify}
         onConfirm={() => void confirmDelete()}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       />
     </>
-  );
-}
-
-/**
- * The renter may not review yet: only a landlord who answered them in chat opens the way (AC-6).
- * It lives in the write block's border row, so it has none of its own.
- */
-export function ReviewHint() {
-  return (
-    <div className="flex flex-col items-start gap-3 rounded-lg border p-4">
-      <p>Nhắn tin với chủ trọ và đợi họ trả lời để đánh giá.</p>
-      <Button asChild variant="outline" size="lg">
-        <Link href={`#${LISTINGS_ANCHOR}`}>Xem tin của chủ trọ</Link>
-      </Button>
-    </div>
   );
 }
 

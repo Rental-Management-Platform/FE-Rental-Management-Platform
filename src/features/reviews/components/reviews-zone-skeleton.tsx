@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RatingLine } from "./rating-line";
 
 const ROWS = [0, 1, 2];
 
@@ -38,17 +39,47 @@ export function WriteBlockSkeleton() {
   );
 }
 
+type ReviewsZoneSkeletonProps = {
+  /** The real heading. Left out, a bar stands in for it. */
+  heading?: string;
+  /** With `ratingAverage`, the static score line under the heading. Left out, a bar. */
+  reviewCount?: number;
+  ratingAverage?: number | null;
+};
+
 /**
- * What the profile page shows in place of the reviews zone until it can draw itself (spec 0013,
- * AC-1). The zone reads the address and the session in the browser, so the server HTML holds only
- * this: the heading row and a few rows. No review text ever comes from the server.
+ * What a page shows in place of a reviews area until it can draw itself (spec 0013, AC-1, and spec
+ * 0014, AC-1). The area reads the address and the session in the browser, so the server HTML holds
+ * only this: the heading row and a few rows. No review text ever comes from the server.
+ *
+ * The landlord profile passes nothing and gets bars. The listing page passes the heading and the
+ * two numbers its own server read has, so the heading and the score are in the server HTML even
+ * while the area waits for the browser.
  */
-export function ReviewsZoneSkeleton() {
+export function ReviewsZoneSkeleton({
+  heading,
+  reviewCount,
+  ratingAverage,
+}: ReviewsZoneSkeletonProps) {
+  const hasScore = reviewCount !== undefined && ratingAverage !== undefined;
   return (
     <Card aria-busy="true">
       <CardHeader className="border-b">
-        <Skeleton className="h-5 w-24" aria-hidden="true" />
-        <Skeleton className="h-4 w-32" aria-hidden="true" />
+        {heading === undefined ? (
+          <Skeleton className="h-5 w-24" aria-hidden="true" />
+        ) : (
+          <h2 className="text-base">{heading}</h2>
+        )}
+        {hasScore ? (
+          <p className="text-sm text-muted-foreground">
+            <RatingLine
+              reviewCount={reviewCount}
+              ratingAverage={ratingAverage}
+            />
+          </p>
+        ) : (
+          <Skeleton className="h-4 w-32" aria-hidden="true" />
+        )}
       </CardHeader>
       <CardContent>
         <span role="status" className="sr-only">

@@ -3,24 +3,25 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { DeleteReviewDialog } from "@/features/landlord-reviews/components/delete-review-dialog";
+import { LandlordHint } from "@/features/landlord-reviews/components/landlord-hint";
+import { classifyLandlordReview } from "@/features/landlord-reviews/review-errors";
+import { CountLine } from "@/features/reviews/components/count-line";
+import { DeleteReviewDialog } from "@/features/reviews/components/delete-review-dialog";
 import {
   MyReviewEditor,
   MyReviewRow,
-} from "@/features/landlord-reviews/components/my-review-row";
-import { ReviewForm } from "@/features/landlord-reviews/components/review-form";
-import { ReviewList } from "@/features/landlord-reviews/components/review-list";
-import { ReviewListArea } from "@/features/landlord-reviews/components/review-list-area";
-import { ReviewsZoneFrame } from "@/features/landlord-reviews/components/reviews-zone-frame";
-import { WriteBlockSkeleton } from "@/features/landlord-reviews/components/reviews-zone-skeleton";
+} from "@/features/reviews/components/my-review-row";
+import { ReviewForm } from "@/features/reviews/components/review-form";
+import { ReviewList } from "@/features/reviews/components/review-list";
+import { ReviewListArea } from "@/features/reviews/components/review-list-area";
+import { ReviewsZoneFrame } from "@/features/reviews/components/reviews-zone-frame";
+import { WriteBlockSkeleton } from "@/features/reviews/components/reviews-zone-skeleton";
 import {
   GuestRowView,
   MineFailure,
-  ReviewHint,
-} from "@/features/landlord-reviews/components/write-block";
-import { useReviewForm } from "@/features/landlord-reviews/hooks/use-review-form";
-import { EMPTY_REVIEW } from "@/features/landlord-reviews/schemas/review-schema";
-import { reviewCountText } from "@/features/landlord-reviews/text";
+} from "@/features/reviews/components/write-block";
+import { useReviewForm } from "@/features/reviews/hooks/use-review-form";
+import { EMPTY_REVIEW } from "@/features/reviews/schemas/review-schema";
 import { createApiError, networkError } from "@/lib/api/errors";
 import type { MyReview, PublicReview } from "@/lib/api/types";
 import { authHref } from "@/lib/next-path";
@@ -114,7 +115,8 @@ const FIRST_ROWS = SAMPLE_REVIEWS.slice(0, 3);
 function RoleSample({ block }: { block: ReactNode }) {
   return (
     <ReviewsZoneFrame
-      countText={reviewCountText(SAMPLE_REVIEWS.length)}
+      heading="Đánh giá"
+      summary={<CountLine count={SAMPLE_REVIEWS.length} />}
       announcement=""
     >
       {block}
@@ -137,7 +139,7 @@ function FormSample({
   stars?: number;
   comment?: string;
 }) {
-  const state = useReviewForm(EMPTY_REVIEW, "create");
+  const state = useReviewForm(EMPTY_REVIEW, "create", classifyLandlordReview);
   const latest = useRef(state);
   useEffect(() => {
     latest.current = state;
@@ -185,6 +187,7 @@ function PinnedSample({ review }: { review: MyReview }) {
             })
           }
           onCancel={() => setEditing(false)}
+          classify={classifyLandlordReview}
         />
       ) : (
         <MyReviewRow
@@ -206,6 +209,7 @@ function PinnedSample({ review }: { review: MyReview }) {
         isDeleting={deleting}
         failure={null}
         secondsLeft={0}
+        classify={classifyLandlordReview}
         onConfirm={() => {
           setDeleting(true);
           void wait(700).then(() => {
@@ -248,6 +252,7 @@ function DialogSample({ failure }: { failure: unknown }) {
         isDeleting={false}
         failure={shown}
         secondsLeft={secondsLeft}
+        classify={classifyLandlordReview}
         onConfirm={() => toast("Đã bấm Xóa đánh giá (giả)")}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       />
@@ -272,7 +277,8 @@ function PagedSample({
 
   return (
     <ReviewsZoneFrame
-      countText={reviewCountText(reviews.length)}
+      heading="Đánh giá"
+      summary={<CountLine count={reviews.length} />}
       announcement={announcement}
     >
       {pinned && (
@@ -316,7 +322,7 @@ function ListStateSample({
   empty?: boolean;
 }) {
   return (
-    <ReviewsZoneFrame countText={null} announcement="">
+    <ReviewsZoneFrame heading="Đánh giá" summary={null} announcement="">
       <ReviewListArea
         loading={loading}
         list={
@@ -348,7 +354,12 @@ export function ReviewsSection() {
         <Grid>
           <Labeled label="khách · dòng mời đăng nhập, quay lại đúng trang">
             <RoleSample
-              block={<GuestRowView href={authHref("/login", SAMPLE_PATH)} />}
+              block={
+                <GuestRowView
+                  href={authHref("/login", SAMPLE_PATH)}
+                  label="Đăng nhập để đánh giá chủ trọ"
+                />
+              }
             />
           </Labeled>
           <Labeled label="chủ trọ hoặc admin · không có khối viết">
@@ -358,7 +369,7 @@ export function ReviewsSection() {
             <RoleSample
               block={
                 <Block>
-                  <ReviewHint />
+                  <LandlordHint />
                 </Block>
               }
             />
