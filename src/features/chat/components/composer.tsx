@@ -4,6 +4,7 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type FormEvent,
   type KeyboardEvent,
 } from "react";
@@ -29,6 +30,12 @@ interface ComposerProps {
    * shows what went wrong under the box. A success clears the draft.
    */
   onSend: (body: string) => Promise<unknown>;
+  /**
+   * What to do after a failed send, once its error is on screen. The button stays locked until it
+   * settles, and says "Đang kiểm tra" meanwhile. The conversation page uses it to read the newest
+   * messages after a network failure, because the message may have arrived (spec 0012, AC-16).
+   */
+  afterFailure?: (error: unknown) => Promise<unknown>;
   placeholder?: string;
   /**
    * Puts the cursor in the box when it appears, but only on a device with a mouse
@@ -49,6 +56,9 @@ interface ComposerProps {
  *   always shown and turning red past the limit. The count is not in a live region: it changes at
  *   every key.
  * * The box grows with its text up to about five lines, then scrolls inside itself.
+ * * A lock (spec 0012, AC-5 and AC-16): when the other person cannot receive messages the box and
+ *   the button turn off and "Thử gửi lại" opens the box again, with the draft still in it. When the
+ *   listing is gone only the button turns off. The draft is kept in both.
  * * While a send is in flight the button is locked with `aria-disabled` and the box is `readOnly`,
  *   never `disabled`, so focus stays where it was. A double click sends one message: a create
  *   call is not safe to repeat.
@@ -56,10 +66,11 @@ interface ComposerProps {
 export function Composer({
   composer,
   onSend,
+  afterFailure,
   placeholder,
   focusWhenMouse = false,
 }: ComposerProps) {
-  const { form, failure, secondsLeft, report, clear } = composer;
+  const { form, failure, secondsLeft, report, clear, lock, unlock } = composer;
   const {
     control,
     handleSubmit,
@@ -71,7 +82,11 @@ export function Composer({
   const draft = useWatch({ control, name: "body" });
   const length = messageLength(draft);
   const tooLong = length > MESSAGE_MAX;
-  const sendable = length >= 1 && !tooLong && secondsLeft === 0;
+  const sendable =
+    length >= 1 && !tooLong && secondsLeft === 0 && lock === null;
+  // True while `afterFailure` runs: the send is over and its error is shown, but the button stays
+  // locked.
+  const [checking, setChecking] = useState(false);
   const counterId = useId();
   const formRef = useRef<HTMLFormElement>(null);
   // Set in the handler itself, so two clicks that both pass validation cannot both send.
@@ -99,7 +114,17 @@ export function Composer({
         reset(EMPTY_MESSAGE);
       } catch (error) {
         // The session changed under the request: there is nothing to show.
-        if (!isAbortError(error)) report(error);
+        if (!isAbortError(error)) {
+          report(error);
+          if (afterFailure) {
+            setChecking(true);
+            try {
+              await afterFailure(error);
+            } finally {
+              setChecking(false);
+            }
+          }
+        }
       } finally {
         inflight.current = false;
       }
@@ -126,6 +151,21 @@ export function Composer({
       className="flex flex-col gap-3"
     >
       <FailureNotice failure={failure} message={errors.root?.server?.message} />
+      {lock === "peer-unavailable" && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="self-start"
+          onClick={() => {
+            unlock();
+            // The box is enabled again after this render, and a disabled box cannot take focus.
+            requestAnimationFrame(() => setFocus("body"));
+          }}
+        >
+          Thử gửi lại
+        </Button>
+      )}
       <div className="flex flex-col gap-1">
         <FormField
           control={control}
@@ -140,6 +180,7 @@ export function Composer({
               <Textarea
                 placeholder={placeholder}
                 readOnly={isSubmitting}
+                disabled={lock === "peer-unavailable"}
                 onKeyDown={onKeyDown}
                 className="max-h-34 min-h-11 min-w-0 flex-1 overflow-y-auto"
                 {...field}
@@ -160,7 +201,7 @@ export function Composer({
                 aria-busy={isSubmitting}
               >
                 {isSubmitting && <Spinner size="sm" />}
-                {isSubmitting ? "Đang gửi" : "Gửi"}
+                {checking ? "Đang kiểm tra" : isSubmitting ? "Đang gửi" : "Gửi"}
               </Button>
             </div>
           )}

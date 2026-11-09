@@ -114,8 +114,8 @@ function Conversation({
   failing,
   basePath,
 }: ConversationProps) {
-  const composer = useComposer();
-  const send = useSendMessage(id);
+  const composer = useComposer("send");
+  const { send, afterFailure } = useSendMessage(id);
   const now = useNow();
   const sticky = useStickyBottom(messages);
   const older = useOlderMessages(id, sticky.scrollRef, messages[0]?.seq);
@@ -165,7 +165,8 @@ function Conversation({
           )}
           <Composer
             composer={composer}
-            onSend={(body) => send.mutateAsync(body)}
+            onSend={send}
+            afterFailure={afterFailure}
             placeholder="Nhập tin nhắn"
             focusWhenMouse
           />

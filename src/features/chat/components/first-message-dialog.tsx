@@ -40,7 +40,7 @@ export function FirstMessageDialog({
 }: FirstMessageDialogProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const composer = useComposer();
+  const composer = useComposer("open");
   const opening = useOpenConversation(listingId);
 
   // The cache is already written when this resolves. Then the dialog closes and the page moves
