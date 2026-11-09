@@ -43,7 +43,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 34 | Chat with landlords | Slice 3 | done |
 | 15 | Landlord profile and follow | Slice 3 | done |
 | 35 | Landlord reviews | Slice 3 | done |
-| 37 | Listing reviews | Slice 3 | in-progress |
+| 37 | Listing reviews | Slice 3 | done |
 | 16 | Home page | Slice 3 | dropped |
 | 17 | Membership status and quota notices | Slice 4 | planned |
 | 18 | Pricing page | Slice 4 | planned |

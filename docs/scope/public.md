@@ -99,7 +99,7 @@ quyết định khi xây: `REVIEW_ALREADY_EXISTS` đọc lại cả hồ sơ (AC
 - [ ] Verify it: `/check verify landlord reviews` (bỏ qua theo quyết định của chủ dự án ngày 2026-11-10: chưa chạy `/check verify`)
 spec [0013](../specs/0013-landlord-reviews/index.md) · Chọn: khu đánh giá chỉ dựng ở trình duyệt; đánh giá của người xem lấy từ `GET /review`, ghim đầu khu và bị loại khỏi danh sách; biểu mẫu nằm ngay trong khu và thẻ ghim đổi thành biểu mẫu khi sửa; đổi trang bằng `reviewPage` với `router.replace` không cuộn rồi dời focus về tiêu đề khu, 10 thẻ mỗi trang; sao chọn bằng nhóm radio, không chọn sẵn; sửa mà không đổi gì thì không gửi; không làm JSON-LD `aggregateRating`; phụ thuộc #15 (trang hồ sơ) phải xong trước.
 
-### 37. Listing reviews · in-progress
+### 37. Listing reviews · done
 Khối "Đánh giá phòng" trên trang chi tiết tin (#9), dưới phần mô tả: điểm của chính căn phòng trong tin, khác điểm của chủ trọ ở #35 (hai bảng, hai danh sách, hai điều kiện viết). Dùng lại nhiều phần của #35, nên xây sau #35. Gồm:
 - dòng điểm sao từ hai trường mới `reviewCount` và `ratingAverage` của chi tiết công khai (`ListingDetail` trong `src/lib/api/types.ts` chưa có hai trường này): "4,3 (12 đánh giá)", hoặc "Chưa có đánh giá" khi `reviewCount` là 0, không hiện 0 sao;
 - danh sách `GET /listings/:id/reviews`: `:id` là UUID `id` của chi tiết (gọi bằng `slug-mã` là 400 `INVALID_ID`, nên trang phải giữ cả hai giá trị), đọc đăng nhập tùy chọn, chờ phiên khôi phục xong, id người dùng và id tin nằm trong khóa truy vấn, bỏ đánh giá của chính mình khỏi danh sách, phân trang bằng tham số địa chỉ riêng, nhận xét hiện như chữ thô và giữ xuống dòng;
@@ -120,7 +120,7 @@ quyết định khi xây: năm mã lỗi `LISTING_REVIEW_*` phải được thê
   - [x] M3 Sửa, xóa, thẻ bị ẩn, lời gợi ý và tin biến mất: trình sửa chỉ gửi trường đã đổi, hộp thoại xóa, thẻ bị ẩn kèm lý do, `ChatEntryControl` tách khỏi `ChatEntrySlot` và lời gợi ý dùng nó, luật `LISTING_NOT_FOUND` với `router.refresh()`; thẻ liên hệ vẫn chạy như cũ (AC-7 thẻ bị ẩn, AC-8 trạng thái 2 và 5, AC-9, AC-12, AC-13, AC-16)
   - [x] M4 Phân trang, trang lạ, lỗi và điện thoại: `reviewPage` với `history.replaceState`, `ListPagination`, dòng cho trang chỉ có đánh giá của mình hoặc quá số trang, lỗi đọc, mọi lỗi ghi, đếm ngược 429, rà riêng tư, kiểm trên điện thoại 390 px (AC-6 mọi trang, AC-14, AC-15, AC-17, AC-21)
   - [x] M5 Xem thử (bỏ qua được nếu hết giờ): phần đánh giá phòng trong `/dev/ui` trên dữ liệu giả, có 25 đánh giá qua ba trang (AC-23)
-- [ ] Verify it: `/check verify listing reviews`
+- [ ] Verify it: `/check verify listing reviews` (bỏ qua theo quyết định của chủ dự án ngày 2026-11-10: chưa chạy `/check verify`)
 spec [0014](../specs/0014-listing-reviews/index.md) · Chọn: tách phần dùng chung của #35 sang `src/features/reviews/` với một lớp thích ứng cho mỗi đối tượng (M1 chỉ chuyển, không đổi hành vi); hai con số lấy từ máy chủ rồi cập nhật bằng một lần đọc chi tiết ở trình duyệt sau mỗi lần ghi, `router.refresh()` chỉ khi tin biến mất; khối nằm cuối trang tin và luôn mở trên điện thoại; không làm JSON-LD; đổi trang bằng `history.replaceState` (không hỏi máy chủ) còn khu của chủ trọ giữ `router.replace`; lời gợi ý dùng lại nút nhắn của #34; không hiện sao ở đầu trang.
 
 ### 16. Home page · dropped
