@@ -4,6 +4,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { LoadingState } from "@/components/states/loading-state";
 import { isApiError, type ApiError } from "@/lib/api/errors";
 import type { LandlordProfile as LandlordProfileData } from "@/lib/api/types";
+import { ReviewsZone } from "@/features/landlord-reviews/components/reviews-zone";
+import { ReviewsZoneSkeleton } from "@/features/landlord-reviews/components/reviews-zone-skeleton";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { getLandlordProfile } from "../api/get-landlord-profile";
 import { isLandlordId } from "../landlord-id";
@@ -56,9 +58,12 @@ export async function LandlordProfileScreen({
           <LandlordListings landlordId={id} searchParams={searchParams} />
         </ListingsBoundary>
       </Suspense>
-      {/* The reviews zone of #35 goes here, after the listings:
-          <Suspense fallback={<ReviewsZoneSkeleton />}><ReviewsZone landlordId={id} /></Suspense>
-          (spec 0013, "What #15 must provide"). It reads `reviewPage` and never touches `page`. */}
+      {/* The reviews zone (spec 0013) reads `reviewPage` in the browser and never touches `page`.
+          It reads the address and the session, so it has its own boundary, and the server HTML
+          holds only its skeleton. */}
+      <Suspense fallback={<ReviewsZoneSkeleton />}>
+        <ReviewsZone landlordId={id} />
+      </Suspense>
     </LandlordProfileView>
   );
 }

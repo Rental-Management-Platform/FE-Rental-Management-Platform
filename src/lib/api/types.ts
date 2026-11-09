@@ -428,6 +428,16 @@ export interface UpdateSettingBody {
 export interface UpdateAccountTypeBody {
   permissions: PermissionKey[]; // replaces the whole list
 }
+// POST /landlords/:id/review (spec 0013, AC-8): `comment` is left out when there is none
+export interface CreateReviewBody {
+  stars: number; // a whole number from 1 to 5
+  comment?: string; // 1 to 1000 characters after trimming
+}
+// PATCH /landlords/:id/review (spec 0013, AC-9): at least one field, only what changed
+export interface UpdateReviewBody {
+  stars?: number;
+  comment?: string | null; // null clears the comment
+}
 
 // ---------- Chat (api-for-frontend.md 6.39, A.9; spec 0012 AC-23) ----------
 export interface ChatMessage {
