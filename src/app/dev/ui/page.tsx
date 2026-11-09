@@ -24,6 +24,7 @@ import { FormDemo } from "./form-demo";
 import { LandlordProfileSection } from "./landlord-profile";
 import { ListingCardsSection } from "./listing-cards";
 import { ListingDetailSection } from "./listing-detail";
+import { ListingReviewsSection } from "./listing-reviews";
 import { OverlaysSection } from "./overlays";
 import { PhotosSection } from "./photos";
 import { ReviewsSection } from "./reviews";
@@ -298,6 +299,7 @@ export default function DevUiPage() {
       <ListingDetailSection />
       <LandlordProfileSection />
       <ReviewsSection />
+      <ListingReviewsSection />
       <ChatSection />
       <ShellsSection />
       <CanDemo />

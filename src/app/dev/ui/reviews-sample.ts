@@ -109,5 +109,42 @@ export const SAMPLE_MY_REVIEW_HIDDEN: MyReview = {
   hiddenReason: "Nội dung xúc phạm cá nhân.",
 };
 
+// ---------- The room block (spec 0014, AC-23) ----------
+
+/** The address a sign in row of the listing page sends back to. */
+export const SAMPLE_LISTING_PATH =
+  "/phong-tro-quan-7-gan-dh-ton-duc-thang-co-may-lanh-f6urvnjw";
+
+/** The listing the hint's message button is about. */
+export const SAMPLE_LISTING = {
+  id: "0192f1c2-7a4b-7c3e-9d1a-3b5f6a7c8a01",
+  title: "Phòng trọ Quận 7 gần ĐH Tôn Đức Thắng, có máy lạnh",
+};
+
+/** The conversation "Xem tin nhắn của bạn" leads to. */
+export const SAMPLE_CONVERSATION_ID = "0192f1c2-7a4b-7c3e-9d1a-3b5f6a7c8b01";
+
+/** My own visible review of a room, as `GET /listings/:id/review` gives it. */
+export const SAMPLE_MY_ROOM_REVIEW: MyReview = {
+  id: "0192f1c2-7a4b-7c3e-9d1a-3b5f6a7c8f11",
+  stars: 4,
+  comment:
+    "Phòng đúng như ảnh, máy lạnh mát.\nBuổi chiều hơi nắng nhưng có rèm dày.",
+  status: "visible",
+  hiddenReason: null,
+  createdAt: new Date(NEWEST - 2 * DAY_MS).toISOString(),
+  updatedAt: new Date(NEWEST - 2 * DAY_MS).toISOString(),
+};
+
+/** My review of a room after an admin hid it: it carries the last reason they gave. */
+export const SAMPLE_MY_ROOM_REVIEW_HIDDEN: MyReview = {
+  ...SAMPLE_MY_ROOM_REVIEW,
+  id: "0192f1c2-7a4b-7c3e-9d1a-3b5f6a7c8f12",
+  stars: 1,
+  comment: "Phòng tệ, chủ trọ lừa đảo, đừng tin!!!",
+  status: "hidden_by_admin",
+  hiddenReason: "Nội dung xúc phạm cá nhân.",
+};
+
 /** A comment past the limit of 1000 characters, for the form's count and its message. */
 export const SAMPLE_TOO_LONG_COMMENT = "Rất tốt. ".repeat(112);

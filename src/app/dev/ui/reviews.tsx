@@ -21,6 +21,7 @@ import {
   MineFailure,
 } from "@/features/reviews/components/write-block";
 import { useReviewForm } from "@/features/reviews/hooks/use-review-form";
+import type { ReviewClassifier } from "@/features/reviews/review-errors";
 import { EMPTY_REVIEW } from "@/features/reviews/schemas/review-schema";
 import { createApiError, networkError } from "@/lib/api/errors";
 import type { MyReview, PublicReview } from "@/lib/api/types";
@@ -38,9 +39,27 @@ import {
 } from "./reviews-sample";
 import { Labeled, Section } from "./section";
 
+/**
+ * What differs between the two previews (the landlord zone and the room block): the heading, the
+ * line under it, and the classifier of the subject. Every helper below takes one, so the room
+ * preview (`listing-reviews.tsx`) draws the same parts with its own words.
+ */
+export type PreviewKit = {
+  heading: string;
+  /** The line under the heading for a list of this many reviews, or `null` for none. */
+  summary: (reviewCount: number | null) => ReactNode;
+  classify: ReviewClassifier;
+};
+
+const LANDLORD_KIT: PreviewKit = {
+  heading: "Đánh giá",
+  summary: (count) => (count === null ? null : <CountLine count={count} />),
+  classify: classifyLandlordReview,
+};
+
 // Made once, outside the components: a countdown is keyed on the identity of the error object, so
 // a new object on every render would start the count again each time.
-const RATE_LIMITED = createApiError({
+export const RATE_LIMITED = createApiError({
   status: 429,
   code: "RATE_LIMITED",
   message: "Bạn thao tác quá nhanh.",
@@ -49,14 +68,14 @@ const RATE_LIMITED = createApiError({
 });
 // For a box that is already counting when the page opens: long enough to still be counting
 // whenever someone scrolls to it.
-const RATE_LIMITED_LONG = createApiError({
+export const RATE_LIMITED_LONG = createApiError({
   status: 429,
   code: "RATE_LIMITED",
   message: "Bạn thao tác quá nhanh.",
   retryAfterSeconds: 3600,
   retryAfterExact: false,
 });
-const SERVER_ERROR = createApiError({
+export const SERVER_ERROR = createApiError({
   status: 500,
   code: "INTERNAL_ERROR",
   message: "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
@@ -72,7 +91,7 @@ const NOT_ELIGIBLE = createApiError({
   code: "REVIEW_NOT_ELIGIBLE",
   message: "Bạn chỉ đánh giá được chủ trọ đã trả lời tin nhắn của bạn.",
 });
-const INVALID = createApiError({
+export const INVALID = createApiError({
   status: 400,
   code: "VALIDATION_FAILED",
   message: "Dữ liệu không hợp lệ.",
@@ -91,7 +110,7 @@ const LANDLORD_GONE = createApiError({
   message: "Không tìm thấy chủ trọ.",
 });
 
-const wait = (ms: number) =>
+export const wait = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 // A fake send: it waits a moment, says so, and resolves, so the form is not left waiting.
@@ -100,23 +119,29 @@ const fakeSend = () =>
     toast("Đã gửi (giả)");
   });
 
-function Grid({ children }: { children: ReactNode }) {
+export function Grid({ children }: { children: ReactNode }) {
   return <div className="grid gap-6 md:grid-cols-2">{children}</div>;
 }
 
 // The row of the write block, with the line under it the real block draws.
-function Block({ children }: { children: ReactNode }) {
+export function Block({ children }: { children: ReactNode }) {
   return <div className="flex flex-col gap-4 border-b pb-5">{children}</div>;
 }
 
 const FIRST_ROWS = SAMPLE_REVIEWS.slice(0, 3);
 
 // One zone as one kind of viewer sees it: the frame, a write block, and a short list.
-function RoleSample({ block }: { block: ReactNode }) {
+export function RoleSample({
+  kit,
+  block,
+}: {
+  kit: PreviewKit;
+  block: ReactNode;
+}) {
   return (
     <ReviewsZoneFrame
-      heading="Đánh giá"
-      summary={<CountLine count={SAMPLE_REVIEWS.length} />}
+      heading={kit.heading}
+      summary={kit.summary(SAMPLE_REVIEWS.length)}
       announcement=""
     >
       {block}
@@ -128,18 +153,20 @@ function RoleSample({ block }: { block: ReactNode }) {
 // A form for a new review. `seed` is an error the form has just got (it is reported once, a moment
 // after mounting, the way a real send reports it), and `rejectWith` is what the send fails with
 // when the button is pressed. `stars` and `comment` fill the draft.
-function FormSample({
+export function FormSample({
+  kit,
   seed,
   rejectWith,
   stars,
   comment,
 }: {
+  kit: PreviewKit;
   seed?: unknown;
   rejectWith?: unknown;
   stars?: number;
   comment?: string;
 }) {
-  const state = useReviewForm(EMPTY_REVIEW, "create", classifyLandlordReview);
+  const state = useReviewForm(EMPTY_REVIEW, "create", kit.classify);
   const latest = useRef(state);
   useEffect(() => {
     latest.current = state;
@@ -169,7 +196,13 @@ function FormSample({
 }
 
 // The pinned row with its editor and the delete dialog, wired to fake sends.
-function PinnedSample({ review }: { review: MyReview }) {
+export function PinnedSample({
+  kit,
+  review,
+}: {
+  kit: PreviewKit;
+  review: MyReview;
+}) {
   const [editing, setEditing] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -187,7 +220,7 @@ function PinnedSample({ review }: { review: MyReview }) {
             })
           }
           onCancel={() => setEditing(false)}
-          classify={classifyLandlordReview}
+          classify={kit.classify}
         />
       ) : (
         <MyReviewRow
@@ -209,7 +242,7 @@ function PinnedSample({ review }: { review: MyReview }) {
         isDeleting={deleting}
         failure={null}
         secondsLeft={0}
-        classify={classifyLandlordReview}
+        classify={kit.classify}
         onConfirm={() => {
           setDeleting(true);
           void wait(700).then(() => {
@@ -225,7 +258,13 @@ function PinnedSample({ review }: { review: MyReview }) {
 }
 
 // The delete dialog, opened from a button, with the failure of the last try already on it.
-function DialogSample({ failure }: { failure: unknown }) {
+export function DialogSample({
+  kit,
+  failure,
+}: {
+  kit: PreviewKit;
+  failure: unknown;
+}) {
   const [open, setOpen] = useState(false);
   const returnFocus = useReturnFocus();
   // The failure is handed over only while the dialog is open, so its countdown starts when the
@@ -252,7 +291,7 @@ function DialogSample({ failure }: { failure: unknown }) {
         isDeleting={false}
         failure={shown}
         secondsLeft={secondsLeft}
-        classify={classifyLandlordReview}
+        classify={kit.classify}
         onConfirm={() => toast("Đã bấm Xóa đánh giá (giả)")}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       />
@@ -263,28 +302,32 @@ function DialogSample({ failure }: { failure: unknown }) {
 // The list area with its pagination, on a list sliced the way the API slices it. The page is local
 // state here and the address in the real zone; everything else is the same code. `pinned` draws
 // the viewer's own review above the list, as the real zone does.
-function PagedSample({
+export function PagedSample({
+  kit,
   reviews,
   initialPage = 1,
   pinned = false,
+  pinnedReview = SAMPLE_MY_REVIEW,
 }: {
+  kit: PreviewKit;
   reviews: readonly PublicReview[];
   initialPage?: number;
   pinned?: boolean;
+  pinnedReview?: MyReview;
 }) {
   const [page, setPage] = useState(initialPage);
   const [announcement, setAnnouncement] = useState("");
 
   return (
     <ReviewsZoneFrame
-      heading="Đánh giá"
-      summary={<CountLine count={reviews.length} />}
+      heading={kit.heading}
+      summary={kit.summary(reviews.length)}
       announcement={announcement}
     >
       {pinned && (
         <Block>
           <MyReviewRow
-            review={SAMPLE_MY_REVIEW}
+            review={pinnedReview}
             headingRef={null}
             editRef={null}
             canUpdate
@@ -312,17 +355,19 @@ function PagedSample({
 }
 
 // A zone whose list is in one fixed state: loading, failed, or empty.
-function ListStateSample({
+export function ListStateSample({
+  kit,
   loading = false,
   error = null,
   empty = false,
 }: {
+  kit: PreviewKit;
   loading?: boolean;
   error?: unknown;
   empty?: boolean;
 }) {
   return (
-    <ReviewsZoneFrame heading="Đánh giá" summary={null} announcement="">
+    <ReviewsZoneFrame heading={kit.heading} summary={null} announcement="">
       <ReviewListArea
         loading={loading}
         list={
@@ -354,6 +399,7 @@ export function ReviewsSection() {
         <Grid>
           <Labeled label="khách · dòng mời đăng nhập, quay lại đúng trang">
             <RoleSample
+              kit={LANDLORD_KIT}
               block={
                 <GuestRowView
                   href={authHref("/login", SAMPLE_PATH)}
@@ -363,10 +409,11 @@ export function ReviewsSection() {
             />
           </Labeled>
           <Labeled label="chủ trọ hoặc admin · không có khối viết">
-            <RoleSample block={null} />
+            <RoleSample kit={LANDLORD_KIT} block={null} />
           </Labeled>
           <Labeled label="người tìm trọ chưa đủ điều kiện · lời gợi ý">
             <RoleSample
+              kit={LANDLORD_KIT}
               block={
                 <Block>
                   <LandlordHint />
@@ -375,10 +422,11 @@ export function ReviewsSection() {
             />
           </Labeled>
           <Labeled label="người tìm trọ · đang kiểm tra trạng thái">
-            <RoleSample block={<WriteBlockSkeleton />} />
+            <RoleSample kit={LANDLORD_KIT} block={<WriteBlockSkeleton />} />
           </Labeled>
           <Labeled label="không tải được trạng thái · lỗi 500">
             <RoleSample
+              kit={LANDLORD_KIT}
               block={
                 <MineFailure error={SERVER_ERROR} onRetry={() => undefined} />
               }
@@ -386,6 +434,7 @@ export function ReviewsSection() {
           </Labeled>
           <Labeled label="không tải được trạng thái · 429 đếm ngược">
             <RoleSample
+              kit={LANDLORD_KIT}
               block={
                 <MineFailure
                   error={RATE_LIMITED_LONG}
@@ -404,10 +453,11 @@ export function ReviewsSection() {
       >
         <Grid>
           <Labeled label="trống · chưa chọn sao, bấm Đăng đánh giá">
-            <FormSample />
+            <FormSample kit={LANDLORD_KIT} />
           </Labeled>
           <Labeled label="lỗi 400 về từng ô · bấm Đăng đánh giá">
             <FormSample
+              kit={LANDLORD_KIT}
               stars={4}
               comment="Nhận xét có sẵn"
               rejectWith={INVALID}
@@ -415,38 +465,45 @@ export function ReviewsSection() {
           </Labeled>
           <Labeled label="gửi giả thành công · bấm Đăng đánh giá">
             <FormSample
+              kit={LANDLORD_KIT}
               stars={4}
               comment="Phòng sạch, chủ trọ dễ nói chuyện."
             />
           </Labeled>
           <Labeled label="nhận xét quá 1000 ký tự · nút tắt, số đếm đỏ">
-            <FormSample stars={3} comment={SAMPLE_TOO_LONG_COMMENT} />
+            <FormSample
+              kit={LANDLORD_KIT}
+              stars={3}
+              comment={SAMPLE_TOO_LONG_COMMENT}
+            />
           </Labeled>
           <Labeled label="409 đã đánh giá rồi (REVIEW_ALREADY_EXISTS)">
             <FormSample
+              kit={LANDLORD_KIT}
               stars={5}
               comment="Chủ trọ rất nhiệt tình."
               seed={ALREADY_EXISTS}
             />
           </Labeled>
           <Labeled label="403 chưa đủ điều kiện (REVIEW_NOT_ELIGIBLE)">
-            <FormSample stars={5} seed={NOT_ELIGIBLE} />
+            <FormSample kit={LANDLORD_KIT} stars={5} seed={NOT_ELIGIBLE} />
           </Labeled>
           <Labeled label="429 đếm ngược · nút tắt cho tới khi hết">
-            <FormSample stars={4} seed={RATE_LIMITED_LONG} />
+            <FormSample kit={LANDLORD_KIT} stars={4} seed={RATE_LIMITED_LONG} />
           </Labeled>
           <Labeled label="lỗi 500 · có mã hỗ trợ">
             <FormSample
+              kit={LANDLORD_KIT}
               stars={2}
               comment="Bản nháp còn nguyên."
               seed={SERVER_ERROR}
             />
           </Labeled>
           <Labeled label="lỗi mạng · nút dùng lại được, không tự gửi lại">
-            <FormSample stars={4} seed={networkError()} />
+            <FormSample kit={LANDLORD_KIT} stars={4} seed={networkError()} />
           </Labeled>
           <Labeled label="chủ trọ không còn (LANDLORD_NOT_FOUND)">
-            <FormSample stars={4} seed={LANDLORD_GONE} />
+            <FormSample kit={LANDLORD_KIT} stars={4} seed={LANDLORD_GONE} />
           </Labeled>
         </Grid>
       </Section>
@@ -458,21 +515,21 @@ export function ReviewsSection() {
       >
         <Grid>
           <Labeled label="đánh giá đang hiện · Sửa và Xóa">
-            <PinnedSample review={SAMPLE_MY_REVIEW} />
+            <PinnedSample kit={LANDLORD_KIT} review={SAMPLE_MY_REVIEW} />
           </Labeled>
           <Labeled label="bị quản trị viên ẩn · chỉ còn Xóa, có lý do">
-            <PinnedSample review={SAMPLE_MY_REVIEW_HIDDEN} />
+            <PinnedSample kit={LANDLORD_KIT} review={SAMPLE_MY_REVIEW_HIDDEN} />
           </Labeled>
         </Grid>
         <div className="flex flex-wrap gap-6">
           <Labeled label="hộp thoại xóa · bình thường">
-            <DialogSample failure={null} />
+            <DialogSample kit={LANDLORD_KIT} failure={null} />
           </Labeled>
           <Labeled label="hộp thoại xóa · 429 đếm ngược">
-            <DialogSample failure={RATE_LIMITED} />
+            <DialogSample kit={LANDLORD_KIT} failure={RATE_LIMITED} />
           </Labeled>
           <Labeled label="hộp thoại xóa · lỗi mạng">
-            <DialogSample failure={networkError()} />
+            <DialogSample kit={LANDLORD_KIT} failure={networkError()} />
           </Labeled>
         </div>
       </Section>
@@ -484,29 +541,34 @@ export function ReviewsSection() {
       >
         <Grid>
           <Labeled label="25 đánh giá, 3 trang · bấm số trang hoặc mũi tên">
-            <PagedSample reviews={SAMPLE_REVIEWS} />
+            <PagedSample kit={LANDLORD_KIT} reviews={SAMPLE_REVIEWS} />
           </Labeled>
           <Labeled label="21 đánh giá · trang 3 chỉ có đánh giá của mình">
             <PagedSample
+              kit={LANDLORD_KIT}
               reviews={SAMPLE_REVIEWS_ONLY_MINE_LAST}
               initialPage={3}
               pinned
             />
           </Labeled>
           <Labeled label="trang 4 của 3 · trang quá số trang">
-            <PagedSample reviews={SAMPLE_REVIEWS} initialPage={4} />
+            <PagedSample
+              kit={LANDLORD_KIT}
+              reviews={SAMPLE_REVIEWS}
+              initialPage={4}
+            />
           </Labeled>
           <Labeled label="đang tải">
-            <ListStateSample loading />
+            <ListStateSample kit={LANDLORD_KIT} loading />
           </Labeled>
           <Labeled label="không tải được · lỗi 500">
-            <ListStateSample error={SERVER_ERROR} />
+            <ListStateSample kit={LANDLORD_KIT} error={SERVER_ERROR} />
           </Labeled>
           <Labeled label="không tải được · 429 đếm ngược">
-            <ListStateSample error={RATE_LIMITED_LONG} />
+            <ListStateSample kit={LANDLORD_KIT} error={RATE_LIMITED_LONG} />
           </Labeled>
           <Labeled label="chưa có đánh giá nào">
-            <ListStateSample empty />
+            <ListStateSample kit={LANDLORD_KIT} empty />
           </Labeled>
         </Grid>
       </Section>
