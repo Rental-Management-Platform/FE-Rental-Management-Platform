@@ -54,6 +54,13 @@ const pageNumber = z.preprocess(
     .catch(1),
 );
 
+/**
+ * Cleans one raw `page` value: a whole number from 1 to 1,000,000, else 1. It never throws. The
+ * landlord's listings (scope #15) read their one `page` parameter with it, so the two lists
+ * agree on what a bad page means.
+ */
+export const parsePageParam = (raw: RawValue): number => pageNumber.parse(raw);
+
 const listingSearchSchema = z.object({ q: keyword, page: pageNumber });
 
 /**

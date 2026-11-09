@@ -37,7 +37,9 @@ export function PageHeader({
         )}
       </div>
       {actions && (
-        <div className="flex shrink-0 flex-wrap items-center gap-3">
+        // `empty:hidden`: an actions part that draws nothing (a button that is hidden for this
+        // viewer) leaves no gap behind.
+        <div className="flex shrink-0 flex-wrap items-center gap-3 empty:hidden">
           {actions}
         </div>
       )}

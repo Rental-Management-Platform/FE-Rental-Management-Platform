@@ -1,15 +1,20 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
+import { LoadingState } from "@/components/states/loading-state";
 import { isApiError, type ApiError } from "@/lib/api/errors";
 import type { LandlordProfile as LandlordProfileData } from "@/lib/api/types";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { getLandlordProfile } from "../api/get-landlord-profile";
 import { isLandlordId } from "../landlord-id";
 import { FAILED_TITLE } from "../text";
+import { LandlordListings } from "./landlord-listings";
 import { LandlordProfileView } from "./landlord-profile-view";
+import { ListingsBoundary } from "./listings-boundary";
 
-// What Next.js hands a page as `params`.
+// What Next.js hands a page as `params` and `searchParams`.
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
  * The profile page body, read on the server as a guest (api-for-frontend.md, 6.31). It reads
@@ -17,7 +22,13 @@ type Params = Promise<{ id: string }>;
  * static shell. The page reads no cookie, header or token: everyone gets the same HTML, and what
  * depends on the viewer (the follow state) is added in the browser by `LandlordProfileView`.
  */
-export async function LandlordProfileScreen({ params }: { params: Params }) {
+export async function LandlordProfileScreen({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { id } = await params;
 
   // Not an id: answer "not found" before any API call, so a bot probe spends none of the shared
@@ -36,7 +47,20 @@ export async function LandlordProfileScreen({ params }: { params: Params }) {
     return <ReadFailure error={error} />;
   }
 
-  return <LandlordProfileView profile={profile} />;
+  // The listings stream in on their own, so the name and the numbers show first and a slow list
+  // never holds them back. The list reads `searchParams`, which is why it has its own boundary.
+  return (
+    <LandlordProfileView profile={profile}>
+      <Suspense fallback={<LoadingState variant="cards" />}>
+        <ListingsBoundary>
+          <LandlordListings landlordId={id} searchParams={searchParams} />
+        </ListingsBoundary>
+      </Suspense>
+      {/* The reviews zone of #35 goes here, after the listings:
+          <Suspense fallback={<ReviewsZoneSkeleton />}><ReviewsZone landlordId={id} /></Suspense>
+          (spec 0013, "What #15 must provide"). It reads `reviewPage` and never touches `page`. */}
+    </LandlordProfileView>
+  );
 }
 
 // Any failure of the profile read other than "not found": a 429, a 5xx, a timeout, no network.

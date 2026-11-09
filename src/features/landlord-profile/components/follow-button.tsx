@@ -45,6 +45,9 @@ export function FollowButton({
   const locked = pending || secondsLeft > 0;
   const result = failure === null ? null : classifyFollowError(failure);
 
+  // Nothing at all, so the header does not keep an empty space for it.
+  if (view.kind === "hidden") return null;
+
   return (
     <div className="flex flex-col gap-2 md:items-end">
       {/* Always mounted, so the text that arrives later is read out. */}
