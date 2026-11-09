@@ -48,6 +48,9 @@ interface InboxRowProps {
  */
 export function InboxRow({ item, basePath }: InboxRowProps) {
   const name = item.otherUser.name ?? UNKNOWN_NAME;
+  // Something from the other side that I have not read. Said three ways, never by color alone:
+  // heavier text, a dot, and the words "chưa đọc" in the name of the link.
+  const unread = item.unreadCount > 0;
   return (
     <li>
       <Link
@@ -63,18 +66,39 @@ export function InboxRow({ item, basePath }: InboxRowProps) {
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex items-baseline justify-between gap-3">
-            <p className="truncate font-medium">{name}</p>
-            <time
-              dateTime={item.lastMessageAt}
-              className="shrink-0 text-sm text-muted-foreground"
+            <p
+              className={cn(
+                "truncate",
+                unread ? "font-semibold" : "font-medium",
+              )}
             >
-              {formatDateTime(item.lastMessageAt)}
-            </time>
+              {name}
+              {unread && <span className="sr-only">, chưa đọc</span>}
+            </p>
+            <span className="flex shrink-0 items-center gap-2">
+              <time
+                dateTime={item.lastMessageAt}
+                className="text-sm text-muted-foreground"
+              >
+                {formatDateTime(item.lastMessageAt)}
+              </time>
+              {unread && (
+                <span
+                  aria-hidden="true"
+                  className="size-2.5 rounded-full bg-primary"
+                />
+              )}
+            </span>
           </div>
           <p className="truncate text-sm text-muted-foreground">
             {item.listing.title}
           </p>
-          <p className="truncate text-sm text-muted-foreground">
+          <p
+            className={cn(
+              "truncate text-sm",
+              unread ? "font-medium text-foreground" : "text-muted-foreground",
+            )}
+          >
             {item.lastMessage.isMine && "Bạn: "}
             {item.lastMessage.body}
           </p>

@@ -9,6 +9,7 @@ import type {
   ConversationItem,
   OpenConversationResult,
   Page,
+  UnreadSummary,
   Uuid,
 } from "@/lib/api/types";
 
@@ -76,3 +77,15 @@ export const getInbox = (
     query: params,
     signal,
   });
+
+/** `GET /me/conversations/unread-count`: how many conversations and messages are unread. */
+export const getUnread = (api: ApiClient, signal?: AbortSignal) =>
+  api.get<UnreadSummary>("/me/conversations/unread-count", { signal });
+
+/**
+ * `POST /conversations/:id/read`: marks everything up to `upToSeq` as read and answers with the
+ * conversation, whose `unreadCount` is the new one. The read mark never moves back, so a repeat
+ * is safe.
+ */
+export const markRead = (api: ApiClient, id: Uuid, upToSeq: number) =>
+  api.post<ConversationItem>(`/conversations/${enc(id)}/read`, { upToSeq });

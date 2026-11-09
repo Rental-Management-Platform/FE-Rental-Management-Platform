@@ -11,6 +11,7 @@ import {
   getConversation,
   getInbox,
   getMessages,
+  getUnread,
   INBOX_PAGE_SIZE,
   POLL_PAGE_LIMIT,
 } from "./chat-api";
@@ -111,4 +112,21 @@ export const byListingQuery = (api: ApiClient, listingId: Uuid) =>
       return page.items[0] ?? null;
     },
     staleTime: 30_000,
+  });
+
+/** How long an unread count counts as fresh. */
+export const UNREAD_STALE_MS = 10_000;
+
+/**
+ * The unread count (spec 0012, AC-18 and AC-19). The indicator in the page header and the
+ * landlord dashboard card read the same key, so one request and one cache entry serve both. The
+ * card does not poll on its own: the indicator in the same page frame does.
+ */
+export const unreadQueryOptions = (api: ApiClient) =>
+  queryOptions({
+    queryKey: chatKeys.unread(),
+    queryFn: ({ signal }) => getUnread(api, signal),
+    staleTime: UNREAD_STALE_MS,
+    // The next poll is the retry (see `messagesQuery`).
+    retry: false,
   });

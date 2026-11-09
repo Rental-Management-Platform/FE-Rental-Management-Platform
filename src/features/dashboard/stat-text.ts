@@ -98,6 +98,17 @@ const planLines = (values: readonly SourceValue[]): string[] => {
   }
 };
 
+/** How many conversations have something unread, or that there is nothing. */
+const unreadChatLines = (values: readonly SourceValue[]): string[] => {
+  const found = values.find((value) => value.source === "unreadChat");
+  if (found?.source !== "unreadChat") return [];
+  return [
+    found.unreadConversations > 0
+      ? `${formatCount(found.unreadConversations)} cuộc trò chuyện chưa đọc`
+      : "Chưa có tin chưa đọc",
+  ];
+};
+
 /** The listings an admin hid, of every landlord. */
 const hiddenListingsLines = (values: readonly SourceValue[]): string[] => {
   const hidden = totalOf(values, "moderation");
@@ -158,6 +169,8 @@ export function describeStat(
       return myListingsLines(values);
     case "plan":
       return planLines(values);
+    case "unreadChat":
+      return unreadChatLines(values);
     case "hiddenListings":
       return hiddenListingsLines(values);
     case "users":

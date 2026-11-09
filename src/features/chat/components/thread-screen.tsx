@@ -19,7 +19,9 @@ import { useApi } from "@/lib/session/auth-provider";
 import { conversationQuery } from "../api/chat-queries";
 import { isConversationId } from "../conversation-id";
 import { useComposer } from "../hooks/use-composer";
+import { useMarkRead } from "../hooks/use-mark-read";
 import { useSendMessage } from "../hooks/use-send-message";
+import { useStickyBottom } from "../hooks/use-sticky-bottom";
 import { useThreadMessages } from "../hooks/use-thread-messages";
 import { threadBlock } from "../thread-block";
 import { Composer } from "./composer";
@@ -99,6 +101,9 @@ interface ConversationProps {
 function Conversation({ id, head, messages, basePath }: ConversationProps) {
   const composer = useComposer();
   const send = useSendMessage(id);
+  const { scrollRef, onScroll, atBottom } = useStickyBottom(messages);
+  // Marks the conversation read once its newest message is really in front of the person.
+  useMarkRead({ id, head, messages, atBottom });
   const name = head.otherUser.name ?? UNKNOWN_NAME;
 
   return (
@@ -124,7 +129,12 @@ function Conversation({ id, head, messages, basePath }: ConversationProps) {
       />
       <Card>
         <CardContent>
-          <MessageList messages={messages} otherName={name} />
+          <MessageList
+            messages={messages}
+            otherName={name}
+            scrollRef={scrollRef}
+            onScroll={onScroll}
+          />
         </CardContent>
         <Separator />
         <CardContent>

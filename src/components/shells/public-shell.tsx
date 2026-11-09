@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import { ChatIndicator } from "@/features/chat/components/chat-indicator";
 import { AccountMenu } from "./account-menu";
 import { BrandLink } from "./brand";
 import {
@@ -51,10 +52,17 @@ export function PublicShell({ children, nav = PUBLIC_NAV }: PublicShellProps) {
               </Suspense>
             </nav>
           </div>
-          <div className="hidden md:block">
-            <AccountMenu size="lg" />
+          {/* The chat indicator is outside the phone menu sheet, beside its button, and from `md`
+              before the account menu (spec 0012, AC-18). This group is the right hand side of
+              the header, so the indicator appearing once the session is known grows it to the
+              left and never moves the account menu. */}
+          <div className="flex shrink-0 items-center gap-1">
+            <ChatIndicator size="lg" />
+            <div className="hidden md:block">
+              <AccountMenu size="lg" />
+            </div>
+            <PublicMobileMenu items={items} />
           </div>
-          <PublicMobileMenu items={items} />
         </div>
       </header>
       <main

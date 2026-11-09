@@ -28,6 +28,7 @@ export type StatKey =
   | "quota"
   | "myListings"
   | "plan"
+  | "unreadChat"
   // admin
   | "hiddenListings"
   | "users"
@@ -108,13 +109,15 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     status: "soon",
   },
   {
-    // Spec 0012, AC-19. The unread count on the card (`stat: "unreadChat"`) comes with M2.
+    // Spec 0012, AC-19. The number on the card is the unread count the page header indicator
+    // already reads, through the same cache entry.
     id: "chat.inbox",
     group: "Tin nhắn",
     label: "Tin nhắn",
     description: "Trả lời những người tìm trọ đã nhắn cho bạn.",
     icon: MessagesSquare,
     permission: "conversation:read",
+    stat: "unreadChat",
     status: "ready",
     href: LANDLORD_CHAT_BASE,
   },

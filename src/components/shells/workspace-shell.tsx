@@ -22,6 +22,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ChatIndicator } from "@/features/chat/components/chat-indicator";
 import { useSession } from "@/lib/session/auth-provider";
 import { AccountMenu } from "./account-menu";
 import { BrandLink } from "./brand";
@@ -184,7 +185,9 @@ export function WorkspaceShell({
           <span className="min-w-0 truncate text-sm font-medium text-muted-foreground">
             {title}
           </span>
-          <div className="ml-auto">
+          {/* Before the account menu, in the right aligned group (spec 0012, AC-18). */}
+          <div className="ml-auto flex items-center gap-1">
+            <ChatIndicator size="default" />
             <AccountMenu size="default" />
           </div>
         </header>
