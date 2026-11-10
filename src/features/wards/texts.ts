@@ -11,6 +11,13 @@ export const WARD_TEXTS = {
   searchLabel: "Tìm phường hoặc xã",
   searchHint: "Gõ tên, không cần dấu",
   listLabel: "Danh sách phường, xã",
+  resultCount: (count: number) =>
+    count === 0 ? "Không có kết quả" : `${count} kết quả`,
+  chosen: ", đã chọn",
+  errorTitle: "Không tải được danh sách phường, xã",
+  retry: "Thử lại",
+  // Shown on the button while the catalog is missing, so the code is not called "unknown".
+  codeOnly: (code: string) => `Mã ${code}`,
   unknownCode: (code: string) => `Mã ${code} (không có trong danh sách)`,
   noMatch: (typed: string) =>
     `Không có phường, xã nào khớp “${typed.slice(0, ECHO_LENGTH)}”. Thử gõ ít chữ hơn.`,

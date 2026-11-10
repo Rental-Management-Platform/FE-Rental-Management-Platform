@@ -18,14 +18,23 @@ function PopoverTrigger({
 
 // Looks like the Select menu: a hairline border, 8 px radius, `shadow-md` (menus may). It is
 // never wider than the room left on the screen, so it fits a 320 px phone.
+//
+// HAND EDIT, not in the shadcn edits of spec 0003 (spec 0015, AC-18): `container` is the element
+// the box is drawn into, and `document.body` when it is not given. A Dialog or Sheet locks the
+// scroll of everything outside its own content, so a long list (the ward picker) inside a sheet
+// must draw its box inside the sheet's content to scroll by touch. Without `container` this is
+// the stock component. `npx shadcn@latest add popover --overwrite` would drop this prop.
 function PopoverContent({
   className,
   align = "center",
   sideOffset = 4,
+  container,
   ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+}: React.ComponentProps<typeof PopoverPrimitive.Content> & {
+  container?: HTMLElement | null;
+}) {
   return (
-    <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Portal container={container}>
       <PopoverPrimitive.Content
         data-slot="popover-content"
         align={align}

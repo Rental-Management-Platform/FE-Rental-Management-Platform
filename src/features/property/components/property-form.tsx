@@ -2,13 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CircleAlertIcon } from "lucide-react";
 import { useId } from "react";
 import { useForm, useWatch, type Path } from "react-hook-form";
 import { toast } from "sonner";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { isAbortError } from "@/lib/api/abort";
-import { describeError, isApiError } from "@/lib/api/errors";
+import { isApiError } from "@/lib/api/errors";
 import type { Property, PropertyBody } from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
@@ -171,26 +169,6 @@ export function PropertyForm({
                 />
               )}
             </FormField>
-
-            {wards.isError && (
-              <Alert variant="destructive">
-                <CircleAlertIcon />
-                <AlertTitle>Không tải được danh sách phường, xã</AlertTitle>
-                <AlertDescription>
-                  <p>{describeError(wards.error).message}</p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={wards.isFetching}
-                    onClick={() => void wards.refetch()}
-                  >
-                    {wards.isFetching && <Spinner size="sm" />}
-                    Thử lại
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
 
             <FormField
               control={control}
