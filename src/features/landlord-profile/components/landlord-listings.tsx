@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { ListPagination } from "@/components/list-pagination";
 import { ListingCard } from "@/components/listing-card";
+import { ListFavorites } from "@/features/favorites/components/list-favorites";
+import { ListingHeart } from "@/features/favorites/components/listing-heart";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import {
   LISTING_PAGE_SIZE,
@@ -10,7 +12,11 @@ import { isApiError } from "@/lib/api/errors";
 import type { Page, PublicListingSummary } from "@/lib/api/types";
 import { formatCount } from "@/lib/format";
 import { listingPath } from "@/lib/listing-path";
-import { getLandlordListings } from "../api/get-landlord-listings";
+import {
+  getLandlordListings,
+  landlordListingsPath,
+  landlordListingsQuery,
+} from "../api/get-landlord-listings";
 import { LISTINGS_ANCHOR, landlordListingsHref } from "../landlord-id";
 import { NoListings, PastLastPage } from "./listings-states";
 
@@ -97,18 +103,28 @@ export async function LandlordListings({
 
       {result.items.length > 0 ? (
         <>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {result.items.map((listing, index) => (
-              // `grid` lets the card fill the cell, so cards of one row are equally high.
-              <li key={listing.id} className="grid">
-                <ListingCard
-                  listing={listing}
-                  href={listingPath(listing.slug, listing.code)}
-                  eagerPhoto={index === 0}
-                />
-              </li>
-            ))}
-          </ul>
+          {/* The hearts (scope #14) colour in from a second read with the token, made in the
+              browser by the wrapper. The cards stay what the server drew. */}
+          <ListFavorites
+            path={landlordListingsPath(landlordId)}
+            query={landlordListingsQuery(page)}
+          >
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {result.items.map((listing, index) => (
+                // `grid` lets the card fill the cell, so cards of one row are equally high.
+                <li key={listing.id} className="grid">
+                  <ListingCard
+                    listing={listing}
+                    href={listingPath(listing.slug, listing.code)}
+                    eagerPhoto={index === 0}
+                    heart={
+                      <ListingHeart id={listing.id} title={listing.title} />
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          </ListFavorites>
           {pagination}
         </>
       ) : result.total === 0 ? (
