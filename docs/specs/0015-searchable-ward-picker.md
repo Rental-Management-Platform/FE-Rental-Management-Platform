@@ -1,11 +1,12 @@
 # 0015. Ô chọn phường, xã có tìm kiếm cho biểu mẫu nhà trọ và bộ lọc tìm tin
 
 **Date**: 2026-11-10
-**Status**: Proposed
+**Updated**: 2026-11-10 (the search filters of spec 0016 need two more props, `initialWards` and `portalContainer`, see AC-17 and AC-18)
+**Status**: In Progress
 
 ## Summary
 
-Ô chọn phường hiện là danh sách thả xuống thường, nên người dùng phải lướt qua 168 mục. Spec này thay nó bằng một ô có thanh tìm kiếm: gõ "ben thanh" không dấu vẫn ra "Phường Bến Thành", và chọn được bằng bàn phím lẫn bằng chạm. Ô này dùng chung: biểu mẫu nhà trọ dùng ngay, bộ lọc tìm tin (#13) dùng lại sau. Nó dựng trên thành phần Command của shadcn (thêm một gói nhỏ tên `cmdk`), còn phần bỏ dấu và xếp kết quả do ta tự viết.
+Ô chọn phường hiện là danh sách thả xuống thường, nên người dùng phải lướt qua 168 mục. Spec này thay nó bằng một ô có thanh tìm kiếm: gõ "ben thanh" không dấu vẫn ra "Phường Bến Thành", và chọn được bằng bàn phím lẫn bằng chạm. Ô này dùng chung: biểu mẫu nhà trọ dùng ngay, bộ lọc tìm tin (#13) dùng lại sau. Nó dựng trên thành phần Command của shadcn (thêm một gói nhỏ tên `cmdk`), còn phần bỏ dấu và xếp kết quả do ta tự viết. Bộ lọc tìm tin (spec 0016) cần thêm hai prop: `initialWards` (danh mục đã đọc sẵn ở máy chủ, để nút hiện tên phường ngay lần vẽ đầu) và `portalContainer` (gắn hộp nổi vào nội dung một ngăn trượt, để danh sách cuộn được bằng cảm ứng).
 
 ## Context
 
@@ -15,16 +16,20 @@ Danh sách phường, xã (`GET /wards`) trả hết một lần: 168 mục, m�
 
 Còn mấy ràng buộc nữa. Ô nằm trong biểu mẫu nên phím Enter không được gửi biểu mẫu. Người Việt gõ bằng bộ gõ (Telex), nên Enter lúc đang ghép chữ không được chọn nhầm. Spec 0011 (bản đồ nhà trọ, chưa xây) đọc khung `bounds` của phường từ cùng truy vấn danh mục và phản ứng khi phường đổi, nên ô chọn không được đổi cách biểu mẫu giữ `wardCode`. Không quyết thì biểu mẫu vẫn bắt lướt 168 mục, và #13 không có ô để dùng.
 
+Bộ lọc tìm tin của spec 0016 đặt ô này ở trang công khai theo hai cách mà bản đầu chưa tính tới. Một, danh mục phường được đọc ở máy chủ (có bộ nhớ đệm `use cache`) để một địa chỉ có `wardCode` hiện sẵn tên phường ngay lần vẽ đầu; nếu ô chỉ tự tải ở trình duyệt thì nút luôn hiện "Đang tải danh sách" trước, và thẻ phường của bộ lọc phải chờ theo. Hai, trên điện thoại ô nằm trong một ngăn trượt (`Sheet`) của Radix. Ngăn này khóa cuộn mọi thứ nằm ngoài nội dung của nó, mà hộp nổi mặc định được gắn vào `body`, nên danh sách 168 dòng không cuộn được bằng cảm ứng.
+
 ## Requirements
 
 **User stories**:
 - Là chủ trọ, tôi muốn gõ một phần tên phường (kể cả không dấu) để chọn nhanh phường của nhà trọ, không phải lướt qua 168 mục.
 - Là người tìm trọ (qua bộ lọc #13), tôi muốn gõ để chọn phường ngay trên điện thoại và bỏ chọn dễ dàng.
 - Là người dùng bàn phím hoặc trình đọc màn hình, tôi muốn mở, gõ, di chuyển và chọn mà không cần chuột.
+- Là người tìm trọ mở một địa chỉ đã có phường, tôi muốn thấy ngay tên phường trên nút, không phải chờ danh mục tải.
+- Là người tìm trọ trên điện thoại, tôi muốn cuộn danh sách phường bằng ngón tay ngay trong ngăn bộ lọc.
 
 **Acceptance criteria** (the contract, each criterion is IDed and independently checkable):
 - **AC-1**: Ô chọn. `WardPicker` (thành phần client, `src/features/wards/components/ward-picker.tsx`) là một nút `role="combobox"` có `aria-haspopup="listbox"` và `aria-expanded`, bấm vào mở một hộp nổi (Popover) ngay dưới nút, trong đó có ô gõ tìm và danh sách. Nhận `value` (mã phường `code`, chuỗi rỗng là chưa chọn) và `onChange(code)`. Nút hiện `name` của phường đã chọn, cắt bằng `truncate`. Cỡ theo `size`: `lg` cao 44 px (trang công khai), mặc định cao 40 px.
-- **AC-2**: Dữ liệu. Chỉ một lần đọc `GET /wards` qua truy vấn dùng chung `wardsQuery` (khóa `["wards"]`, `staleTime: Infinity`), nay nằm ở `src/features/wards/api/wards-query.ts` kèm hook `useWards()`. Thư mục `property` không còn giữ nó. Không có API mới, không có kiểu mới: dùng `Ward` hiện có.
+- **AC-2**: Dữ liệu. Chỉ một lần đọc `GET /wards` qua truy vấn dùng chung `wardsQuery` (khóa `["wards"]`, `staleTime: Infinity`), nay nằm ở `src/features/wards/api/wards-query.ts` kèm hook `useWards(initialWards?)` (xem AC-17). Thư mục `property` không còn giữ nó. Không có API mới, không có kiểu mới: dùng `Ward` hiện có.
 - **AC-3**: Bỏ dấu. Hàm thuần `foldWardText(text)`: chữ thường, tách dấu (NFD), xóa mọi dấu tổ hợp, đổi `đ` thành `d`, gộp khoảng trắng, cắt hai đầu. "Hoà", "Hòa" và "hoa" cho cùng một kết quả; "Đặc khu" thành "dac khu". Không bao giờ ném lỗi, với mọi chuỗi.
 - **AC-4**: Luật khớp. Hàm thuần `matchWards(wards, text)`: chữ gõ được bỏ dấu rồi tách thành từ (tối đa 6 từ, từ thừa bỏ; mỗi từ cắt ở 50 ký tự). Một phường khớp khi **mọi từ gõ** đều là phần đầu của ít nhất một từ trong `name` đã bỏ dấu. Chữ gõ rỗng thì khớp tất cả. Ví dụ: "tan" ra "Phường Tân Định" và "Phường Bình Tân", không ra "Phường Phan Rang"; "ben thanh" ra "Phường Bến Thành".
 - **AC-5**: Thứ tự. Chưa gõ gì thì giữ thứ tự của danh mục. Có chữ gõ thì xếp theo vị trí từ đầu tiên trong `name` mà từ gõ thứ nhất khớp (vị trí nhỏ trước), bằng nhau thì giữ thứ tự danh mục. Nên gõ "ben" thì "Phường Bến Thành" (từ khớp ở vị trí 1) đứng trước "Phường An Bên" (vị trí 2).
@@ -35,10 +40,12 @@ Còn mấy ràng buộc nữa. Ô nằm trong biểu mẫu nên phím Enter khô
 - **AC-10**: Dòng bỏ chọn. Có prop `allLabel` thì danh sách mở đầu bằng một dòng mang chữ đó (bộ lọc truyền "Tất cả phường, xã"), chọn nó thì gọi `onChange("")`. Dòng này chỉ hiện khi chữ gõ đang rỗng. Chưa chọn gì thì nút hiện `allLabel` (nếu có), nếu không thì hiện `placeholder` ("Chọn phường hoặc xã" là mặc định). Biểu mẫu nhà trọ (bắt buộc chọn) không truyền `allLabel` nên không có dòng này.
 - **AC-11**: Không có kết quả. Gõ mà không phường nào khớp thì trong vùng danh sách hiện dòng "Không có phường, xã nào khớp “{chữ gõ}”. Thử gõ ít chữ hơn.", chữ gõ được cắt ở 40 ký tự. Dòng này vẽ từ số kết quả của `matchWards`, không dựa vào ô trống có sẵn của `cmdk`.
 - **AC-12**: Mã lạ. Một `value` không có trong danh mục (sau khi đã tải xong) thì nút hiện "Mã {value} (không có trong danh sách)", danh sách vẫn dùng bình thường và không dòng nào được đánh dấu đã chọn.
-- **AC-13**: Đang tải và lỗi. Trong lúc chờ, nút bị khóa (`disabled`), có `aria-busy` và hiện "Đang tải danh sách". Khi đọc lỗi, nút bị khóa và ngay dưới nút hiện một `Alert` kiểu `destructive` có tiêu đề "Không tải được danh sách phường, xã", câu từ `describeError` và nút "Thử lại" (tắt khi đang đọc lại). Biểu mẫu nhà trọ không còn tự vẽ `Alert` này.
-- **AC-14**: Dùng trong biểu mẫu. Với React Hook Form qua `FormField`, nút nhận `id`, `ref`, `onBlur`, `aria-invalid` và `aria-describedby` từ ô, nên lỗi từ máy chủ đưa focus về đúng nút. Biểu mẫu nhà trọ dùng `WardPicker` thay `Select`, vẫn gửi `wardCode`, và `WARD_UNKNOWN` vẫn hiện dưới ô, rồi danh mục được đọc lại và ô bị xóa nếu mã không còn (như hiện nay). Với biểu mẫu gốc của trình duyệt (bộ lọc #13 dùng `next/form`), prop `name` vẽ thêm `<input type="hidden">` cạnh nút để gửi `wardCode`, và chỉ vẽ khi `value` khác rỗng, nên không bao giờ gửi `wardCode=` trống.
+- **AC-13**: Đang tải và lỗi. Trong lúc chờ, nút bị khóa (`disabled`), có `aria-busy` và hiện "Đang tải danh sách". Khi đọc lỗi mà chưa có danh mục nào (xem AC-17), nút bị khóa và ngay dưới nút hiện một `Alert` kiểu `destructive` có tiêu đề "Không tải được danh sách phường, xã", câu từ `describeError` và nút "Thử lại" (tắt khi đang đọc lại). Biểu mẫu nhà trọ không còn tự vẽ `Alert` này.
+- **AC-14**: Dùng trong biểu mẫu. Với React Hook Form qua `FormField`, nút nhận `id`, `ref`, `onBlur`, `aria-invalid` và `aria-describedby` từ ô, nên lỗi từ máy chủ đưa focus về đúng nút. Biểu mẫu nhà trọ dùng `WardPicker` thay `Select`, vẫn gửi `wardCode`, và `WARD_UNKNOWN` vẫn hiện dưới ô, rồi danh mục được đọc lại và ô bị xóa nếu mã không còn (như hiện nay). Với biểu mẫu gốc của trình duyệt (ví dụ `next/form`; bộ lọc #13 của spec 0016 không dùng cách này, xem Follow-up), prop `name` vẽ thêm `<input type="hidden">` cạnh nút để gửi `wardCode`, và chỉ vẽ khi `value` khác rỗng, nên không bao giờ gửi `wardCode=` trống.
 - **AC-15**: Dòng tỉnh. Ô "Tỉnh, thành phố" chỉ đọc của biểu mẫu nhà trọ giữ nguyên, vẫn lấy `provinceName` từ cùng danh mục theo `wardCode` của biểu mẫu.
-- **AC-16**: Mẫu xem thử và bản dựng sạch. `/dev/ui` có phần "Ô chọn phường" trên dữ liệu giả, không gọi mạng: đóng chưa chọn, đã chọn, có `allLabel`, mã lạ, đang tải, lỗi, đang mở có kết quả, đang mở không có kết quả. Kiểm ở 320, 390 và 1280 px. Chỉ dùng màu có tên (token), không thêm cặp màu tương phản mới. `npm run check` và `npm run build` đều qua.
+- **AC-16**: Mẫu xem thử và bản dựng sạch. `/dev/ui` có phần "Ô chọn phường" trên dữ liệu giả, không gọi mạng: đóng chưa chọn, đã chọn, có `allLabel`, mã lạ, đang tải, lỗi, đang mở có kết quả, đang mở không có kết quả, và một ô nằm trong ngăn trượt (`Sheet`) có `portalContainer` (một nút mở ngăn). Kiểm ở 320, 390 và 1280 px. Chỉ dùng màu có tên (token), không thêm cặp màu tương phản mới. `npm run check` và `npm run build` đều qua.
+- **AC-17**: Danh mục có sẵn (`initialWards`). `WardPicker` nhận thêm prop tùy chọn `initialWards` (kiểu `Ward[]`, danh mục đã đọc ở máy chủ, giữ nguyên thứ tự của API). `useWards(initialWards?)` đưa nó vào truy vấn dùng chung làm `initialData` (không phải `placeholderData`), nên với `staleTime: Infinity` truy vấn có dữ liệu ngay từ lần vẽ đầu (kể cả khi vẽ ở máy chủ) và trình duyệt không gọi `GET /wards`: nút hiện sẵn tên phường của `value` (hay `allLabel`, `placeholder`), không có "Đang tải danh sách". Luật: (a) `undefined` hoặc mảng rỗng thì coi như không có, ô tự tải ở trình duyệt theo AC-13 (danh mục thật không bao giờ rỗng, và một mảng rỗng sẽ bị giữ mãi vì `staleTime` vô hạn); (b) prop chỉ có tác dụng ở lần truy vấn `["wards"]` được tạo đầu tiên: nếu bộ nhớ truy vấn đã có dữ liệu thì dữ liệu đó thắng, và đổi prop về sau không làm gì; (c) khi đã có danh mục (từ prop hay từ lần đọc trước) thì ô không bao giờ vào trạng thái đang tải hay lỗi, kể cả khi một lần đọc lại thất bại, ô dùng tiếp danh mục đang có; (d) ô không sắp xếp lại, không lọc và không sửa danh mục được truyền vào.
+- **AC-18**: Gắn hộp nổi vào phần tử khác (`portalContainer`). `WardPicker` và `WardPickerView` nhận thêm prop tùy chọn `portalContainer` (kiểu `HTMLElement | null`, là phần tử chứ không phải ref). Có phần tử thì hộp nổi được vẽ bên trong nó thay vì trong `document.body`; `undefined` hoặc `null` (lúc mở hộp) thì dùng `body` như trước. Prop đi xuống `PopoverContent`, nên `src/components/ui/popover.tsx` nhận thêm prop `container` và đưa vào `PopoverPrimitive.Portal`. Lý do: Dialog và Sheet của Radix khóa cuộn mọi thứ nằm ngoài nội dung của chúng, nên danh sách 168 dòng gắn ở `body` không cuộn được bằng cảm ứng khi ô nằm trong một ngăn trượt. Luật: (a) ngoài chỗ gắn, hộp nổi không đổi gì: vị trí ngay dưới nút, rộng bằng nút, cao theo chỗ trống (AC-8), chọn, focus và đóng như AC-7; riêng Escape chỉ đóng hộp nổi, ngăn trượt chứa nó vẫn mở; (b) nơi gọi giữ phần tử bằng ref gọi lại và `useState`, không đọc `ref.current` lúc vẽ; (c) `PopoverContent` không truyền `container` thì giống hệt trước, nên bộ chọn ngày và các `Popover` khác không đổi.
 
 ## Options considered
 
@@ -84,6 +91,17 @@ Giữ `Select` hiện có, chỉ dựa vào tính năng nhảy theo chữ cái �
 **Cons**:
 - Không lọc, nhạy với dấu, gõ "ben" không tới "Bến Thành"; đúng vấn đề cần giải quyết.
 
+### Hai prop thêm sau, cho bộ lọc tìm tin (spec 0016)
+
+**Danh mục có sẵn ở lần vẽ đầu**:
+- Prop `initialWards` thành `initialData` của truy vấn (chọn). Pros: ít mã nhất, nút hiện tên phường ngay cả khi vẽ ở máy chủ, không gọi lại ở trình duyệt. Cons: một danh mục khoảng 20 KB (ước tính từ 168 mục) đi vào mỗi lần vẽ trang dùng nó, và có thể cũ tới vài giờ vì trình duyệt không đọc lại.
+- Chỉ đọc ở trình duyệt, không thêm gì. Pros: không đổi gì. Cons: lần vẽ đầu luôn là "Đang tải danh sách", và thẻ phường của 0016 phải chờ nên một địa chỉ có `wardCode` chớp từ "Mã ..." sang tên.
+- Truyền qua `HydrationBoundary` của TanStack Query. Pros: là cách chuẩn cho dữ liệu đọc sẵn ở máy chủ. Cons: phải tạo một `QueryClient` ở máy chủ cho mỗi yêu cầu rồi bơm dữ liệu vào, nhiều chỗ nối hơn cho một danh mục công khai mà chỉ một ô dùng.
+
+**Hộp nổi trong ngăn trượt**:
+- Prop `portalContainer` truyền xuống `PopoverContent` (chọn). Pros: hộp nổi nằm trong nội dung của `Sheet` nên cuộn cảm ứng và focus đúng, mọi `Popover` khác không đổi. Cons: sửa tay thêm một tệp shadcn (`popover.tsx`), và nơi gọi phải giữ phần tử bằng ref gọi lại.
+- Để `Sheet` không modal (`modal={false}`). Pros: không cần prop. Cons: ngăn mất khóa focus và lớp phủ, là những thứ người dùng điện thoại cần ở một ngăn bộ lọc.
+
 ## Decision
 
 **Chosen option**: Option 1: Command của shadcn trong Popover
@@ -97,6 +115,8 @@ Các lựa chọn nhỏ đã chốt cùng kỹ sư:
 - Ô gõ nhận con trỏ ngay khi mở trên mọi thiết bị (AC-6).
 - Mã lạ hiện "Mã {value} (không có trong danh sách)" (AC-12).
 - Không tô đậm phần chữ khớp (xem Follow-up).
+- Danh mục có sẵn: prop `initialWards` thành `initialData` của truy vấn dùng chung, mảng rỗng coi như không có (AC-17). Chốt cùng spec 0016.
+- Hộp nổi trong ngăn trượt: prop `portalContainer` truyền xuống `PopoverContent`, không để `Sheet` không modal (AC-18). Chốt cùng spec 0016.
 
 **Implementation skills**: `shadcn` (`shadcn-ui/ui`, `.agents/skills/shadcn/`) · `react-hook-form` (`pproenca/dot-skills`, `.agents/skills/react-hook-form/`) · `tanstack-query-best-practices` (`deckardger/tanstack-agent-skills`, `.agents/skills/tanstack-query-best-practices/`)
 
@@ -108,6 +128,8 @@ Luật khớp theo phần đầu từ được chọn thay vì chuỗi con (như
 
 Ô gõ nhận focus ngay cả trên điện thoại: mục đích của ô là tránh lướt 168 mục, và danh sách thu hẹp theo chữ gõ nên dòng đầu vẫn thấy dù bàn phím ảo che một phần. Giữ một kiểu hộp nổi cho mọi màn hình để cùng một mã chạy được trong biểu mẫu, trong thẻ bộ lọc và trong ngăn bộ lọc, thay vì thêm nhánh ngăn trượt rồi thành ngăn chồng ngăn.
 
+Hai prop thêm sau đều đến từ bộ lọc tìm tin (spec 0016) và cùng một lý do: giữ một ô dùng chung thay vì rẽ nhánh. `initialWards` chọn `initialData` thay vì `placeholderData` vì danh mục từ máy chủ là dữ liệu thật: `staleTime: Infinity` phải coi nó là mới, còn `placeholderData` không vào bộ nhớ truy vấn và vẫn kích hoạt một lần đọc ở trình duyệt. Mảng rỗng bị coi như không có vì `getWards()` của 0016 truyền `undefined` khi lỗi, và một danh mục rỗng bị giữ vô hạn sẽ làm ô không bao giờ tự lành. Khi đã có danh mục, ô không vào trạng thái lỗi, vì một lần đọc lại hỏng không nên khóa một ô đang dùng được. `portalContainer` chọn truyền phần tử xuống thay vì để `Sheet` không modal, vì ngăn modal giữ focus trong ngăn và có lớp phủ, và chỉ hộp nổi của ô này cần ra khỏi `body` để cuộn được. Giá phải trả là một sửa tay nhỏ ở `popover.tsx`, có đường lùi: không truyền prop thì hành vi cũ.
+
 ## Feature design
 
 **Data model sketch**:
@@ -115,7 +137,7 @@ Không có dữ liệu mới và không lưu gì. Ô đọc `Ward { code, name, 
 
 **State transitions**:
 - Hộp: đóng → mở (chữ gõ rỗng, tô sáng dòng đã chọn) → đóng (chọn một dòng, hoặc Escape, hoặc Tab, hoặc bấm ra ngoài). Đóng thì chữ gõ được xóa.
-- Ô: đang tải → sẵn sàng hoặc lỗi. Lỗi → đang tải khi bấm "Thử lại". Khi sẵn sàng, `value` là: rỗng, có trong danh mục, hoặc mã lạ.
+- Ô: đang tải → sẵn sàng hoặc lỗi. Lỗi → đang tải khi bấm "Thử lại". Có danh mục ngay từ đầu (từ `initialWards` hoặc từ lần đọc trước) thì bắt đầu ở sẵn sàng và ở đó mãi, kể cả khi một lần đọc lại thất bại (AC-17). Khi sẵn sàng, `value` là: rỗng, có trong danh mục, hoặc mã lạ.
 
 **API surface**:
 | Endpoint | Method | Key inputs | Key outputs | Auth | Key errors |
@@ -131,6 +153,8 @@ Giao diện của thành phần `WardPicker`:
 | `placeholder` | `string` tùy chọn | Mặc định "Chọn phường hoặc xã" |
 | `size` | `"default" or "lg"` | Cao 40 hoặc 44 px; dòng trong danh sách theo cỡ (AC-8) |
 | `name` | `string` tùy chọn | Có thì vẽ `<input type="hidden">` khi `value` khác rỗng (AC-14) |
+| `initialWards` | `Ward[]` tùy chọn | Chỉ ở `WardPicker`. Danh mục đã đọc ở máy chủ, làm `initialData` của truy vấn; `undefined` hoặc mảng rỗng coi như không có (AC-17) |
+| `portalContainer` | `HTMLElement` hoặc `null`, tùy chọn | Ở `WardPicker` và `WardPickerView`. Phần tử để vẽ hộp nổi vào; không có thì `document.body` (AC-18) |
 | `id`, `ref`, `onBlur`, `aria-*`, `disabled` | như nút | Đi thẳng vào nút, để `FormField` đặt nhãn, lỗi và focus (AC-14) |
 
 **Value sourcing** (every value each action produces, computes, or displays names where it comes from):
@@ -143,6 +167,8 @@ Giao diện của thành phần `WardPicker`:
 | Mở danh sách | Dòng được tô sáng và cuộn tới | `value` (mã phường); chưa chọn thì dòng đầu |
 | Gửi biểu mẫu gốc | Giá trị của `wardCode` | `value` của ô, chỉ khi khác rỗng |
 | Dòng tỉnh của biểu mẫu | `provinceName` | Mục danh mục tìm theo `wardCode` của biểu mẫu (giữ như hiện nay) |
+| Vẽ lần đầu | Danh mục (các dòng và tên trên nút) | `initialWards` khi có, không rỗng và bộ nhớ truy vấn chưa có `["wards"]`; nếu không thì `GET /wards` ở trình duyệt (AC-17) |
+| Mở danh sách | Phần tử chứa hộp nổi | `portalContainer` của nơi gọi; `undefined` hoặc `null` thì `document.body` (AC-18) |
 
 **Key invariants**:
 - Giá trị của ô luôn là một mã phường hoặc chuỗi rỗng, không bao giờ là tên.
@@ -150,12 +176,14 @@ Giao diện của thành phần `WardPicker`:
 - `foldWardText` và `matchWards` là hàm thuần, không ném lỗi với mọi chuỗi (kể cả chuỗi rỗng, rất dài, có biểu tượng cảm xúc).
 - Gõ chữ không gửi yêu cầu nào lên mạng: danh mục đọc một lần cho cả lượt dùng.
 - Enter không bao giờ gửi biểu mẫu bao quanh; focus luôn về nút khi hộp đóng.
+- Có danh mục (từ `initialWards` hoặc lần đọc trước) thì trình duyệt không gọi `GET /wards` và ô không bao giờ hiện "Đang tải danh sách" hay `Alert` lỗi.
+- `portalContainer` chỉ đổi chỗ vẽ hộp nổi, không đổi cách chọn, đóng hay đặt focus; Escape chỉ đóng hộp nổi.
 
 **Security model**:
-Danh mục phường là dữ liệu công khai, đọc không cần đăng nhập (`auth: "none"`), không có dữ liệu cá nhân. Tên phường được vẽ thành chữ (React tự thoát ký tự), không bao giờ là HTML. Chữ người dùng gõ ở ô tìm chỉ ở trong trình duyệt.
+Danh mục phường là dữ liệu công khai, đọc không cần đăng nhập (`auth: "none"`), không có dữ liệu cá nhân. Tên phường được vẽ thành chữ (React tự thoát ký tự), không bao giờ là HTML. Chữ người dùng gõ ở ô tìm chỉ ở trong trình duyệt. `initialWards` cũng là danh mục công khai, đi vào trang như một prop thường, không mang dữ liệu riêng tư và không mang token.
 
 **Configuration required**:
-- Không có biến môi trường mới. Có một phụ thuộc mới là `cmdk`, vào cùng lúc với `npx shadcn@latest add command`.
+- Không có biến môi trường mới. Có một phụ thuộc mới là `cmdk`, vào cùng lúc với `npx shadcn@latest add command`. Hai prop thêm sau không cần gói hay biến mới; chỉ có một sửa tay ở `src/components/ui/popover.tsx` (prop `container`, AC-18).
 
 **Critical test scenarios** (each maps to an acceptance criterion in ## Requirements):
 - Happy path: chủ trọ mở "Thêm nhà trọ", mở ô phường, gõ "ben thanh", thấy "Phường Bến Thành" đứng đầu, nhấn Enter, nút hiện tên phường, dòng tỉnh hiện thành phố, lưu thì gửi đúng `wardCode`, verifies **AC-3**, **AC-4**, **AC-5**, **AC-7**, **AC-14**, **AC-15**.
@@ -167,6 +195,11 @@ Danh mục phường là dữ liệu công khai, đọc không cần đăng nh�
 - `WARD_UNKNOWN` từ máy chủ hiện dưới ô và ô bị xóa khi mã không còn, verifies **AC-14**.
 - Mã lạ và dòng bỏ chọn: `value` là "99999" hiện "Mã 99999 (không có trong danh sách)"; với `allLabel`, chọn dòng đầu gọi `onChange("")`, verifies **AC-10**, **AC-12**.
 - Không có kết quả: gõ "zzzz" hiện dòng không khớp và trình đọc màn hình đọc "Không có kết quả", verifies **AC-9**, **AC-11**.
+- Danh mục có sẵn: mở một trang có `initialWards` và `value` hợp lệ, xem nguồn trang: nút đã có tên phường, không có "Đang tải danh sách", và thẻ Network không có `GET /wards`, verifies **AC-17**.
+- Không có danh mục từ máy chủ: `initialWards` là `undefined`, rồi là `[]`; cả hai lần ô tự tải một lần ở trình duyệt với trạng thái đang tải, và chặn `GET /wards` thì hiện `Alert`, verifies **AC-17**, **AC-13**.
+- Đã có danh mục mà đọc lại lỗi: chặn `GET /wards` sau lần đọc đầu rồi buộc đọc lại; ô vẫn mở và chọn được, không có `Alert`, verifies **AC-17**.
+- Trong ngăn trượt (xem thử ở `/dev/ui`, rồi ở thanh lọc của 0016) ở 320 và 390 px: hộp nổi là con của nội dung `Sheet`, nằm ngay dưới nút, cuộn danh sách bằng ngón tay được, Escape đóng hộp nổi còn ngăn vẫn mở, verifies **AC-18**.
+- Không truyền `portalContainer`: bộ chọn ngày của biểu mẫu đăng tin vẫn mở và đóng như trước, verifies **AC-18**.
 - Quyền: không có (dữ liệu công khai); biểu mẫu nhà trọ vẫn nằm sau lớp chặn của chủ trọ.
 
 ## Build plan
@@ -174,20 +207,20 @@ Danh mục phường là dữ liệu công khai, đọc không cần đăng nh�
 Theo Tracer Bullet: M1 là một sợi chỉ mỏng nhưng thật, đi từ danh mục tới biểu mẫu nhà trọ thật. M2 dày lên. M3 hoàn thiện.
 
 **M1, sợi chỉ mỏng: gõ không dấu và lưu một nhà trọ thật**
-1. Chuyển `wardsQuery` và `wardsKey` sang `src/features/wards/api/wards-query.ts`, thêm `useWards()` ở `src/features/wards/hooks/use-wards.ts`, xóa `src/features/property/api/wards.ts` và sửa chỗ nhập trong `property-form.tsx`, satisfies **AC-2**
+1. Chuyển `wardsQuery` và `wardsKey` sang `src/features/wards/api/wards-query.ts`, thêm `useWards(initialWards?)` (tham số là `initialData` của truy vấn, xem AC-17) ở `src/features/wards/hooks/use-wards.ts`, xóa `src/features/property/api/wards.ts` và sửa chỗ nhập trong `property-form.tsx`, satisfies **AC-2**, **AC-17**
 2. Viết `foldWardText` và `matchWards` (kèm luật thứ tự) ở `src/features/wards/ward-match.ts`, chỉ nhập kiểu bằng `import type` để chạy được thẳng bằng Node khi kiểm, satisfies **AC-3**, **AC-4**, **AC-5**
 3. Thêm `command` bằng `npx shadcn@latest add command` (kéo theo `cmdk`), rồi áp các sửa đổi của spec 0003: vòng focus `ring-2 ring-ring ring-offset-2`, chữ ô gõ `text-(length:--text-input)`, độ cao dòng 40 và 44 px, bỏ `CommandDialog` vì không dùng, dịch mọi chữ tiếng Anh, bỏ lớp `dark:`, satisfies **AC-1**, **AC-8**
 4. Viết `WardPicker` mỏng: nút, Popover, ô gõ, danh sách từ `matchWards`, chọn thì đóng và gọi `onChange`; thay `Select` trong biểu mẫu nhà trọ, nối `id`, `ref`, `onBlur`, `aria-*` từ `FormField`, giữ `WARD_UNKNOWN` và dòng tỉnh; tạo được một nhà trọ thật bằng cách gõ không dấu, satisfies **AC-1**, **AC-6**, **AC-14**, **AC-15**
 
 **M2, chiều sâu**
 5. Bàn phím và bộ gõ: mở bằng Enter, Space, mũi tên xuống; Home, End, đi vòng; Escape và Tab; Enter bị chặn khi `isComposing`; trả focus về nút; cuộn dòng đã chọn vào tầm nhìn; tô sáng dòng khớp đầu, satisfies **AC-6**, **AC-7**
-6. Chạm và kích thước: dòng 44 px ở `lg`, chiều rộng bằng nút, chiều cao tối đa theo chỗ còn trống, kéo cuộn không chọn nhầm, kiểm ở 320 px, satisfies **AC-8**
+6. Chạm và kích thước: dòng 44 px ở `lg`, chiều rộng bằng nút, chiều cao tối đa theo chỗ còn trống, kéo cuộn không chọn nhầm, kiểm ở 320 px; thêm prop `container` cho `PopoverContent` trong `src/components/ui/popover.tsx` (đưa vào `PopoverPrimitive.Portal`, ghi một dòng chú thích trong tệp rằng đây là sửa tay) và prop `portalContainer` cho `WardPicker` (sang `WardPickerView` khi bước 9 tách hai thành phần), satisfies **AC-8**, **AC-18**
 7. Trợ năng: tên cho ô gõ và danh sách, `aria-selected` kèm dấu chọn, dòng `role="status"` đọc số kết quả, satisfies **AC-9**
 8. Dòng bỏ chọn với `allLabel`, `<input type="hidden">` với `name`, nhãn mã lạ, dòng không có kết quả vẽ từ độ dài `matchWards`, satisfies **AC-10**, **AC-11**, **AC-12**, **AC-14**
-9. Đang tải và lỗi nằm trong ô (`Alert` và "Thử lại"), bỏ `Alert` riêng của biểu mẫu nhà trọ, tách `WardPickerView` (chỉ vẽ) khỏi `WardPicker` (đọc dữ liệu), satisfies **AC-13**, **AC-16**
+9. Đang tải và lỗi nằm trong ô (`Alert` và "Thử lại"), bỏ `Alert` riêng của biểu mẫu nhà trọ, tách `WardPickerView` (chỉ vẽ) khỏi `WardPicker` (đọc dữ liệu); `WardPicker` nhận `initialWards` và đưa vào `useWards`, ô không vào trạng thái lỗi hay đang tải khi đã có danh mục, mảng rỗng coi như không có, satisfies **AC-13**, **AC-16**, **AC-17**
 
 **M3, hoàn thiện**
-10. Phần "Ô chọn phường" trong `/dev/ui` (`src/app/dev/ui/ward-picker.tsx` và `ward-picker-sample.ts`, dữ liệu giả có các tên có dấu thanh khác nhau), kiểm ở 320, 390 và 1280 px, `npm run check` và `npm run build`, satisfies **AC-16**
+10. Phần "Ô chọn phường" trong `/dev/ui` (`src/app/dev/ui/ward-picker.tsx` và `ward-picker-sample.ts`, dữ liệu giả có các tên có dấu thanh khác nhau, kèm một nút mở `Sheet` có ô chọn dùng `portalContainer`), kiểm ở 320, 390 và 1280 px, `npm run check` và `npm run build`, satisfies **AC-16**, **AC-18**
 
 ## Consequences
 
@@ -195,22 +228,27 @@ Theo Tracer Bullet: M1 là một sợi chỉ mỏng nhưng thật, đi từ danh
 - Chủ trọ và (sau này) người tìm trọ chọn phường bằng cách gõ, không cần dấu.
 - Một ô dùng chung cho biểu mẫu nhà trọ, form sửa nhà trọ (#12) và bộ lọc (#13), nên hành vi và trợ năng đều một chỗ.
 - Danh mục phường có chỗ ở riêng (`src/features/wards`), nên trang công khai không phải nhập từ thư mục của chủ trọ.
+- Trang công khai hiện tên phường ngay lần vẽ đầu, và ô cuộn được bằng cảm ứng trong ngăn trượt.
 
 **Negative / tradeoffs**:
 - Thêm gói `cmdk` và một tệp shadcn cần giữ cập nhật.
 - Luật khớp, thứ tự và chống Enter khi đang gõ bộ gõ do ta sở hữu, cần kiểm tay ở điện thoại thật.
 - Không tô đậm phần chữ khớp: người gõ không dấu có thể chưa thấy ngay vì sao một dòng khớp.
 - Bàn phím ảo trên điện thoại che một phần danh sách khi ô gõ đang nhận focus.
-- Hộp nổi bên trong ngăn bộ lọc trên điện thoại (của #13) chưa được kiểm; để #13 kiểm.
+- Hộp nổi bên trong ngăn bộ lọc trên điện thoại (của #13) chỉ được kiểm trên mẫu ở `/dev/ui` (AC-16, AC-18); thanh lọc thật của 0016 kiểm lại với bàn phím ảo.
+- Danh mục truyền qua `initialWards` thêm khoảng 20 KB chưa nén (ước tính từ 168 mục) vào mỗi lần vẽ trang dùng nó, và có thể cũ tới vài giờ (bộ nhớ đệm `cacheLife('hours')` của máy chủ); trình duyệt không đọc lại trong cả lượt dùng (`staleTime: Infinity`). Một mã phường bị admin bỏ sau đó hiện "Mã ... (không có trong danh sách)" (AC-12) chứ không làm hỏng ô.
+- `popover.tsx` có một sửa tay nằm ngoài danh sách của spec 0003: một lần `npx shadcn@latest add popover --overwrite` sẽ làm mất prop `container` và âm thầm làm hỏng việc cuộn trong ngăn trượt.
 
 **Neutral**:
 - `wardsQuery` đổi chỗ, nên spec 0011 phải đổi đường dẫn ghi trong đó (xem Follow-up).
+- `useWards` có chữ ký `useWards(initialWards?)`; chỗ gọi không truyền gì (như biểu mẫu nhà trọ) chạy y như trước.
 - Chuỗi tiếng Việt của ô (nhãn, thông báo, "Mã ... không có trong danh sách") nằm ở `src/features/wards/texts.ts`.
 
 ## Follow-up
 
 - [ ] Spec 0011 (`docs/specs/0011-property-location-map/index.md`, dòng 92, 105 và 155) ghi `src/features/property/api/wards.ts` và `useQuery(wardsQuery(api))`: sau khi #32 xong, cập nhật đường dẫn thành `src/features/wards/api/wards-query.ts` (chỉ đổi đường dẫn, không đổi quyết định). Kiểu `CatalogWard` có `bounds` vẫn do #33 thêm.
-- [ ] #13 dùng `<WardPicker name="wardCode" allLabel="Tất cả phường, xã" size="lg" />` trong `next/form` của nó. #13 phải quyết cách danh mục tới được lần vẽ đầu và cách xử lý khi tắt JavaScript (ô chọn là thành phần client; một `<select>` gốc trong `<noscript>` cần danh mục đọc ở máy chủ), và kiểm hộp nổi bên trong ngăn bộ lọc trên điện thoại.
+- [ ] #13 (spec 0016) dùng `<WardPicker allLabel="Tất cả phường, xã" size="lg" initialWards={...} />` với bản nháp của React Hook Form, không dùng `name` và `next/form`; prop `name` và ô ẩn của AC-14 vẫn giữ cho chỗ khác. Danh mục tới lần vẽ đầu bằng `initialWards` (AC-17), hộp nổi trong ngăn bộ lọc điện thoại dùng `portalContainer` (AC-18), và bộ lọc cần JavaScript (spec 0016 đã chốt, nên không có `<select>` trong `<noscript>`). Hàm `getWards()` tạo ra `initialWards` thuộc spec 0016, không thuộc spec này.
+- [ ] `src/components/ui/popover.tsx` có sửa tay prop `container`, nằm ngoài danh sách "Edits after adding shadcn files" của spec 0003. Sau khi xong, `/sync` ghi điều này vào `src/components/AGENTS.md` (và có thể thêm vào danh sách của spec 0003) để một lần `shadcn add popover --overwrite` không làm mất nó.
 - [ ] #12 (sửa nhà trọ) dùng lại cùng ô này, kèm ràng buộc đổi phường phải gửi tọa độ mới của spec 0011.
 - [ ] Tô đậm phần chữ khớp trong các dòng kết quả được cố ý bỏ qua. Xem lại nếu người dùng gõ không dấu rồi bối rối.
 - [ ] Sau khi xong, `/sync` thêm khu mới `src/features/wards` vào ngữ cảnh dự án và ghi thành phần `command` vào `src/components/AGENTS.md`.

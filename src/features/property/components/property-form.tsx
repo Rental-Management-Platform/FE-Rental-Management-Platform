@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleAlertIcon } from "lucide-react";
 import { useId } from "react";
 import { useForm, useWatch, type Path } from "react-hook-form";
@@ -18,22 +18,16 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { isAbortError } from "@/lib/api/abort";
 import { describeError, isApiError } from "@/lib/api/errors";
 import type { Property, PropertyBody } from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
+import { WardPicker } from "@/features/wards/components/ward-picker";
+import { useWards } from "@/features/wards/hooks/use-wards";
 import { createProperty } from "../api/create-property";
 import { propertiesKey } from "../api/properties-key";
-import { wardsQuery } from "../api/wards";
 import {
   EMPTY_PROPERTY,
   propertySchema,
@@ -59,7 +53,7 @@ export function PropertyForm({
 }) {
   const api = useApi();
   const queryClient = useQueryClient();
-  const wards = useQuery(wardsQuery(api));
+  const wards = useWards();
   const create = useMutation({
     mutationFn: (body: PropertyBody) => createProperty(api, body),
     // The listing form's picker would miss the new property. A plain "out of date" mark is not
@@ -205,35 +199,14 @@ export function PropertyForm({
               description="Chọn từ danh sách. Địa chỉ không có cấp quận, huyện."
             >
               {({ field, aria }) => (
-                <Select
+                <WardPicker
+                  ref={field.ref}
+                  size="lg"
                   value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={!wards.data}
-                >
-                  <SelectTrigger
-                    ref={field.ref}
-                    size="lg"
-                    className="w-full"
-                    onBlur={field.onBlur}
-                    aria-busy={wards.isPending}
-                    {...aria}
-                  >
-                    <SelectValue
-                      placeholder={
-                        wards.isPending
-                          ? "Đang tải danh sách"
-                          : "Chọn phường hoặc xã"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {wards.data?.map((ward) => (
-                      <SelectItem key={ward.code} value={ward.code}>
-                        {ward.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  {...aria}
+                />
               )}
             </FormField>
 
