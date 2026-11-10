@@ -12,28 +12,41 @@ import {
 import { parseListingSearch } from "@/features/listing-search/schemas/search-params";
 import { listingsHref } from "@/features/listing-search/search-href";
 import {
+  hasKeyword,
+  isPlainList,
+} from "@/features/listing-search/search-state";
+import {
+  FILTERED_LIST_TITLE,
+  filteredListDescription,
   LISTING_LIST_DESCRIPTION,
   shortKeyword,
 } from "@/features/listing-search/text";
 import { SITE_NAME } from "@/lib/site";
 
-// Metadata from the cleaned address only, with no API call (spec 0009, AC-12). A plain list page
-// is indexed and has its own canonical address, so `?page=abc` canonicalises to `/`. A page with
-// a keyword is `noindex, follow`: each one costs an API call, and `robots.txt` blocks them too.
+// Metadata from the cleaned address only, with no API call (spec 0009, AC-12, and spec 0016,
+// AC-16). The plain list page is indexed, `?page=N` included, and has its own canonical address,
+// so `?page=abc` canonicalises to `/`. Every other address (a keyword, a ward, a price, an order
+// other than the newest first) is `noindex, follow` with itself as the canonical: each one costs
+// an API call, and `robots.txt` blocks them too. The ward name is not used here, because reading
+// it would need the catalog in the metadata.
 export async function generateMetadata({
   searchParams,
 }: PageProps<"/">): Promise<Metadata> {
   const search = parseListingSearch(await searchParams);
-  const hasKeyword = search.q !== "";
+  const plain = isPlainList(search);
   const pageSuffix = search.page > 1 ? `, trang ${search.page}` : "";
   const shown = shortKeyword(search.q);
 
-  const title = hasKeyword
+  const title = hasKeyword(search)
     ? `Kết quả cho “${shown}”${pageSuffix}`
-    : `Tìm phòng trọ${pageSuffix}`;
-  const description = hasKeyword
+    : plain
+      ? `Tìm phòng trọ${pageSuffix}`
+      : `${FILTERED_LIST_TITLE}${pageSuffix}`;
+  const description = hasKeyword(search)
     ? `Các tin cho thuê phù hợp với “${shown}” trên ${SITE_NAME}.`
-    : LISTING_LIST_DESCRIPTION;
+    : plain
+      ? LISTING_LIST_DESCRIPTION
+      : filteredListDescription(SITE_NAME);
   const canonical = listingsHref(search);
 
   return {
@@ -48,7 +61,7 @@ export async function generateMetadata({
       description,
       url: canonical,
     },
-    ...(hasKeyword && { robots: { index: false, follow: true } }),
+    ...(!plain && { robots: { index: false, follow: true } }),
   };
 }
 
