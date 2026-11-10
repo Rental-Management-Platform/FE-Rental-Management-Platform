@@ -39,7 +39,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 11 | Property fees and amenities | Slice 2 | planned |
 | 33 | Property location map | Slice 2 | in-progress |
 | 12 | Manage my properties and listings | Slice 2 | planned |
-| 14 | Favorites | Slice 3 | planned |
+| 14 | Favorites | Slice 3 | in-progress |
 | 34 | Chat with landlords | Slice 3 | done |
 | 15 | Landlord profile and follow | Slice 3 | done |
 | 35 | Landlord reviews | Slice 3 | done |

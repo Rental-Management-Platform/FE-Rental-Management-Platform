@@ -7,6 +7,9 @@ import type { ListingDetail } from "@/lib/api/types";
 export const listingDetailKey = (code: string) =>
   ["listing-detail", code] as const;
 
+// The start of every such key, for a write that reaches a listing by its `id` (#14).
+export const listingDetailRoot = ["listing-detail"] as const;
+
 /**
  * The browser read of one listing for a signed in person (spec 0010, AC-8). The server already
  * read the same listing as a guest, so this exists only to get what depends on the viewer: the

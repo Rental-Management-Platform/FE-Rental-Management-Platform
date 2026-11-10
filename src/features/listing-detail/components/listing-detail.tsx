@@ -23,6 +23,7 @@ import {
 import { env } from "@/lib/env";
 import { listingPath, parseListingPath } from "@/lib/listing-path";
 import { mediaUrl } from "@/lib/media";
+import { DetailHeart } from "@/features/favorites/components/detail-heart";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { ListingReviews } from "@/features/listing-reviews/components/listing-reviews";
 import { LISTING_REVIEWS_HEADING } from "@/features/listing-reviews/texts";
@@ -125,6 +126,16 @@ export async function ListingDetail({ params }: { params: Params }) {
             <MapPinIcon aria-hidden="true" className="mt-1 size-4 shrink-0" />
             {listing.fullAddress}
           </span>
+        }
+        // The heart (scope #14) reads who is looking in the browser, so the server HTML holds
+        // only its placeholder. For a landlord or an admin it draws nothing.
+        actions={
+          <DetailHeart
+            id={listing.id}
+            code={listing.code}
+            title={listing.title}
+            path={canonicalPath}
+          />
         }
       />
 
