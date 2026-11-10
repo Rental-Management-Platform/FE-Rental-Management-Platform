@@ -54,6 +54,8 @@ export function useHeart({ listingId, flag, onChanged }: UseHeartOptions) {
     setAnnouncement("");
     mutation.mutate(next, {
       onSuccess: () => {
+        // An old failure on screen is no longer true.
+        toast.dismiss(FAILURE_TOAST_ID);
         setAnnouncement(next ? SAVED : UNSAVED);
         onChanged?.(next);
       },

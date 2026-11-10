@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Uuid } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import { saveListing, unsaveListing } from "../api/favorite-api";
+import { favoriteKeys } from "../api/favorite-keys";
 import { syncFavorite } from "../favorite-cache";
 
 /**
@@ -18,6 +19,11 @@ export function useToggleFavorite(listingId: Uuid) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    // A read of the flags of a list that was already on its way when the press came would land
+    // after the answer and put the old flag back. It is stopped first. The rows are still there,
+    // so a stopped read only means the next visit asks again.
+    onMutate: () =>
+      queryClient.cancelQueries({ queryKey: favoriteKeys.flags() }),
     mutationFn: (save: boolean) =>
       save ? saveListing(api, listingId) : unsaveListing(api, listingId),
     onSuccess: (result) => syncFavorite(queryClient, result),
