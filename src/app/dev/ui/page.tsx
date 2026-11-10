@@ -19,6 +19,7 @@ import { ChatSection } from "./chat";
 import { DashboardCardsSection } from "./dashboard-cards";
 import { DataDisplaySection } from "./data-display";
 import { DatePickerSection } from "./date-picker-section";
+import { FavoritesSection } from "./favorites";
 import { FeedbackSection } from "./feedback";
 import { FormDemo } from "./form-demo";
 import { LandlordProfileSection } from "./landlord-profile";
@@ -298,6 +299,7 @@ export default function DevUiPage() {
       <ListingCardsSection />
       <ListingDetailSection />
       <LandlordProfileSection />
+      <FavoritesSection />
       <ReviewsSection />
       <ListingReviewsSection />
       <ChatSection />

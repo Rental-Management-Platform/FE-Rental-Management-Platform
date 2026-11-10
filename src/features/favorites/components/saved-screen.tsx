@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BookOpenIcon, HeartIcon } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ListPagination } from "@/components/list-pagination";
 import { ListingCard } from "@/components/listing-card";
@@ -62,7 +62,12 @@ export function SavedScreen() {
         <SavedList
           data={data}
           headingRef={heading}
-          onUnsaved={() => heading.current?.focus()}
+          renderHeart={(listing) => (
+            <SavedHeart
+              listing={listing}
+              onUnsaved={() => heading.current?.focus()}
+            />
+          )}
         />
       )}
     </div>
@@ -71,16 +76,17 @@ export function SavedScreen() {
 
 /**
  * One page of saved listings, whatever its answer is: rows, nothing saved, or a page past the
- * end. It only draws, so `/dev/ui` can show every case on fake rows.
+ * end. It only draws, so `/dev/ui` can show every case on fake rows. The heart of each card comes
+ * from `renderHeart`, so the preview needs no session.
  */
 export function SavedList({
   data,
   headingRef,
-  onUnsaved,
+  renderHeart,
 }: {
   data: Page<SavedListing>;
   headingRef?: React.Ref<HTMLHeadingElement>;
-  onUnsaved: () => void;
+  renderHeart: (listing: SavedListing) => ReactNode;
 }) {
   if (data.total === 0) return <SavedEmpty />;
 
@@ -122,7 +128,7 @@ export function SavedList({
                   href={listingPath(listing.slug, listing.code)}
                   eagerPhoto={index === 0}
                   savedAt={listing.favoritedAt}
-                  heart={<SavedHeart listing={listing} onUnsaved={onUnsaved} />}
+                  heart={renderHeart(listing)}
                 />
               </li>
             ))}
