@@ -33,6 +33,7 @@ import { Section } from "./section";
 import { ShellsSection } from "./shells-section";
 import { StatesSection } from "./states";
 import { ToastDemo } from "./toast-demo";
+import { WardPickerSection } from "./ward-picker";
 
 // The line from spec 0004 (AC-1): stacked marks must show whole at heading and body sizes.
 const VIETNAMESE_TEST_LINE =
@@ -288,6 +289,7 @@ export default function DevUiPage() {
 
       <ControlsSection />
       <DatePickerSection />
+      <WardPickerSection />
       <FeedbackSection />
       <StatesSection />
       <DashboardCardsSection />
