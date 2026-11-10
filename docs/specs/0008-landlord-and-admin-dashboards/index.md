@@ -1,7 +1,7 @@
 # 0008. Landlord and admin dashboards in the web frontend
 
 **Date**: 2026-11-02
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

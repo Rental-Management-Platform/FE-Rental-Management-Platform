@@ -37,7 +37,7 @@ Thêm vào trang tìm tin (#8): chọn phường hoặc xã (từ `GET /wards`, 
 
 ## Slice 3: Tìm và gắn bó
 
-### 14. Favorites · in-progress
+### 14. Favorites · done
 Nút tim trên thẻ tin và trang chi tiết (tim đầy, tim rỗng, và tim rỗng dẫn khách tới đăng nhập), cùng trang "Tin đã lưu" có phân trang và ngày lưu. Chỉ người tìm trọ có nút tim. Gửi kèm token khi gọi danh sách và chi tiết để có `isFavorite`.
 **Done when:** bấm tim lưu và bỏ lưu được, nút khóa lúc đang gửi, trang Tin đã lưu bỏ thẻ khi bỏ tim, lưu tin vừa biến mất thì báo "tin không còn", chủ trọ và admin không thấy tim.
 - [x] Build it: `/develop favorites` (không có spec riêng: xây theo `api-for-frontend.md` mục 6.33 và phần "Lưu tin yêu thích" của mục 7, cùng các việc mà spec 0001, 0005, 0009 và 0010 để lại cho dòng này)

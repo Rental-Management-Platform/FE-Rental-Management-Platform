@@ -30,7 +30,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 5 | Sign up and sign in | Slice 1 | done |
 | 6 | First property | Slice 1 | done |
 | 7 | Post a listing | Slice 1 | done |
-| 31 | Landlord and admin dashboards | Slice 1 | in-progress |
+| 31 | Landlord and admin dashboards | Slice 1 | done |
 | 8 | Find listings | Slice 1 | done |
 | 9 | Listing detail | Slice 1 | done |
 | 32 | Searchable ward picker | Slice 1 | planned |
@@ -39,7 +39,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 11 | Property fees and amenities | Slice 2 | planned |
 | 33 | Property location map | Slice 2 | in-progress |
 | 12 | Manage my properties and listings | Slice 2 | planned |
-| 14 | Favorites | Slice 3 | in-progress |
+| 14 | Favorites | Slice 3 | done |
 | 34 | Chat with landlords | Slice 3 | done |
 | 15 | Landlord profile and follow | Slice 3 | done |
 | 35 | Landlord reviews | Slice 3 | done |
@@ -66,10 +66,10 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 2 planned.
-* [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 6 done, 3 planned, 2 dropped (#16, #29).
+* [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 7 done, 2 planned, 2 dropped (#16, #29).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 3 done, 1 in-progress, 5 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 8 planned.
-* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 in-progress.
+* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 done.
 
 ## Các giai đoạn
 
