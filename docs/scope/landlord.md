@@ -24,10 +24,16 @@ code in `src/features/listing/`, `src/app/(landlord)/landlord/listings/new/`, `s
 - [x] Verify it: `/check verify post a listing` (bỏ qua theo quyết định của chủ dự án ngày 2026-11-02, vì là dự án demo: chưa chạy `/check verify`, chỉ có các bước tự kiểm của `/develop` ghi trong `verify.md`; ô "tin xuất hiện ở trang tìm tin" chỉ kiểm bằng `GET /listings` cho tới khi #8 xong)
 spec [0006](../specs/0006-post-a-listing/index.md) · Chọn: một biểu mẫu dùng chung cho đăng và sửa, địa chỉ phẳng `/landlord/listings/new` và `/landlord/listings/[id]/edit`, nhà trọ chọn trong biểu mẫu (hoặc gắn sẵn bằng `?propertyId=`, tối đa 50 nhà trọ), kết quả hiện tại chỗ với đường dẫn công khai dạng chữ cho tới khi có #9, tiền nhập bằng chữ số kèm dòng xem trước, ngày vào ở bằng bộ chọn ngày của shadcn, trang sửa hiện nhà trọ chỉ đọc và lý do khi bị admin ẩn, hỏi khi đóng tab lúc đang gõ dở. Cập nhật 2026-11-02: ô chọn 1 đến 5 ảnh nằm ngay trong biểu mẫu đăng tin (đổi thứ tự bằng hai nút, ảnh đầu là ảnh bìa), gửi cùng tin trong một lần, và nếu mất phản hồi thì đọc lại danh sách tin của tôi trước khi cho gửi lần hai.
 
-### 32. Searchable ward picker · needs a decision
+### 32. Searchable ward picker
 Ô chọn phường hoặc xã có thanh tìm kiếm, để không phải lướt qua cả 168 đơn vị. `GET /wards` trả hết một lần, không có tìm kiếm hay phân trang, nên lọc ngay ở FE. Gõ không dấu vẫn ra tên có dấu, giống ô từ khóa của trang tìm tin. Là một ô dùng chung: thay ô chọn phường trong biểu mẫu nhà trọ của #6 (tạo, và sau này sửa ở #12), và #13 dùng lại cho bộ lọc phường.
 **Done when:** gõ một phần tên (kể cả không dấu) thì danh sách thu hẹp, chọn được bằng bàn phím và bằng chạm trên điện thoại, không khớp thì báo không có kết quả, phường đã chọn hiện rõ và đổi được, biểu mẫu nhà trọ của #6 dùng ô mới mà vẫn gửi đúng `wardCode`, và `WARD_UNKNOWN` vẫn hiện đúng chỗ.
-- [ ] Design it (spec): `/architect searchable ward picker`
+- [x] Design it (spec): `/architect searchable ward picker`
+- [ ] Build it: `/develop searchable ward picker`
+  - [ ] M1 Sợi chỉ mỏng: gõ không dấu và lưu một nhà trọ thật. Truy vấn phường chuyển sang `src/features/wards`, hàm bỏ dấu và hàm khớp, thành phần `command` của shadcn, một `WardPicker` mỏng thay `Select` ở biểu mẫu nhà trọ (AC-1 đến AC-5, AC-14, AC-15, và phần cơ bản của AC-6)
+  - [ ] M2 Chiều sâu: bàn phím và bộ gõ, chạm và kích thước, trợ năng, dòng bỏ chọn, mã lạ, không có kết quả, đang tải và lỗi nằm trong ô (AC-6 đến AC-14)
+  - [ ] M3 Hoàn thiện: phần "Ô chọn phường" trong `/dev/ui`, kiểm ở 320, 390 và 1280 px, `npm run check` và `npm run build` (AC-16)
+- [ ] Verify it: `/check verify searchable ward picker`
+spec [0015](../specs/0015-searchable-ward-picker.md) · Chọn: dựng trên `Command` của shadcn trong `Popover` (thêm gói `cmdk`, tắt bộ lọc có sẵn), phần bỏ dấu và khớp tự viết: mọi từ gõ phải là phần đầu của một từ trong tên, xếp theo vị trí từ khớp; một kiểu hộp nổi cho mọi màn hình, ô gõ nhận con trỏ ngay khi mở; bỏ chọn bằng dòng đầu danh sách khi có `allLabel`; mã không có trong danh mục hiện "Mã ... (không có trong danh sách)"; không tô đậm phần khớp; truy vấn phường chuyển sang `src/features/wards` nên spec 0011 phải đổi đường dẫn; #13 dùng lại ô này.
 
 ## Slice 2: Tin phong phú hơn
 

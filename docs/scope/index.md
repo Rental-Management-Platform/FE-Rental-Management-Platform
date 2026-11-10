@@ -33,8 +33,8 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 31 | Landlord and admin dashboards | Slice 1 | done |
 | 8 | Find listings | Slice 1 | done |
 | 9 | Listing detail | Slice 1 | done |
-| 32 | Searchable ward picker | Slice 1 | planned |
-| 13 | Search filters and sort | Slice 1 | planned |
+| 32 | Searchable ward picker | Slice 1 | in-progress |
+| 13 | Search filters and sort | Slice 1 | in-progress |
 | 10 | Listing photos | Slice 2 | done |
 | 11 | Property fees and amenities | Slice 2 | planned |
 | 33 | Property location map | Slice 2 | in-progress |
@@ -66,8 +66,8 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 2 planned.
-* [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 7 done, 2 planned, 2 dropped (#16, #29).
-* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 3 done, 1 in-progress, 5 planned.
+* [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 7 done, 1 in-progress, 1 planned, 2 dropped (#16, #29).
+* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 3 done, 2 in-progress, 4 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 8 planned.
 * [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 done.
 
@@ -96,6 +96,9 @@ Ngoài phạm vi lần này, giữ lại để kế hoạch còn trung thực.
 * **Ảnh chia sẻ mặc định cho trang tìm tin**: trang `/` chưa có ảnh trong thẻ chia sẻ (Open Graph chỉ có chữ); #9 (spec 0010) làm thẻ chia sẻ cho từng tin bằng ảnh đầu của tin, nên tin chưa có ảnh vẫn chỉ có chữ; một ảnh mặc định cho trang này và cho các tin đó cần một ảnh đã được thiết kế sẵn; sinh ra từ spec 0009 và 0010 · needs a decision
 * **Đổi nhà cung cấp bản đồ trước khi có người dùng thật**: bản đồ và tìm địa chỉ của #33 dùng hình bản đồ OpenStreetMap và Nominatim công cộng (không khóa, không đảm bảo, một yêu cầu mỗi giây cho cả trang), hợp với bản demo nhưng không hợp với lượng truy cập thật; khi cần thì chọn nhà cung cấp có điều khoản cho phép (MapTiler và Goong đã được cân nhắc, xem rationale của spec 0011); chỉ phải đổi `config.ts` và `api/nominatim.ts`; sinh ra từ spec 0011 · needs a decision
 * **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, danh sách đang theo dõi, thông báo, thống kê cho chủ trọ (kể cả lượt lưu tin), đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ, lọc tin công khai theo diện tích, tiện ích, tiền cọc hay ngày vào ở (hợp đồng mục 6.19 chỉ có từ khóa, phường, khoảng giá và sắp xếp). Với đánh giá chủ trọ (mục 6.40): báo cáo một đánh giá, chủ trọ trả lời đánh giá, phân bố số sao, lọc hoặc sắp xếp theo số sao, ảnh trong đánh giá, bình chọn "hữu ích", tìm theo chữ trong nhận xét, lịch sử kiểm duyệt đánh giá, đánh giá ẩn danh. Với đánh giá phòng (mục 6.41): các mục vừa kể cũng chưa có ở đây, và thêm sao trên thẻ tin (bốn danh sách thẻ tin là trang tìm tin, tin đã lưu, tin dưới hồ sơ chủ trọ và tin của chủ trọ chưa có `reviewCount` và `ratingAverage`, nên thẻ chưa hiện được sao). Với chat (mục 6.39): sửa hoặc xóa tin nhắn, chặn một người, ảnh hoặc tệp trong tin nhắn, thông báo qua email hoặc đẩy, dấu "đã xem" cho bên kia, màn hình chat cho admin.
+* **Tô đậm phần chữ khớp trong ô chọn phường**: tô đậm chữ vừa gõ trong các dòng kết quả, để người gõ không dấu thấy vì sao một dòng khớp; cần ánh xạ vị trí chữ giữa bản có dấu và không dấu, nên cố ý bỏ qua lần này; sinh ra từ spec 0015 · needs a decision
+* **Trang phường riêng được lập chỉ mục**: `?wardCode=` đứng một mình có tiêu đề, mô tả, canonical riêng và vào sitemap, để tìm kiếm theo khu vực ("phòng trọ phường X"); cần đọc tên phường ở `generateMetadata` và tính lại giới hạn 300 lần một phút; #13 cố ý chỉ lập chỉ mục trang thường; sinh ra từ spec 0016 · needs a decision
+* **Kết quả tìm tin hiện được khi tắt JavaScript**: danh sách nằm trong khung chờ chỉ hiện khi có script, nên người tắt JavaScript chỉ thấy khung chờ (khoảng trống đã biết của #8, ghi ở `verify.md` của spec 0009); #13 giữ nguyên và cho bộ lọc cần JavaScript; sinh ra từ spec 0009 và 0016 · needs a decision
 * **Hộp thư hai cột trên máy tính**: danh sách cuộc trò chuyện bên trái và nội dung bên phải trên màn hình rộng, trong khi điện thoại vẫn là hai màn riêng (`/tin-nhan` và `/tin-nhan/[id]`); sinh ra từ #34 · needs a decision
 * **Tự biến liên kết trong tin nhắn thành bấm được**: tin chat hiện là chữ thô nên người dùng phải tự chép liên kết; muốn bấm được thì chỉ cho `http` và `https`, thêm `rel="noopener noreferrer"`, tuyệt đối không dùng HTML, và cần một quyết định riêng về an toàn; sinh ra từ spec 0012 · needs a decision
 * **Backend đã bỏ khỏi kế hoạch, đừng làm**: duyệt tin trước khi hiện, VNPay, xác thực chủ trọ bằng giấy tờ, báo cáo tin xấu, liên hệ chủ trọ có giới hạn mỗi ngày, đẩy tin và tin nổi bật, kiểm tra tại chỗ, quảng cáo, dashboard thu chi, tìm quanh một địa điểm, đổi loại tài khoản.
