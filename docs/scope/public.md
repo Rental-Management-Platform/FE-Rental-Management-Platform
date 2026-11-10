@@ -43,7 +43,7 @@ Nút tim trên thẻ tin và trang chi tiết (tim đầy, tim rỗng, và tim r
 - [ ] Build it: `/develop favorites` (không có spec riêng: xây theo `api-for-frontend.md` mục 6.33 và phần "Lưu tin yêu thích" của mục 7, cùng các việc mà spec 0001, 0005, 0009 và 0010 để lại cho dòng này)
 code in `src/features/favorites/` (`access.ts`, `favorite-view.ts`, `favorite-errors.ts`, `favorite-flags.ts`, `favorite-cache.ts`, `api/`, `hooks/`, `components/`), `src/features/listing-detail/` (`api/listing-detail-query.ts`, `components/listing-detail.tsx`)
   - [x] M1 Sợi chỉ mỏng: nút tim ở đầu trang chi tiết tin, đọc `isFavorite` từ khóa `["listing-detail", code]`, bấm để lưu và bỏ lưu, kết quả của máy chủ ghi vào mọi nơi đang giữ tin đó, nút khóa lúc đang gửi, khách dẫn tới đăng nhập, chủ trọ và admin không thấy tim
-  - [ ] M2 Trang "Tin đã lưu": `/favorites` sau lớp chặn người tìm trọ, phân trang bằng `?page=`, thẻ có dòng "Đã lưu ngày", bấm tim thì thẻ biến, các trạng thái trống, quá trang cuối, lỗi đọc và 429, mục "Tin đã lưu" trong menu tài khoản
+  - [x] M2 Trang "Tin đã lưu": `/favorites` sau lớp chặn người tìm trọ, phân trang bằng `?page=`, thẻ có dòng "Đã lưu ngày", bấm tim thì thẻ biến, các trạng thái trống, quá trang cuối, lỗi đọc và 429, mục "Tin đã lưu" trong menu tài khoản
   - [ ] M3 Tim trên thẻ tin: chỗ cho tim trong `ListingCard`, lớp phủ đọc lại danh sách kèm token ở trang tìm tin và ở danh sách tin của chủ trọ
   - [ ] M4 Lỗi, giới hạn và an toàn: tin vừa biến mất, 429, không có quyền, lỗi đọc cờ, bấm đúp, rà riêng tư
   - [ ] M5 Xem thử (bỏ qua được nếu hết giờ): phần tim trong `/dev/ui` trên dữ liệu giả

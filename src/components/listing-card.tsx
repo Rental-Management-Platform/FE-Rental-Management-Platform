@@ -1,8 +1,9 @@
 import { MapPinIcon, RulerIcon } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { ListingPhoto } from "@/components/listing-photo";
 import { Card } from "@/components/ui/card";
-import type { ListingSummary } from "@/lib/api/types";
+import type { IsoDateTime, ListingSummary } from "@/lib/api/types";
 import {
   formatArea,
   formatDateOnly,
@@ -22,6 +23,14 @@ type ListingCardProps = {
   href?: string;
   /** The first card of a page loads its photo at once. */
   eagerPhoto?: boolean;
+  /**
+   * The heart (scope #14), a slot on the right of the title keyed to this row by whoever passes it.
+   * It draws nothing for a person who gets no heart, and the slot then takes no room. The card
+   * knows nothing about sessions: the heart brings its own.
+   */
+  heart?: ReactNode;
+  /** `favoritedAt` as the API sent it, on the saved page only: adds the "Đã lưu ngày" line. */
+  savedAt?: IsoDateTime;
 };
 
 // Only a card that goes somewhere reacts to the pointer and shows the ring around the stretched
@@ -38,6 +47,8 @@ export function ListingCard({
   listing,
   href,
   eagerPhoto = false,
+  heart,
+  savedAt,
 }: ListingCardProps) {
   return (
     <Card className={cn("relative gap-0 py-0", href && LINKED_CARD)}>
@@ -46,18 +57,24 @@ export function ListingCard({
         eager={eagerPhoto}
       />
       <div className="flex flex-1 flex-col gap-3 p-4">
-        <h3 className="line-clamp-2 text-lg">
-          {href ? (
-            <Link
-              href={href}
-              className="outline-hidden after:absolute after:inset-0 hover:underline"
-            >
-              {listing.title}
-            </Link>
-          ) : (
-            listing.title
-          )}
-        </h3>
+        {/* The heart sits beside the title and above the stretched link. The negative margins
+            pull its 44 px target back to the padding of the card, so the row is not taller than
+            the title needs. */}
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 min-w-0 text-lg">
+            {href ? (
+              <Link
+                href={href}
+                className="outline-hidden after:absolute after:inset-0 hover:underline"
+              >
+                {listing.title}
+              </Link>
+            ) : (
+              listing.title
+            )}
+          </h3>
+          <div className="-mt-2 -mr-2 shrink-0 empty:hidden">{heart}</div>
+        </div>
         <p className="text-xl font-semibold text-primary">
           {formatMoney(listing.price)}
           <span className="text-sm font-normal text-muted-foreground">
@@ -81,6 +98,11 @@ export function ListingCard({
           <MapPinIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           <span className="line-clamp-2">{listing.fullAddress}</span>
         </p>
+        {savedAt !== undefined && (
+          <p className="text-sm text-muted-foreground">
+            Đã lưu ngày {formatDateTime(savedAt)}
+          </p>
+        )}
         <p className="mt-auto flex items-center justify-between gap-2 border-t pt-3 text-xs text-muted-foreground">
           <span className="min-w-0 truncate">
             {listing.landlord.name ?? "Chủ trọ"}

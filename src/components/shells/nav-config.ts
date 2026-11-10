@@ -1,4 +1,5 @@
 import {
+  HeartIcon,
   LayoutDashboard,
   MessageCircle,
   Search,
@@ -6,6 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { LANDLORD_CHAT_BASE, TENANT_CHAT_BASE } from "@/features/chat/access";
+import { FAVORITES_PATH } from "@/features/favorites/access";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
 import { homePathOf } from "@/lib/next-path";
 import { ADMIN_TOOLS, LANDLORD_TOOLS, navItemsOf } from "./workspace-tools";
@@ -56,7 +58,8 @@ export const ADMIN_NAV: readonly NavItem[] = [
 // Display only: what a person may do stays with `can()` and the backend. The way back to the
 // work area from the public pages (spec 0008, AC-14); the renter has no work area. "Tin nhắn"
 // is the inbox of each side (spec 0012, AC-19): the address is the one `chatBasePath` gives, and
-// the item shows only to someone who may read conversations.
+// the item shows only to someone who may read conversations. "Tin đã lưu" is the renter's saved
+// listings (scope #14), shown only to someone who may read them.
 export const ACCOUNT_LINKS: Record<"all" | AccountType, readonly NavItem[]> = {
   all: [],
   tenant: [
@@ -65,6 +68,13 @@ export const ACCOUNT_LINKS: Record<"all" | AccountType, readonly NavItem[]> = {
       href: TENANT_CHAT_BASE,
       icon: MessageCircle,
       permission: "conversation:read",
+    },
+    // The saved listings of a renter (scope #14). Shown only to someone who may read them.
+    {
+      label: "Tin đã lưu",
+      href: FAVORITES_PATH,
+      icon: HeartIcon,
+      permission: "favorite:read",
     },
   ],
   landlord: [
