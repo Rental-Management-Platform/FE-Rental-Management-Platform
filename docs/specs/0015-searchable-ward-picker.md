@@ -2,7 +2,7 @@
 
 **Date**: 2026-11-10
 **Updated**: 2026-11-10 (the search filters of spec 0016 need two more props, `initialWards` and `portalContainer`, see AC-17 and AC-18)
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

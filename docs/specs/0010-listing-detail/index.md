@@ -229,7 +229,7 @@ Tracer Bullet (the project default, `AGENTS.md`): one thin real thread through e
 
 ## Follow-up
 
-- [ ] #11 adds the fees and amenities zone to this page (lift it from the sample screen), between "Nhà trọ" and the end of the left column.
+- [x] #11 adds the fees and amenities zone to this page (lift it from the sample screen), between "Nhà trọ" and the end of the left column.
 - [ ] #14 adds the heart to the title row and reads `isFavorite` from the same query `["listing-detail", code]`, then ticks the heart off the invariants here.
 - [ ] #15 links the landlord name on the contact card and on the card in the list.
 - [ ] #13 adds the ward crumb as a link to the filtered list, and a third level to the JSON-LD breadcrumb.

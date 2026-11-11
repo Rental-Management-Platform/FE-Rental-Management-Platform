@@ -1,7 +1,7 @@
 # 0016. Bộ lọc và sắp xếp ở trang tìm tin
 
 **Date**: 2026-11-10
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
