@@ -65,24 +65,31 @@ const FEE_KIND_LABEL: Record<FeeKind, string> = {
 };
 
 const FEE_UNIT_LABEL: Record<FeeUnit, string> = {
-  per_kwh: "kWh",
-  per_m3: "m³",
-  per_month: "tháng",
-  per_person_month: "người mỗi tháng",
-  per_vehicle_month: "xe mỗi tháng",
+  per_kwh: "mỗi kWh",
+  per_m3: "mỗi m³",
+  per_month: "mỗi tháng",
+  per_person_month: "mỗi người mỗi tháng",
+  per_vehicle_month: "mỗi xe mỗi tháng",
 };
 
 /** The name of a kind of fee: "Điện", "Nước", "Giữ xe". */
 export const feeKindLabel = (kind: FeeKind) => FEE_KIND_LABEL[kind];
 
-/** "3.500 ₫ mỗi kWh". A price of 0 means the fee is free, so it reads "Miễn phí". */
+/** The words for a unit of a fee, "per" included: "mỗi kWh", "mỗi xe mỗi tháng". */
+export const feeUnitLabel = (unit: FeeUnit) => FEE_UNIT_LABEL[unit];
+
+/** A fee price as money: 3800 becomes "3.800 ₫". A price of 0 means the fee is free, so it reads "Miễn phí". */
+export const formatFeePrice = (price: number) =>
+  price === 0 ? "Miễn phí" : formatMoney(price);
+
+/** "3.500 ₫ mỗi kWh". A free fee has no unit to add, so it reads "Miễn phí" alone. */
 export const formatFee = ({
   price,
   unit,
 }: Pick<PropertyFee, "price" | "unit">) =>
   price === 0
-    ? "Miễn phí"
-    : `${formatMoney(price)} mỗi ${FEE_UNIT_LABEL[unit]}`;
+    ? formatFeePrice(price)
+    : `${formatFeePrice(price)} ${feeUnitLabel(unit)}`;
 
 // Chat times (spec 0012, AC-13). Every one takes `now` as an argument and cuts the day at midnight
 // in Vietnam, so the same answer comes out on any machine and a test can pass any `now`.

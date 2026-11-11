@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { amenityCatalogOf } from "@/features/amenities/amenity-catalog";
+import { useAmenities } from "@/features/amenities/hooks/use-amenities";
 import { isAbortError } from "@/lib/api/abort";
 import { isApiError } from "@/lib/api/errors";
 import type { Property, PropertyBody } from "@/lib/api/types";
@@ -26,6 +28,8 @@ import { WardPicker } from "@/features/wards/components/ward-picker";
 import { useWards } from "@/features/wards/hooks/use-wards";
 import { createProperty } from "../api/create-property";
 import { propertiesKey } from "../api/properties-key";
+import { AmenityField } from "./amenity-field";
+import { FeeRowsField } from "./fee-rows-field";
 import {
   EMPTY_PROPERTY,
   propertySchema,
@@ -40,10 +44,13 @@ const FIELDS: readonly Path<PropertyInput>[] = [
   "name",
   "addressText",
   "wardCode",
+  "fees",
+  "amenityKeys",
 ];
 
-// The create property form: two zones on the canvas with the notice and the submit row under
-// them (api-for-frontend.md, 6.17). Fees, amenities and coordinates join with #11.
+// The create property form: four zones on the canvas (general, address, fees, amenities) with
+// the notice and the submit row under them (api-for-frontend.md, 6.17; spec 0017). Coordinates
+// join with #33, between the address zone and the fees zone.
 export function PropertyForm({
   onCreated,
 }: {
@@ -52,6 +59,7 @@ export function PropertyForm({
   const api = useApi();
   const queryClient = useQueryClient();
   const wards = useWards();
+  const amenities = useAmenities();
   const create = useMutation({
     mutationFn: (body: PropertyBody) => createProperty(api, body),
     // The listing form's picker would miss the new property. A plain "out of date" mark is not
@@ -206,6 +214,10 @@ export function PropertyForm({
           </FieldGroup>
         </CardContent>
       </Card>
+
+      <FeeRowsField control={control} setValue={setValue} />
+
+      <AmenityField control={control} catalog={amenityCatalogOf(amenities)} />
 
       <div className="flex flex-col gap-4">
         <FailureNotice

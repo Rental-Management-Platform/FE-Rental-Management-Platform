@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Property } from "@/lib/api/types";
+import { AmenityList } from "./amenity-list";
+import { FeeList } from "./fee-list";
 
 // What the page shows once the property exists. `fullAddress` is joined by the backend, so it
 // is shown as it came and never put together here (api-for-frontend.md, 6.17). "Đăng tin cho
@@ -50,6 +52,10 @@ export function PropertyCreated({
             <dd className="text-base font-medium">{property.fullAddress}</dd>
           </div>
         </dl>
+        {/* What the backend saved, in the order it sorted it (spec 0017, AC-12). The title above
+            is an `h2`, so these are `h3`. A part with nothing in it draws nothing. */}
+        <FeeList fees={property.fees} headingLevel="h3" />
+        <AmenityList amenities={property.amenities} headingLevel="h3" />
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg">
             <Link
