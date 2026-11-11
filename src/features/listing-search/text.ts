@@ -25,6 +25,15 @@ export const SEARCH_BAR_TEXTS = {
   maxPriceLabel: "Giá đến",
   submit: "Tìm trọ",
   clearKeyword: "Xóa tìm kiếm",
+  // The phone layout (spec 0016, AC-6, AC-11, AC-12, AC-19).
+  filterButton: "Bộ lọc",
+  filterButtonName: (active: number) => `Bộ lọc, ${active} đang bật`,
+  sheetTitle: "Bộ lọc",
+  sheetDescription: "Chọn phường và khoảng giá cho tin cần tìm.",
+  apply: "Áp dụng",
+  clearFilters: "Xóa bộ lọc",
+  activeFilters: "Bộ lọc đang bật",
+  removeFilter: (label: string) => `Bỏ lọc ${label}`,
 } as const;
 
 /** What a price box says when its text is not a usable number (spec 0016, AC-8). */
