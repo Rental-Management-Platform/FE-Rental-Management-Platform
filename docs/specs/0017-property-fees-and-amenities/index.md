@@ -1,7 +1,7 @@
 # 0017. Phí và tiện ích trong biểu mẫu tạo nhà trọ
 
 **Date**: 2026-11-11
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
