@@ -21,6 +21,7 @@ import {
   LISTING_LIST_DESCRIPTION,
   shortKeyword,
 } from "@/features/listing-search/text";
+import { getWards } from "@/features/wards/api/get-wards";
 import { SITE_NAME } from "@/lib/site";
 
 // Metadata from the cleaned address only, with no API call (spec 0009, AC-12, and spec 0016,
@@ -65,6 +66,16 @@ export async function generateMetadata({
   };
 }
 
+// Reads the ward catalog on the server, then draws the live search bar with it as a prop, so a
+// ward in the address shows its name on the first render (spec 0016, AC-10). `getWards` keeps the
+// catalog for an hour and decides what a failed read means: `null` on a live page (the bar gets no
+// catalog and its ward box reads it in the browser), a thrown error while `next build` renders
+// the page or when it is a bug.
+async function SearchBar() {
+  const wards = await getWards();
+  return <SearchBox initialWards={wards ?? undefined} />;
+}
+
 // The front door of the site (spec 0009). The header is the static shell. `searchParams` is
 // passed down as a promise and read only inside the <Suspense> boundary, so the shell can be
 // prerendered. The page reads no cookie, header or token: everyone sees the same list.
@@ -78,7 +89,7 @@ export default function Home({ searchParams }: PageProps<"/">) {
       <Card>
         <CardContent>
           <Suspense fallback={<SearchBoxFallback />}>
-            <SearchBox />
+            <SearchBar />
           </Suspense>
         </CardContent>
       </Card>

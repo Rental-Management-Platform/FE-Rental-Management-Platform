@@ -1,3 +1,6 @@
+import { formatMoney } from "@/lib/format";
+import { MAX_PRICE } from "./schemas/search-params";
+
 // Words shared by the page header, the heading of the results and the page metadata, so the
 // same text is on the screen and in the tab and in the search result (spec 0009, AC-12).
 
@@ -9,6 +12,27 @@ export const LISTING_LIST_DESCRIPTION =
 export const FILTERED_LIST_TITLE = "Kết quả lọc phòng trọ";
 export const filteredListDescription = (siteName: string) =>
   `Danh sách phòng trọ đã lọc hoặc sắp xếp trên ${siteName}.`;
+
+/** The words of the search bar: its fields, its buttons and its name (spec 0016, AC-5, AC-9, AC-19). */
+export const SEARCH_BAR_TEXTS = {
+  formLabel: "Tìm phòng trọ",
+  keywordName: "Từ khóa: tên đường, phường hoặc tiêu đề tin",
+  keywordPlaceholder: "Tên đường, phường hoặc từ khóa",
+  wardLabel: "Phường, xã",
+  wardAll: "Tất cả phường, xã",
+  priceLegend: "Giá thuê mỗi tháng (₫)",
+  minPriceLabel: "Giá từ",
+  maxPriceLabel: "Giá đến",
+  submit: "Tìm trọ",
+  clearKeyword: "Xóa tìm kiếm",
+} as const;
+
+/** What a price box says when its text is not a usable number (spec 0016, AC-8). */
+export const PRICE_ERRORS = {
+  notDigits: "Chỉ nhập chữ số, không dấu chấm hay khoảng trắng, ví dụ 2000000.",
+  tooBig: `Giá tối đa là ${formatMoney(MAX_PRICE)}.`,
+  reversed: "Giá đến phải lớn hơn hoặc bằng giá từ.",
+} as const;
 
 /** The three orders, as the sort links name them (spec 0016, AC-13). */
 export const SORT_LABELS = {

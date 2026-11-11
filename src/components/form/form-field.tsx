@@ -38,6 +38,11 @@ interface FormFieldProps<
   description?: string;
   /** Keeps the label for screen readers and hides it on screen. */
   hideLabel?: boolean;
+  /**
+   * Fields to check again whenever this one is checked, for a rule that compares two fields (a
+   * price range): fixing one box then clears the error that sits on the other.
+   */
+  deps?: readonly FieldPath<TFieldValues>[];
   /** `horizontal` puts the control before its label, for a checkbox or a switch. */
   orientation?: "vertical" | "horizontal";
   className?: string;
@@ -68,6 +73,7 @@ export function FormField<
   label,
   description,
   hideLabel,
+  deps,
   orientation = "vertical",
   className,
   children,
@@ -80,6 +86,7 @@ export function FormField<
     <Controller
       control={control}
       name={name}
+      rules={deps ? { deps: [...deps] } : undefined}
       render={({ field, fieldState }) => {
         const error = fieldState.error?.message;
         const showDescription = Boolean(description) && !error;

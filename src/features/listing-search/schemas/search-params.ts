@@ -54,12 +54,17 @@ function cutAt(text: string, max: number): string {
   return last >= 0xd800 && last <= 0xdbff ? cut.slice(0, -1) : cut;
 }
 
+/**
+ * The one rule for a keyword: trimmed, at most 500 characters, trimmed again after the cut. The
+ * address parser and the search form both use it, so a typed keyword and the same keyword read
+ * back from the address are always the same text (spec 0016, AC-7).
+ */
+export const cleanKeyword = (text: string): string =>
+  cutAt(text.trim(), MAX_KEYWORD_LENGTH).trim();
+
 const keyword = z.preprocess(
   firstValue,
-  z
-    .string()
-    .transform((text) => cutAt(text.trim(), MAX_KEYWORD_LENGTH).trim())
-    .catch(""),
+  z.string().transform(cleanKeyword).catch(""),
 );
 
 // Digits only, so "1e3", "2.5", "+5" and " 3" count as a bad value. A very long run of digits

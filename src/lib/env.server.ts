@@ -14,4 +14,12 @@ if (!parsed.success) {
   );
 }
 
-export const serverEnv = { API_URL: parsed.data };
+// Next sets `NEXT_PHASE` itself; it is `phase-production-build` while `next build` renders the
+// pages. A read that is allowed to fail on a live page (the ward catalog) must still fail the
+// build, so an empty result is never shut into the static shell (spec 0016, AC-10).
+const phase = z.string().optional().parse(process.env.NEXT_PHASE);
+
+export const serverEnv = {
+  API_URL: parsed.data,
+  IS_PRODUCTION_BUILD: phase === "phase-production-build",
+};
