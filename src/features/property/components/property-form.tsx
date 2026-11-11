@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useId } from "react";
-import { useForm, useWatch, type Path } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
@@ -21,7 +21,7 @@ import { amenityCatalogOf } from "@/features/amenities/amenity-catalog";
 import { removedAmenityKeys } from "@/features/amenities/amenity-keys";
 import { useAmenities } from "@/features/amenities/hooks/use-amenities";
 import { isAbortError } from "@/lib/api/abort";
-import { fieldErrors, isApiError } from "@/lib/api/errors";
+import { isApiError } from "@/lib/api/errors";
 import type { Property, PropertyBody } from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
@@ -29,6 +29,11 @@ import { WardPicker } from "@/features/wards/components/ward-picker";
 import { useWards } from "@/features/wards/hooks/use-wards";
 import { createProperty } from "../api/create-property";
 import { propertiesKey } from "../api/properties-key";
+import {
+  AMENITY_REMOVED_MESSAGE,
+  PROPERTY_FORM_FIELDS,
+  zoneFocusTarget,
+} from "../form-failure";
 import { AmenityField } from "./amenity-field";
 import { FeeRowsField } from "./fee-rows-field";
 import {
@@ -38,33 +43,6 @@ import {
   type PropertyInput,
   type PropertyValues,
 } from "../schemas/property-schema";
-
-// The form's own paths in screen order. A message the backend sends for a field this form
-// lacks is shown as the form level message, and focus goes to the first field in this order.
-const FIELDS: readonly Path<PropertyInput>[] = [
-  "name",
-  "addressText",
-  "wardCode",
-  "fees",
-  "amenityKeys",
-];
-
-// Shown in the amenities zone after `AMENITY_UNKNOWN`, once the removed boxes have been cleared.
-const AMENITY_REMOVED_MESSAGE =
-  "Một số tiện ích đã bị gỡ khỏi danh sách và đã được bỏ chọn. Hãy xem lại rồi bấm Tạo nhà trọ.";
-
-// A message for the whole fees zone (a kind twice, more than six) has no box of its own, so
-// `setError` has nothing to focus. Focus goes to the first box of the zone instead, when that
-// message is the first one in screen order. A message for a row, or for a field before the zone,
-// already moves focus to its own box (`applyFieldErrors`).
-function zoneFocusTarget(error: unknown): Path<PropertyInput> | null {
-  const rank = (field: string) =>
-    FIELDS.findIndex((path) => field === path || field.startsWith(`${path}.`));
-  const first = Object.keys(fieldErrors(error))
-    .filter((field) => rank(field) !== -1)
-    .sort((a, b) => rank(a) - rank(b))[0];
-  return first === "fees" ? "fees.0.kind" : null;
-}
 
 // The create property form: four zones on the canvas (general, address, fees, amenities) with
 // the notice and the submit row under them (api-for-frontend.md, 6.17; spec 0017). Coordinates
@@ -104,7 +82,7 @@ export function PropertyForm({
   });
   const { failure, secondsLeft, report, clear } = useFormFailure(
     setError,
-    FIELDS,
+    PROPERTY_FORM_FIELDS,
   );
   const wardCode = useWatch({ control, name: "wardCode" });
 

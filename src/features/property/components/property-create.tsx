@@ -10,7 +10,9 @@ const TIPS = [
   "Ô địa chỉ chỉ cần số nhà và tên đường, ví dụ 12 Lê Lợi.",
   "Phường, xã hoặc đặc khu chọn từ danh sách. Từ 01/07/2025 địa chỉ không còn cấp quận, huyện.",
   "Bạn tạo nhà trọ một lần, rồi đăng nhiều tin phòng vào đó.",
-  "Phí, tiện ích và tọa độ chưa có ở bước này.",
+  "Phí và tiện ích không bắt buộc, nhưng giúp người thuê hiểu đúng chi phí.",
+  // Goes when #33 adds the map to this form (spec 0017, AC-15).
+  "Tọa độ chưa có ở bước này.",
 ] as const;
 
 // The create property page below its `PageHeader`: the form or, once the property exists, the

@@ -28,6 +28,7 @@ import { ListingDetailSection } from "./listing-detail";
 import { ListingReviewsSection } from "./listing-reviews";
 import { OverlaysSection } from "./overlays";
 import { PhotosSection } from "./photos";
+import { PropertyFormSection } from "./property-form";
 import { ReviewsSection } from "./reviews";
 import { SearchFiltersSection } from "./search-filters";
 import { Section } from "./section";
@@ -300,6 +301,7 @@ export default function DevUiPage() {
       <OverlaysSection />
       <DataDisplaySection />
       <PhotosSection />
+      <PropertyFormSection />
       <ListingCardsSection />
       <ListingDetailSection />
       <LandlordProfileSection />

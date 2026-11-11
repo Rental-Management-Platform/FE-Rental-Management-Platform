@@ -150,7 +150,7 @@ Cách làm của dự án là Tracer Bullet: một sợi chỉ thật xuyên m�
   6. Thêm dòng với loại đầu tiên chưa dùng, ẩn loại đã chọn, trần 6 với nút tắt và dòng lý do, đơn vị mặc định và luật đổi loại, satisfies **AC-2**, **AC-3**
   7. Ô giá chỉ nhận chữ số tối đa 9 ký tự, dòng đọc số, gợi ý ô ghi chú, satisfies **AC-4**
   8. Xóa: tên truy cập, chuyển tiêu điểm, vùng trạng thái, nhóm có nhãn, satisfies **AC-5**
-- [ ] M3 Luật và lỗi: đủ thông báo, lỗi backend vào đúng ô, các trạng thái của danh mục
+- [x] M3 Luật và lỗi: đủ thông báo, lỗi backend vào đúng ô, các trạng thái của danh mục
   9. Lược đồ đủ thông báo của AC-7, `FIELDS` có `fees` và `amenityKeys` theo thứ tự màn hình, tiêu điểm vào ô sai đầu tiên, satisfies **AC-7**
   10. Lỗi backend vào đúng ô của dòng N, và vào dòng thông báo của vùng cho `fees` và `amenityKeys`, satisfies **AC-9**
   11. `AMENITY_UNKNOWN`: đọc lại danh mục, bỏ ô đã gỡ, dòng thông báo, tiêu điểm, satisfies **AC-10**
