@@ -18,9 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { amenityCatalogOf } from "@/features/amenities/amenity-catalog";
+import { removedAmenityKeys } from "@/features/amenities/amenity-keys";
 import { useAmenities } from "@/features/amenities/hooks/use-amenities";
 import { isAbortError } from "@/lib/api/abort";
-import { isApiError } from "@/lib/api/errors";
+import { fieldErrors, isApiError } from "@/lib/api/errors";
 import type { Property, PropertyBody } from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
@@ -47,6 +48,23 @@ const FIELDS: readonly Path<PropertyInput>[] = [
   "fees",
   "amenityKeys",
 ];
+
+// Shown in the amenities zone after `AMENITY_UNKNOWN`, once the removed boxes have been cleared.
+const AMENITY_REMOVED_MESSAGE =
+  "Một số tiện ích đã bị gỡ khỏi danh sách và đã được bỏ chọn. Hãy xem lại rồi bấm Tạo nhà trọ.";
+
+// A message for the whole fees zone (a kind twice, more than six) has no box of its own, so
+// `setError` has nothing to focus. Focus goes to the first box of the zone instead, when that
+// message is the first one in screen order. A message for a row, or for a field before the zone,
+// already moves focus to its own box (`applyFieldErrors`).
+function zoneFocusTarget(error: unknown): Path<PropertyInput> | null {
+  const rank = (field: string) =>
+    FIELDS.findIndex((path) => field === path || field.startsWith(`${path}.`));
+  const first = Object.keys(fieldErrors(error))
+    .filter((field) => rank(field) !== -1)
+    .sort((a, b) => rank(a) - rank(b))[0];
+  return first === "fees" ? "fees.0.kind" : null;
+}
 
 // The create property form: four zones on the canvas (general, address, fees, amenities) with
 // the notice and the submit row under them (api-for-frontend.md, 6.17; spec 0017). Coordinates
@@ -76,6 +94,8 @@ export function PropertyForm({
     handleSubmit,
     setError,
     setValue,
+    setFocus,
+    getValues,
     clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<PropertyInput, unknown, PropertyValues>({
@@ -106,7 +126,35 @@ export function PropertyForm({
     } catch (error) {
       // The session changed under the request (a sign out in this tab): there is nothing to show.
       if (isAbortError(error)) return;
+
+      // The catalog changed under the form: an amenity that was ticked is gone. Read the list
+      // again, clear only the boxes that are gone and keep everything else that was typed, then
+      // say so in the amenities zone and put focus on its first box (spec 0017, AC-10). The keys
+      // come from the form now and not from `values`, because the person may have ticked
+      // another box while the request was running. If the read fails, or nothing is gone after
+      // all, the backend's own message is shown instead.
+      if (isApiError(error) && error.code === "AMENITY_UNKNOWN") {
+        const { data: catalog } = await amenities.refetch();
+        const held = getValues("amenityKeys");
+        const gone = catalog ? removedAmenityKeys(catalog, held) : [];
+        if (gone.length > 0) {
+          setValue(
+            "amenityKeys",
+            held.filter((key) => !gone.includes(key)),
+            { shouldDirty: true },
+          );
+          setError(
+            "amenityKeys",
+            { type: "server", message: AMENITY_REMOVED_MESSAGE },
+            { shouldFocus: true },
+          );
+          return;
+        }
+      }
+
       report(error);
+      const zoneTarget = zoneFocusTarget(error);
+      if (zoneTarget) setFocus(zoneTarget);
       // The catalog changed under the form: read it again, and drop a choice that is gone, so
       // the person picks a ward from the list as it is now.
       if (isApiError(error) && error.code === "WARD_UNKNOWN") {
