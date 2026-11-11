@@ -56,12 +56,13 @@ spec [0007](../specs/0007-listing-photos/index.md) · Chọn: một khối ảnh
 Thêm vào biểu mẫu nhà trọ: tối đa 6 khoản phí (mỗi loại một lần) và tiện ích chọn từ `GET /amenities`. Tọa độ không làm ở đây mà ở #33, bằng bản đồ. Hiện phí và tiện ích ở trang chi tiết tin. Khi sửa thì gửi lại toàn bộ danh sách.
 **Done when:** thêm, sửa, xóa phí và tiện ích được, loại phí đã chọn bị ẩn khỏi danh sách chọn, lỗi dạng `fees.0.price` hiện đúng ô, phí và tiện ích hiện ở trang chi tiết. Việc sửa phí và tiện ích của nhà trọ đã lưu (PATCH gửi lại cả danh sách) làm ở #12, nên ở đây "sửa" và "xóa" là đổi và bỏ từng dòng trước khi lưu.
 - [x] Design it (spec): `/architect property fees and amenities`
-- [ ] Build it: `/develop property fees and amenities`
+- [x] Build it: `/develop property fees and amenities`
   - [x] M1 Sợi chỉ mỏng: tạo được một nhà trọ thật có một khoản phí và vài tiện ích, thấy chúng ở màn kết quả; xuất `feeUnitLabel` và thêm `formatFeePrice`, truy vấn `["amenities"]`, lược đồ và body luôn gửi hai mảng, tách `FeeList` và `AmenityList` khỏi `PropertyZone` (AC-1, AC-4, AC-6, AC-8, AC-12)
   - [x] M2 Dòng phí đủ luật: loại đã dùng bị ẩn, trần 6 dòng với nút tắt và dòng lý do, đơn vị mặc định và luật đổi loại, dòng đọc số, xóa với tiêu điểm và vùng trạng thái (AC-2 đến AC-5)
   - [x] M3 Luật và lỗi: đủ thông báo kiểm nhẹ, lỗi `fees.N.*`, `fees` và `amenityKeys` vào đúng ô, `AMENITY_UNKNOWN` đọc lại danh mục, trạng thái danh mục (chờ, lỗi có "Thử lại", rỗng, đủ 30) (AC-6, AC-7, AC-9 đến AC-11)
-  - [ ] M4 Hoàn thiện: mục `/dev/ui` kèm bản điền sẵn cho #12, chữ hướng dẫn của trang tạo, kiểm ở 320, 390 và 1280 px, `npm run check` và `npm run build` (AC-13 đến AC-17)
+  - [x] M4 Hoàn thiện: mục `/dev/ui` kèm bản điền sẵn cho #12, chữ hướng dẫn của trang tạo, kiểm ở 320, 390 và 1280 px, `npm run check` và `npm run build` (AC-13 đến AC-17). `npm run build` do kỹ sư tự chạy, không chạy trong phiên build
 - [ ] Verify it: `/check verify property fees and amenities`
+code in `src/features/property/` (`fees.ts`, `form-failure.ts`, `components/fee-rows-field.tsx`, `components/amenity-field.tsx`, `components/fee-list.tsx`, `components/amenity-list.tsx`, `schemas/property-schema.ts`), `src/features/amenities/`, `src/features/listing-detail/components/property-zone.tsx`, `src/lib/format.ts` (`feeUnitLabel`, `formatFeePrice`), `src/app/dev/ui/property-form.tsx`
 spec [0017](../specs/0017-property-fees-and-amenities/index.md) · Chọn: chỉ biểu mẫu tạo nhà trọ, hai vùng nhập nhận `control` từ biểu mẫu cha để #12 dùng lại cho trang sửa (PATCH không làm ở đây); vùng phí là các dòng thêm bằng nút "Thêm khoản phí", lúc mở trống, tối đa 6, loại đã dùng bị ẩn khỏi ô chọn, ô giá chỉ nhận chữ số kèm dòng đọc số, đơn vị chọn tự do trong năm đơn vị với mặc định theo loại; tiện ích là lưới ô tích từ `GET /amenities` đọc ở trình duyệt, lỗi danh mục không chặn việc tạo (có nút "Thử lại"); `AMENITY_UNKNOWN` thì đọc lại danh mục và bỏ ô đã gỡ; body luôn gửi cả `fees` và `amenityKeys`; màn kết quả hiện phí và tiện ích vừa lưu. Phần hiển thị ở trang chi tiết tin đã xong trước (`PropertyZone`, commit `644d557`).
 
 ### 33. Property location map

@@ -155,7 +155,7 @@ Cách làm của dự án là Tracer Bullet: một sợi chỉ thật xuyên m�
   10. Lỗi backend vào đúng ô của dòng N, và vào dòng thông báo của vùng cho `fees` và `amenityKeys`, satisfies **AC-9**
   11. `AMENITY_UNKNOWN`: đọc lại danh mục, bỏ ô đã gỡ, dòng thông báo, tiêu điểm, satisfies **AC-10**
   12. Trạng thái danh mục: khung chờ, lỗi có "Thử lại" mà vẫn gửi được, rỗng, đủ 30 ô, satisfies **AC-6**, **AC-11**
-- [ ] M4 Hoàn thiện: mục `/dev/ui`, chữ hướng dẫn, kiểm theo kích thước màn hình
+- [x] M4 Hoàn thiện: mục `/dev/ui`, chữ hướng dẫn, kiểm theo kích thước màn hình
   13. Mục `/dev/ui` "Biểu mẫu nhà trọ: phí và tiện ích" với `property-form-sample.ts` (dữ liệu giả, `ApiError` giả, bản điền sẵn), satisfies **AC-13**, **AC-16**
   14. Chữ hướng dẫn của `property-create.tsx`, satisfies **AC-15**
   15. Kiểm ở 320, 390 và 1280 px và bằng bàn phím, cặp tương phản mới (nếu có) vào `scripts/check-contrast.mjs`, `npm run check`, `npm run build`, satisfies **AC-14**, **AC-17**
