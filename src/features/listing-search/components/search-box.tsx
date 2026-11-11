@@ -24,7 +24,11 @@ import {
   type FilterFormValues,
 } from "../filter-form";
 import { focusDraftField } from "../focus-draft-field";
-import { MAX_KEYWORD_LENGTH, searchFromParams } from "../schemas/search-params";
+import {
+  MAX_KEYWORD_LENGTH,
+  searchFromParams,
+  type ListingSearch,
+} from "../schemas/search-params";
 import { listingsHref, withoutFilters, withoutKeyword } from "../search-href";
 import { hasFilters } from "../search-state";
 import { SEARCH_BAR_TEXTS } from "../text";
@@ -87,8 +91,10 @@ export function SearchBoxFallback() {
         />
       </div>
       <div className={FILTERS_WRAP} aria-hidden>
+        {/* The live ward box has a label row above it (28 px), so the block starts 28 px lower
+            than `WARD_PLACE` puts the cell, or it would sit above the price blocks. */}
         <div className={cn("min-w-0", WARD_PLACE)}>
-          <Skeleton className="h-11" />
+          <Skeleton className="mt-7 h-11" />
         </div>
         {/* As tall as the prices: a 28 px legend row, then the 100 px field with its room. */}
         <div className={cn("min-h-32 min-w-0", PRICE_PLACE)}>
@@ -107,11 +113,36 @@ export function SearchBoxFallback() {
 }
 
 /**
- * The live search bar (spec 0016, AC-5 to AC-9, AC-11). One draft of React Hook Form holds the
+ * The live search bar of the page: `SearchBoxView` fed with the address and the router. A valid
+ * send goes to the new address inside a transition, and `isPending` holds the buttons until the
+ * new page has come.
+ */
+export function SearchBox({ initialWards }: { initialWards?: Ward[] }) {
+  const router = useRouter();
+  const search = searchFromParams(useSearchParams());
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <SearchBoxView
+      search={search}
+      initialWards={initialWards}
+      pending={isPending}
+      onNavigate={(target) => startTransition(() => router.push(target))}
+    />
+  );
+}
+
+/**
+ * The search bar itself (spec 0016, AC-5 to AC-9, AC-11). One draft of React Hook Form holds the
  * keyword, the ward and the two prices. Nothing is sent while a person types or picks: Enter in
  * the keyword or a price box, "Tìm trọ" or "Áp dụng" checks the draft with the Zod schema, then
- * either shows the mistakes and moves focus to the first box that is wrong, or goes to the new
- * address (page 1, and the order that is already applied).
+ * either shows the mistakes and moves focus to the first box that is wrong, or hands the new
+ * address (page 1, and the order that is already applied) to `onNavigate`.
+ *
+ * It reads no address and no router: `search` is the applied search and `onNavigate` takes the
+ * address to go to, so `SearchBox` feeds it the real ones and the `/dev/ui` samples feed it fake
+ * ones (spec 0016, AC-21). `pending` holds "Tìm trọ" and "Áp dụng" while the navigation runs. Use
+ * one at a time on a page: `focusDraftField` looks for a box in the whole document.
  *
  * The filter boxes are in the card from `md`. Below `md` they are in a sheet that "Bộ lọc" opens,
  * and the sheet sits beside the form, not inside it. A send the draft fails on a phone, with the
@@ -124,10 +155,17 @@ export function SearchBoxFallback() {
  * only the order or the page change. The bar has no `key`, so focus is never lost to `body` when
  * it would have been rebuilt.
  */
-export function SearchBox({ initialWards }: { initialWards?: Ward[] }) {
-  const router = useRouter();
-  const search = searchFromParams(useSearchParams());
-  const [isPending, startTransition] = useTransition();
+export function SearchBoxView({
+  search,
+  initialWards,
+  pending,
+  onNavigate,
+}: {
+  search: ListingSearch;
+  initialWards?: Ward[];
+  pending: boolean;
+  onNavigate: (target: string) => void;
+}) {
   const [open, setOpen] = useState(false);
   // The box the sheet puts focus on when it opens, or `null` for its title.
   const [focusField, setFocusField] = useState<string | null>(null);
@@ -180,7 +218,7 @@ export function SearchBox({ initialWards }: { initialWards?: Ward[] }) {
 
   const onValid = (values: FilterFormValues) => {
     // A second send while the first is on its way, such as Enter after the button.
-    if (isPending) return;
+    if (pending) return;
     closeSheet();
     const next = searchFromFilterForm(values, search.sort);
     const target = listingsHref(next);
@@ -189,7 +227,7 @@ export function SearchBox({ initialWards }: { initialWards?: Ward[] }) {
       reset(draftFromSearch(next));
       return;
     }
-    startTransition(() => router.push(target));
+    onNavigate(target);
   };
 
   const onInvalid = (errors: FieldErrors<FilterFormInput>) => {
@@ -239,8 +277,8 @@ export function SearchBox({ initialWards }: { initialWards?: Ward[] }) {
           />
         </div>
         <div className={ACTIONS_CELL}>
-          <Button type="submit" size="lg" disabled={isPending}>
-            {isPending ? (
+          <Button type="submit" size="lg" disabled={pending}>
+            {pending ? (
               <Spinner size="sm" data-icon="inline-start" />
             ) : (
               <SearchIcon data-icon="inline-start" />
@@ -303,7 +341,7 @@ export function SearchBox({ initialWards }: { initialWards?: Ward[] }) {
           hasFilters(search) ? listingsHref(withoutFilters(search)) : null
         }
         onClear={closeSheet}
-        pending={isPending}
+        pending={pending}
         focusField={focusField}
       />
     </div>

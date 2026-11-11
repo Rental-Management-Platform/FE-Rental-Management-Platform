@@ -29,6 +29,7 @@ import { ListingReviewsSection } from "./listing-reviews";
 import { OverlaysSection } from "./overlays";
 import { PhotosSection } from "./photos";
 import { ReviewsSection } from "./reviews";
+import { SearchFiltersSection } from "./search-filters";
 import { Section } from "./section";
 import { ShellsSection } from "./shells-section";
 import { StatesSection } from "./states";
@@ -290,6 +291,7 @@ export default function DevUiPage() {
       <ControlsSection />
       <DatePickerSection />
       <WardPickerSection />
+      <SearchFiltersSection />
       <FeedbackSection />
       <StatesSection />
       <DashboardCardsSection />

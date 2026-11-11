@@ -1,4 +1,4 @@
-import { BookOpenIcon, HouseIcon, SearchXIcon } from "lucide-react";
+import { BookOpenIcon, HouseIcon } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ListPagination } from "@/components/list-pagination";
@@ -16,10 +16,11 @@ import {
   LISTING_PAGE_SIZE,
   parseListingSearch,
 } from "../schemas/search-params";
-import { listingsHref, withoutFilters, withoutKeyword } from "../search-href";
+import { listingsHref } from "../search-href";
 import { hasFilters, hasKeyword, isReversedRange } from "../search-state";
-import { noMatchHint, shortKeyword } from "../text";
+import { shortKeyword } from "../text";
 import { ListingsFailure } from "./listings-failure";
+import { NoMatchState } from "./no-match-state";
 import { PriceRangeNotice } from "./price-range-notice";
 import { ResultsHeading } from "./results-heading";
 import { SortLinks } from "./sort-links";
@@ -136,29 +137,7 @@ export async function Results({
           {pagination}
         </>
       ) : result.total === 0 && (keyword || filters) ? (
-        <EmptyState
-          icon={SearchXIcon}
-          title="Không có tin nào phù hợp"
-          description={noMatchHint(keyword, filters)}
-          action={
-            <>
-              {filters && (
-                <Button asChild variant="outline" size="lg">
-                  <Link href={listingsHref(withoutFilters(search))}>
-                    Xóa bộ lọc
-                  </Link>
-                </Button>
-              )}
-              {keyword && (
-                <Button asChild variant="outline" size="lg">
-                  <Link href={listingsHref(withoutKeyword(search))}>
-                    Xóa tìm kiếm
-                  </Link>
-                </Button>
-              )}
-            </>
-          }
-        />
+        <NoMatchState search={search} />
       ) : result.total === 0 ? (
         <EmptyState
           icon={HouseIcon}
