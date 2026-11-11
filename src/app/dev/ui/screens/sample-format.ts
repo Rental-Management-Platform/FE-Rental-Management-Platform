@@ -1,43 +1,12 @@
 // Text helpers that only the sample screens use. Money, area and dates moved to
-// `src/lib/format.ts` with the first feature that shows a price (spec 0006, AC-13).
-import type {
-  AccountType,
-  FeeKind,
-  FeeUnit,
-  ListingStatus,
-  PropertyFee,
-} from "@/lib/api/types";
-import { formatMoney } from "@/lib/format";
+// `src/lib/format.ts` with the first feature that shows a price (spec 0006, AC-13), and the fee
+// words (`feeKindLabel`, `formatFee`) with the fees on the real listing page (scope #11).
+import type { AccountType, ListingStatus } from "@/lib/api/types";
 
 const COUNT = new Intl.NumberFormat("vi-VN");
 
 /** 1248 becomes "1.248". */
 export const formatCount = (n: number) => COUNT.format(n);
-
-const FEE_KIND_LABEL: Record<FeeKind, string> = {
-  electricity: "Điện",
-  water: "Nước",
-  internet: "Internet",
-  parking: "Giữ xe",
-  service: "Dịch vụ",
-  other: "Khác",
-};
-
-const FEE_UNIT_LABEL: Record<FeeUnit, string> = {
-  per_kwh: "kWh",
-  per_m3: "m³",
-  per_month: "tháng",
-  per_person_month: "người mỗi tháng",
-  per_vehicle_month: "xe mỗi tháng",
-};
-
-export const feeKindLabel = (kind: FeeKind) => FEE_KIND_LABEL[kind];
-
-/** "3.500 ₫ mỗi kWh", or "Miễn phí" when the price is 0. */
-export const formatFee = ({ price, unit }: PropertyFee) =>
-  price === 0
-    ? "Miễn phí"
-    : `${formatMoney(price)} mỗi ${FEE_UNIT_LABEL[unit]}`;
 
 export const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
   admin: "Quản trị",

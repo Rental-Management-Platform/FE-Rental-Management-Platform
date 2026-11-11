@@ -24,15 +24,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  feeKindLabel,
   formatArea,
   formatDateOnly,
   formatDateTime,
+  formatFee,
   formatMoney,
   formatPhone,
 } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 import { LISTING_DETAIL } from "../sample-data";
-import { feeKindLabel, formatCount, formatFee } from "../sample-format";
+import { formatCount } from "../sample-format";
 import { ChoiceGroup, SampleControls } from "../sample-state";
 import { SCREENS_HOME } from "../screens";
 

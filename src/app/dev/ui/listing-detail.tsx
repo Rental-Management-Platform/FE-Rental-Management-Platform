@@ -8,9 +8,16 @@ import {
   type GalleryPhoto,
 } from "@/features/listing-detail/components/listing-gallery";
 import { ListingDetailSkeleton } from "@/features/listing-detail/components/listing-detail-skeleton";
+import { PropertyZone } from "@/features/listing-detail/components/property-zone";
 import { ListingsFailure } from "@/features/listing-search/components/listings-failure";
 import { createApiError } from "@/lib/api/errors";
 import { authHref } from "@/lib/next-path";
+import {
+  PROPERTY_AMENITIES_ONLY,
+  PROPERTY_BARE,
+  PROPERTY_FEES_ONLY,
+  PROPERTY_FULL,
+} from "./listing-detail-sample";
 import { Labeled, Section } from "./section";
 
 // A stand-in photo drawn in code, so the gallery makes no network call and ships no image file.
@@ -94,9 +101,10 @@ function PageColumn({ children }: { children: React.ReactNode }) {
   return <div className="max-w-3xl">{children}</div>;
 }
 
-// The listing page (spec 0010): its gallery, contact card, skeleton and failure notices, drawn
-// from the same pieces as the page, on fake data. The only requests are the ones the browser
-// makes for the stand in photos, and none of them leave the page.
+// The listing page (spec 0010): its gallery, contact card, property zone with fees and amenities
+// (scope #11), skeleton and failure notices, drawn from the same pieces as the page, on fake data.
+// The only requests are the ones the browser makes for the stand in photos, and none of them
+// leave the page.
 export function ListingDetailSection() {
   return (
     <>
@@ -160,6 +168,31 @@ export function ListingDetailSection() {
               />
             </Labeled>
           ))}
+        </div>
+      </Section>
+
+      <Section
+        bare
+        title="Trang chi tiết tin: nhà trọ, phí và tiện ích"
+        description="Một vùng, tối đa ba phần, mỗi phần có tiêu đề riêng và đường kẻ mảnh nằm trong vùng. Phí hiện theo thứ tự cố định của API (điện, nước, internet, giữ xe, dịch vụ, khác), giá 0 đọc là “Miễn phí”, ghi chú nằm dưới số tiền. Tiện ích xếp theo tên. Phần nào không có dữ liệu thì không vẽ."
+      >
+        <div className="flex flex-col gap-8">
+          <Labeled label="đủ ba phần · sáu khoản phí, một khoản miễn phí, một ghi chú dài sát giới hạn 100 ký tự">
+            <PageColumn>
+              <PropertyZone property={PROPERTY_FULL} />
+            </PageColumn>
+          </Labeled>
+          <div className="grid gap-6 md:grid-cols-3">
+            <Labeled label="có phí, chưa có tiện ích">
+              <PropertyZone property={PROPERTY_FEES_ONLY} />
+            </Labeled>
+            <Labeled label="có tiện ích, chưa có phí">
+              <PropertyZone property={PROPERTY_AMENITIES_ONLY} />
+            </Labeled>
+            <Labeled label="chưa có phí và tiện ích · tên và địa chỉ rất dài">
+              <PropertyZone property={PROPERTY_BARE} />
+            </Labeled>
+          </div>
         </div>
       </Section>
 

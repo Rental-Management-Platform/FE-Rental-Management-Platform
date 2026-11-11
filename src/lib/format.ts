@@ -1,5 +1,11 @@
-// Text for people: waits, money, area and dates (`vi-VN`, `Asia/Ho_Chi_Minh`).
-import type { DateOnly, IsoDateTime } from "@/lib/api/types";
+// Text for people: waits, money, fees, area and dates (`vi-VN`, `Asia/Ho_Chi_Minh`).
+import type {
+  DateOnly,
+  FeeKind,
+  FeeUnit,
+  IsoDateTime,
+  PropertyFee,
+} from "@/lib/api/types";
 
 export const TIME_ZONE = "Asia/Ho_Chi_Minh";
 
@@ -46,6 +52,37 @@ export const formatDateOnly = (date: DateOnly) =>
 /** "0901234567" becomes "0901 234 567". Any other shape is shown as it came. */
 export const formatPhone = (phone: string) =>
   phone.replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3");
+
+// The fees of a property on top of the rent (api-for-frontend.md, 6.17). The words for each kind
+// and each unit are the ones the contract gives.
+const FEE_KIND_LABEL: Record<FeeKind, string> = {
+  electricity: "Điện",
+  water: "Nước",
+  internet: "Internet",
+  parking: "Giữ xe",
+  service: "Dịch vụ",
+  other: "Khác",
+};
+
+const FEE_UNIT_LABEL: Record<FeeUnit, string> = {
+  per_kwh: "kWh",
+  per_m3: "m³",
+  per_month: "tháng",
+  per_person_month: "người mỗi tháng",
+  per_vehicle_month: "xe mỗi tháng",
+};
+
+/** The name of a kind of fee: "Điện", "Nước", "Giữ xe". */
+export const feeKindLabel = (kind: FeeKind) => FEE_KIND_LABEL[kind];
+
+/** "3.500 ₫ mỗi kWh". A price of 0 means the fee is free, so it reads "Miễn phí". */
+export const formatFee = ({
+  price,
+  unit,
+}: Pick<PropertyFee, "price" | "unit">) =>
+  price === 0
+    ? "Miễn phí"
+    : `${formatMoney(price)} mỗi ${FEE_UNIT_LABEL[unit]}`;
 
 // Chat times (spec 0012, AC-13). Every one takes `now` as an argument and cuts the day at midnight
 // in Vietnam, so the same answer comes out on any machine and a test can pass any `now`.

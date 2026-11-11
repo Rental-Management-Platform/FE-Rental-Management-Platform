@@ -34,6 +34,7 @@ import { ListingAddressFix } from "./address-fix";
 import { GuestViewCounter } from "./guest-view-counter";
 import { ListingContact } from "./listing-contact";
 import { ListingGallery, type GalleryPhoto } from "./listing-gallery";
+import { PropertyZone } from "./property-zone";
 
 // What Next.js hands a page as `params`.
 type Params = Promise<{ slugCode: string }>;
@@ -140,7 +141,8 @@ export async function ListingDetail({ params }: { params: Params }) {
       />
 
       {/* One column on a phone, in this order: photos, price and facts, contact, description,
-          property. From `lg` the contact zone moves to a sticky column on the right. */}
+          property (with its fees and amenities), reviews. From `lg` the contact zone moves to a
+          sticky column on the right. */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="lg:col-start-1">
           <ListingGallery
@@ -219,21 +221,9 @@ export async function ListingDetail({ params }: { params: Params }) {
           </Card>
         )}
 
-        <Card className="lg:col-start-1">
-          <CardHeader>
-            <CardTitle>
-              <h2 className="text-base">Nhà trọ</h2>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col">
-              <p className="font-medium">{property.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {property.fullAddress}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* The property with its fees and amenities (scope #11): one zone, so the grid keeps the
+            same rows and the contact column keeps its span. */}
+        <PropertyZone property={property} className="lg:col-start-1" />
 
         {/* The room reviews (spec 0014, AC-1 and AC-2): the last card, always open. The block reads
             the address and the session in the browser, so it has its own boundary, and the server
