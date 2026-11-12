@@ -154,8 +154,13 @@ Bảng giá công khai từ `GET /plans`: mỗi gói một thẻ (tên, giá, s�
 
 ## Slice 6: Tài khoản và hoàn thiện
 
-### 29. Location pin on listing detail · dropped
-Bỏ ngày 2026-10-24: `api-for-frontend.md` không mô tả bản đồ. Hợp đồng chỉ có hai ô tọa độ không bắt buộc ở biểu mẫu nhà trọ (làm ở #11), và việc tìm quanh một địa điểm đã bị backend bỏ. Nội dung cũ giữ lại để có lịch sử.
+### 29. Location pin on listing detail
+Mở lại ngày 2026-11-12: #33 đã có bản đồ chỉ xem và `GET /listings/:slugCode` trả `property.latitude` và `property.longitude`. Từng bị bỏ ngày 2026-10-24 vì `api-for-frontend.md` khi đó không mô tả bản đồ. Nội dung cũ giữ lại để có lịch sử.
 Bản đồ nhỏ ở trang chi tiết, hiện đúng một điểm từ tọa độ của nhà trọ. Backend chưa có tìm quanh một vị trí, nên chỉ một điểm, không có bản đồ tìm kiếm. Ẩn cả khối khi nhà trọ chưa có tọa độ. Cần chọn cách hiện bản đồ.
 **Done when:** có tọa độ thì hiện bản đồ một điểm, không có thì ẩn cả khối, bản đồ không làm chậm việc tải trang trên điện thoại.
-- [ ] Design it (spec): `/architect location pin on listing detail`
+- [ ] Design it (spec): `/architect location pin on listing detail` · assumed decision (spec 0018)
+- [x] Build it: `/develop location pin on listing detail`
+  - [x] M1 Sợi chỉ mỏng: hook `useInView`, `ListingLocation` (khung chờ cao cố định, tải bản đồ khi khung gần vào màn hình, bản đồ chỉ xem của #33), nối vào `PropertyZone` kèm `latitude` và `longitude`, thử với một tin có tọa độ (AC-1 đến AC-3, AC-6)
+  - [x] M2 Trạng thái và hoàn thiện: ẩn khi thiếu tọa độ hoặc điểm ngoài hai khung thành phố, lỗi tải bản đồ và hình bản đồ có "Thử lại", dòng cho trình duyệt tắt JavaScript, kiểm ở 320 và 1280 px, `npm run check` và `npm run build` (AC-1, AC-4, AC-5)
+- [ ] Verify it: `/check verify location pin on listing detail`
+spec [0018](../specs/0018-listing-detail-map.md) · Giả định (Assumed), chờ `/architect` duyệt: bản đồ nằm trong `PropertyZone` dưới tên và địa chỉ, tải khi cuộn tới (không dùng nút), ẩn cả khối nếu điểm ngoài hai khung thành phố (không kiểm ranh giới phường vì dữ liệu tin không có `bounds`), dùng lại bản đồ chỉ xem của #33, không làm mục trong `/dev/ui`; ngoài phạm vi: liên kết chỉ đường, `geo` trong JSON-LD. Code ở `src/features/location-map/components/listing-location.tsx`, `hooks/use-in-view.ts` và `src/features/listing-detail/components/property-zone.tsx`. Chưa kiểm trên một tin thật có tọa độ (dữ liệu hiện chưa có tin nào), mới thử bằng `PropertyZone` với tọa độ giả ở cả bản dev và bản production (để `/check verify`).

@@ -58,7 +58,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 26 | Revenue statistics | Slice 5 | planned |
 | 27 | Password recovery | Slice 6 | planned |
 | 28 | My profile and change password | Slice 6 | planned |
-| 29 | Location pin on listing detail | Slice 6 | dropped |
+| 29 | Location pin on listing detail | Slice 6 | in-progress |
 
 ## Các nhóm
 
