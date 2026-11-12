@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { ReadOnlyLocation } from "@/features/location-map/components/read-only-location";
 import { isAbortError } from "@/lib/api/abort";
 import type { OwnerListingDetail } from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
@@ -112,13 +113,19 @@ export function EditListingForm({
       control={control}
       onSubmit={handleSubmit(onSubmit, clearFailure)}
       property={
-        <dl className="flex flex-col gap-1">
-          <dt className="text-sm font-medium">Nhà trọ</dt>
-          <dd className="text-base">{listing.property.name}</dd>
-          <dd className="text-sm text-muted-foreground">
-            {listing.property.fullAddress}
-          </dd>
-        </dl>
+        <div className="flex flex-col gap-3">
+          <dl className="flex flex-col gap-1">
+            <dt className="text-sm font-medium">Nhà trọ</dt>
+            <dd className="text-base">{listing.property.name}</dd>
+            <dd className="text-sm text-muted-foreground">
+              {listing.property.fullAddress}
+            </dd>
+          </dl>
+          <ReadOnlyLocation
+            latitude={listing.property.latitude}
+            longitude={listing.property.longitude}
+          />
+        </div>
       }
       failure={failure}
       message={errors.root?.server?.message}

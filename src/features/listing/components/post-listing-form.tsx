@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ReadOnlyLocation } from "@/features/location-map/components/read-only-location";
 import { propertiesKey } from "@/features/property/api/properties-key";
 import { isAbortError } from "@/lib/api/abort";
 import { describeError, isApiError, type ApiError } from "@/lib/api/errors";
@@ -280,33 +281,43 @@ export function PostListingForm({
       // reachable from rendering.
       onSubmit={(event) => void handleSubmit(onSubmit, onInvalid)(event)}
       property={
-        <FormField
-          control={control}
-          name="propertyId"
-          label="Nhà trọ"
-          description={chosen?.fullAddress ?? PROPERTY_HINT}
-        >
-          {({ field, aria }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                ref={field.ref}
-                size="lg"
-                className="w-full"
-                onBlur={field.onBlur}
-                {...aria}
-              >
-                <SelectValue placeholder="Chọn nhà trọ" />
-              </SelectTrigger>
-              <SelectContent>
-                {properties.map((property) => (
-                  <SelectItem key={property.id} value={property.id}>
-                    {property.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <div className="flex flex-col gap-3">
+          <FormField
+            control={control}
+            name="propertyId"
+            label="Nhà trọ"
+            description={chosen?.fullAddress ?? PROPERTY_HINT}
+          >
+            {({ field, aria }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger
+                  ref={field.ref}
+                  size="lg"
+                  className="w-full"
+                  onBlur={field.onBlur}
+                  {...aria}
+                >
+                  <SelectValue placeholder="Chọn nhà trọ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {properties.map((property) => (
+                    <SelectItem key={property.id} value={property.id}>
+                      {property.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </FormField>
+          {/* Keyed by the property, so choosing another one closes the map. */}
+          {chosen && (
+            <ReadOnlyLocation
+              key={chosen.id}
+              latitude={chosen.latitude}
+              longitude={chosen.longitude}
+            />
           )}
-        </FormField>
+        </div>
       }
       photos={
         <PostPhotos
