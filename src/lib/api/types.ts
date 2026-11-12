@@ -71,6 +71,10 @@ export const ERROR_CODES = [
   "ACCOUNT_ALREADY_LOCKED",
   "ACCOUNT_NOT_LOCKED",
   "WARD_UNKNOWN",
+  // A property's pin (api-for-frontend.md 6.17, spec 0011). Both answer with two `errors` rows,
+  // `latitude` and `longitude`.
+  "COORDINATE_OUT_OF_AREA",
+  "COORDINATE_FAR_FROM_WARD",
   "AMENITY_UNKNOWN",
   "CATALOG_CODE_TAKEN",
   "CATALOG_IN_USE",
@@ -168,6 +172,18 @@ export interface Ward {
   name: string;
   provinceCode: string;
   provinceName: string;
+}
+// The raw box of a ward, as `GET /wards` sends it (api-for-frontend.md 6.15).
+export interface WardBounds {
+  minLatitude: number;
+  maxLatitude: number;
+  minLongitude: number;
+  maxLongitude: number;
+}
+// An entry of `GET /wards`. The ward nested in a property or a listing has no `bounds`, and a
+// ward an admin added through the API has `bounds: null` (spec 0011).
+export interface CatalogWard extends Ward {
+  bounds: WardBounds | null;
 }
 export interface Amenity {
   key: string;

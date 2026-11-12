@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useId } from "react";
+import { useId, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { FailureNotice } from "@/components/form/failure-notice";
@@ -20,12 +20,22 @@ import { Spinner } from "@/components/ui/spinner";
 import { amenityCatalogOf } from "@/features/amenities/amenity-catalog";
 import { removedAmenityKeys } from "@/features/amenities/amenity-keys";
 import { useAmenities } from "@/features/amenities/hooks/use-amenities";
+import {
+  useLocationPin,
+  type PinFields,
+} from "@/features/location-map/hooks/use-location-pin";
 import { isAbortError } from "@/lib/api/abort";
 import { isApiError } from "@/lib/api/errors";
-import type { Property, PropertyBody } from "@/lib/api/types";
+import type {
+  CatalogWard,
+  Property,
+  PropertyBody,
+  Ward,
+} from "@/lib/api/types";
 import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
 import { WardPicker } from "@/features/wards/components/ward-picker";
+import { useWardBounds } from "@/features/wards/hooks/use-ward-bounds";
 import { useWards } from "@/features/wards/hooks/use-wards";
 import { createProperty } from "../api/create-property";
 import { propertiesKey } from "../api/properties-key";
@@ -36,17 +46,35 @@ import {
 } from "../form-failure";
 import { AmenityField } from "./amenity-field";
 import { FeeRowsField } from "./fee-rows-field";
+import { LocationField } from "./location-field";
 import {
+  createPropertySchema,
   EMPTY_PROPERTY,
-  propertySchema,
   toPropertyBody,
   type PropertyInput,
   type PropertyValues,
+  type PropertyWard,
 } from "../schemas/property-schema";
 
-// The create property form: four zones on the canvas (general, address, fees, amenities) with
-// the notice and the submit row under them (api-for-frontend.md, 6.17; spec 0017). Coordinates
-// join with #33, between the address zone and the fees zone.
+// Before the ward boxes arrive (or when they cannot), no ward has a box.
+const NO_BOXED_WARDS: readonly CatalogWard[] = [];
+
+// The ward the map works with: the entry with its box if the boxes are here, else the entry by
+// name with no box, else none.
+function chooseWard(
+  code: string,
+  boxed: readonly CatalogWard[],
+  named: readonly Ward[] | undefined,
+): PropertyWard | null {
+  const withBox = boxed.find((ward) => ward.code === code);
+  if (withBox) return withBox;
+  const byName = named?.find((ward) => ward.code === code);
+  return byName ? { ...byName, bounds: null } : null;
+}
+
+// The create property form: five zones on the canvas (general, address, location, fees,
+// amenities) with the notice and the submit row under them (api-for-frontend.md, 6.17; specs
+// 0017 and 0011).
 export function PropertyForm({
   onCreated,
 }: {
@@ -67,6 +95,17 @@ export function PropertyForm({
     },
   });
   const provinceId = useId();
+
+  // The location zone is closed until the landlord opens it. The ward boxes are read when it
+  // first opens and then stay in the cache, so the schema below keeps them (spec 0011, AC-1).
+  const [locationOpen, setLocationOpen] = useState(false);
+  const wardBounds = useWardBounds({ enabled: locationOpen });
+  const boxedWards = wardBounds.data ?? NO_BOXED_WARDS;
+  const resolver = useMemo(
+    () => zodResolver(createPropertySchema(boxedWards)),
+    [boxedWards],
+  );
+
   const {
     control,
     handleSubmit,
@@ -75,9 +114,10 @@ export function PropertyForm({
     setFocus,
     getValues,
     clearErrors,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<PropertyInput, unknown, PropertyValues>({
-    resolver: zodResolver(propertySchema),
+    resolver,
     defaultValues: EMPTY_PROPERTY,
   });
   const { failure, secondsLeft, report, clear } = useFormFailure(
@@ -90,6 +130,34 @@ export function PropertyForm({
   const provinceName =
     wards.data?.find((ward) => ward.code === wardCode)?.provinceName ?? "";
 
+  // The chosen ward as the map needs it: with its box when the boxes have arrived, else by name
+  // alone and with no box, so only the two city boxes are checked (the backend checks the ward).
+  const chosenWard = chooseWard(wardCode, boxedWards, wards.data);
+
+  const pinFields: PinFields = {
+    read: () => ({
+      latitude: getValues("latitude"),
+      longitude: getValues("longitude"),
+    }),
+    write: (latitude, longitude) => {
+      setValue("latitude", latitude, { shouldDirty: true });
+      setValue("longitude", longitude, { shouldDirty: true });
+    },
+    validate: () => trigger(["latitude", "longitude"]),
+    clearErrors: () => clearErrors(["latitude", "longitude"]),
+    readAddress: () => getValues("addressText"),
+    writeAddress: (text) =>
+      setValue("addressText", text, {
+        shouldValidate: true,
+        shouldDirty: true,
+      }),
+  };
+  const location = useLocationPin({
+    fields: pinFields,
+    ward: chosenWard,
+    open: locationOpen,
+  });
+
   const clearFailure = () => {
     clear();
     clearErrors("root.server");
@@ -97,6 +165,8 @@ export function PropertyForm({
 
   const onSubmit = async (values: PropertyValues) => {
     clearFailure();
+    // A lookup still running must not write into the address the landlord is sending (AC-14).
+    location.abortLookups();
     try {
       const property = await create.mutateAsync(toPropertyBody(values));
       toast.success("Đã tạo nhà trọ", { description: property.name });
@@ -132,7 +202,14 @@ export function PropertyForm({
 
       report(error);
       const zoneTarget = zoneFocusTarget(error);
-      if (zoneTarget) setFocus(zoneTarget);
+      if (zoneTarget === "latitude") {
+        // The coordinate boxes only exist while the location zone is open: open it first, and
+        // focus "Vĩ độ" once it has drawn (spec 0011, AC-11).
+        setLocationOpen(true);
+        requestAnimationFrame(() => setFocus("latitude"));
+      } else if (zoneTarget) {
+        setFocus(zoneTarget);
+      }
       // The catalog changed under the form: read it again, and drop a choice that is gone, so
       // the person picks a ward from the list as it is now.
       if (isApiError(error) && error.code === "WARD_UNKNOWN") {
@@ -215,7 +292,14 @@ export function PropertyForm({
                   ref={field.ref}
                   size="lg"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(code) => {
+                    field.onChange(code);
+                    // A pin the new ward does not allow is dropped, and an open map fits the
+                    // new ward (spec 0011, AC-10).
+                    location.onWardChange(
+                      chooseWard(code, boxedWards, wards.data),
+                    );
+                  }}
                   onBlur={field.onBlur}
                   {...aria}
                 />
@@ -240,6 +324,15 @@ export function PropertyForm({
           </FieldGroup>
         </CardContent>
       </Card>
+
+      <LocationField
+        control={control}
+        location={location}
+        ward={chosenWard}
+        open={locationOpen}
+        onOpenChange={setLocationOpen}
+        boundsPending={locationOpen && wardBounds.isPending}
+      />
 
       <FeeRowsField control={control} setValue={setValue} />
 

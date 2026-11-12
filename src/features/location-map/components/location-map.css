@@ -1,0 +1,22 @@
+/* Small fixes on top of leaflet.css, loaded with the map module only (spec 0011). Tokens only. */
+
+/* The credit stays readable on any tile, in the type scale of the site. */
+.location-map .leaflet-control-attribution {
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  color: var(--card-foreground);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+}
+
+.location-map .leaflet-control-attribution a {
+  color: var(--primary);
+}
+
+/* A finger needs 40 px, not the 30 px of Leaflet (AC-17). */
+@media (pointer: coarse) {
+  .location-map .leaflet-bar a {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+}

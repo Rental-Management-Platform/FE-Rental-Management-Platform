@@ -115,6 +115,10 @@ export const PAIRS = [
     "warning",
     DESTRUCTIVE_TINT,
   ]),
+  // The warning pin of the location map (a saved point out of place, spec 0011) is
+  // `warning-foreground` with a `card` outline. The normal pin is `primary` on `card`, which the
+  // `textOn("primary")` pairs above already hold to 4.5:1.
+  ...controlOn("warning-foreground", ["card"]),
   // The sidebar ring is drawn outside the item with a 2 px gap in `sidebar` (ring-offset-sidebar),
   // so it never touches `sidebar-primary`, which has the same value.
   ...controlOn("sidebar-ring", ["sidebar", "sidebar-accent"]),

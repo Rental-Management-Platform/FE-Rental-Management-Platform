@@ -15,7 +15,7 @@ import {
   zoneFocusTarget,
 } from "@/features/property/form-failure";
 import {
-  propertySchema,
+  createPropertySchema,
   toPropertyBody,
   type PropertyInput,
   type PropertyValues,
@@ -38,6 +38,9 @@ import {
   THREE_ROWS,
 } from "./property-form-sample";
 import { Labeled, Section } from "./section";
+
+// The sample has no ward boxes, so only the two city boxes apply to a pin.
+const SAMPLE_SCHEMA = createPropertySchema([]);
 
 interface DemoProps {
   /** What the form starts with. The two zones draw exactly this and set no default of their own. */
@@ -73,7 +76,7 @@ function ZoneDemo({
     clearErrors,
     formState: { errors },
   } = useForm<PropertyInput, unknown, PropertyValues>({
-    resolver: zodResolver(propertySchema),
+    resolver: zodResolver(SAMPLE_SCHEMA),
     defaultValues: initial,
   });
   const { failure, report, clear } = useFormFailure(

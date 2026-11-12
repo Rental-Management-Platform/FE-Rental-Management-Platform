@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { MAX_AMENITIES } from "@/features/amenities/amenity-keys";
-import type { PropertyBody } from "@/lib/api/types";
+import { pinFieldIssues } from "@/features/location-map/fields";
+import { pinFromFields, roundPin } from "@/features/location-map/pin";
+import type { CatalogWard, PropertyBody } from "@/lib/api/types";
 import {
   FEE_KINDS,
   FEE_UNITS,
@@ -11,7 +13,7 @@ import {
 } from "../fees";
 
 // Light checks only: the backend is the real validator (api-for-frontend.md, 6.17). The limits
-// are the ones of `POST /properties`; coordinates join with #33.
+// are the ones of `POST /properties`.
 
 const NAME_MESSAGE = "Tên nhà trọ cần từ 2 đến 100 ký tự.";
 const ADDRESS_MESSAGE = "Số nhà và tên đường cần từ 5 đến 200 ký tự.";
@@ -85,7 +87,7 @@ export const amenityKeysSchema = z
     message: AMENITY_TWICE_MESSAGE,
   });
 
-export const propertySchema = z.object({
+const propertyShape = z.object({
   name: z
     .string()
     .trim()
@@ -101,19 +103,48 @@ export const propertySchema = z.object({
     .min(5, ADDRESS_MESSAGE)
     .max(200, ADDRESS_MESSAGE),
   wardCode: z.string().regex(/^\d{5}$/, WARD_MESSAGE),
+  // The pin (spec 0011): two texts, both empty or both a number. The rules need the ward, so
+  // they sit on the whole object (`createPropertySchema`), not on these two.
+  latitude: z.string(),
+  longitude: z.string(),
   fees: feesSchema,
   amenityKeys: amenityKeysSchema,
 });
 
+/** A ward as the pin check needs it. A `CatalogWard` fits. */
+export type PropertyWard = Pick<
+  CatalogWard,
+  "code" | "name" | "provinceName" | "bounds"
+>;
+
+/**
+ * The schema of the form, as a pure function of the ward list, because the box of a ward is
+ * data (spec 0011, AC-7). A ward that is not in the list (the catalog is still loading, or the
+ * ward is not chosen yet) counts as having no box, so only the two city boxes are checked.
+ */
+export const createPropertySchema = (wards: readonly PropertyWard[]) =>
+  propertyShape.superRefine(({ latitude, longitude, wardCode }, ctx) => {
+    const ward = wards.find((entry) => entry.code === wardCode) ?? null;
+    for (const { field, message } of pinFieldIssues(
+      latitude,
+      longitude,
+      ward,
+    )) {
+      ctx.addIssue({ code: "custom", message, path: [field] });
+    }
+  });
+
 // What the form holds while the person types, and what the submit handler gets after the
 // schema has trimmed the texts and turned each price into a number.
-export type PropertyInput = z.input<typeof propertySchema>;
-export type PropertyValues = z.output<typeof propertySchema>;
+export type PropertyInput = z.input<typeof propertyShape>;
+export type PropertyValues = z.output<typeof propertyShape>;
 
 export const EMPTY_PROPERTY: PropertyInput = {
   name: "",
   addressText: "",
   wardCode: "",
+  latitude: "",
+  longitude: "",
   fees: [],
   amenityKeys: [],
 };
@@ -121,18 +152,25 @@ export const EMPTY_PROPERTY: PropertyInput = {
 /**
  * The request body: the trimmed texts, the ward `code`, and both lists. `fees` and `amenityKeys`
  * are always there, empty or not, so the one builder also serves the edit form of #12, where an
- * empty list means "remove them all".
+ * empty list means "remove them all". The pin is there only when both fields hold a number, as
+ * numbers rounded to 6 decimals, and is left out otherwise, so one coordinate is never sent alone.
  */
 export const toPropertyBody = ({
   name,
   addressText,
   wardCode,
+  latitude,
+  longitude,
   fees,
   amenityKeys,
-}: PropertyValues): PropertyBody => ({
-  name,
-  addressText,
-  wardCode,
-  fees: toFeesBody(fees),
-  amenityKeys,
-});
+}: PropertyValues): PropertyBody => {
+  const pin = pinFromFields(latitude, longitude);
+  return {
+    name,
+    addressText,
+    wardCode,
+    ...(pin ? roundPin(pin) : {}),
+    fees: toFeesBody(fees),
+    amenityKeys,
+  };
+};

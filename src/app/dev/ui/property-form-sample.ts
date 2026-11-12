@@ -12,6 +12,9 @@ const GENERAL = {
   name: "Nhà trọ mẫu",
   addressText: "12 Lê Lợi",
   wardCode: "27316",
+  // No pin: the two coordinate boxes are empty (spec 0011).
+  latitude: "",
+  longitude: "",
 } as const;
 
 /** The amenities of the seed catalog, sorted by name the way `GET /amenities` sorts them. */

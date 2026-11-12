@@ -14,6 +14,8 @@ export const PROPERTY_FORM_FIELDS: readonly Path<PropertyInput>[] = [
   "name",
   "addressText",
   "wardCode",
+  "latitude",
+  "longitude",
   "fees",
   "amenityKeys",
 ];
@@ -27,6 +29,10 @@ export const AMENITY_REMOVED_MESSAGE =
  * `setError` has nothing to focus. Focus goes to the first box of the zone instead, when that
  * message is the first one in screen order. A message for a row, or for a field before the zone,
  * already moves focus to its own box (`applyFieldErrors`). `null` when nothing is left to do.
+ *
+ * A message for a coordinate (`COORDINATE_OUT_OF_AREA`, `COORDINATE_FAR_FROM_WARD`) gives
+ * `latitude` ("Vĩ độ") when it is the first in screen order: the two boxes only exist while the
+ * location zone is open, so the form opens the zone before it moves focus (spec 0011, AC-11).
  */
 export function zoneFocusTarget(error: unknown): Path<PropertyInput> | null {
   const rank = (field: string) =>
@@ -36,5 +42,6 @@ export function zoneFocusTarget(error: unknown): Path<PropertyInput> | null {
   const first = Object.keys(fieldErrors(error))
     .filter((field) => rank(field) !== -1)
     .sort((a, b) => rank(a) - rank(b))[0];
+  if (first === "latitude" || first === "longitude") return "latitude";
   return first === "fees" ? "fees.0.kind" : null;
 }
