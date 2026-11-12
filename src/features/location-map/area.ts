@@ -19,6 +19,22 @@ export const isInsideBox = (
 export const isInsideCity = (pin: Pin): boolean =>
   CITY_BOXES.some((box) => isInsideBox(pin, box));
 
+/**
+ * The saved point of a property as the public page may show it (spec 0018): both numbers must be
+ * there and the point must be inside one of the two city boxes. A property saved before the
+ * backend checked its point (before 2026-11-05) can hold one in Hà Nội or at sea, and a wrong
+ * pin in public is worse than none. The ward box is not checked, because the listing data does
+ * not carry it.
+ */
+export function publicPin(
+  latitude: number | null,
+  longitude: number | null,
+): Pin | null {
+  if (latitude === null || longitude === null) return null;
+  const pin = { latitude, longitude };
+  return isInsideCity(pin) ? pin : null;
+}
+
 /** Why a pin is refused, or `ok`. The city is checked first, as the backend does. */
 export type PinCheck = "ok" | "outside-city" | "outside-ward";
 

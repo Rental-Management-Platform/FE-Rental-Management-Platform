@@ -48,3 +48,5 @@ export const PIN_DECIMALS = 6;
 /** The two map heights of the skeleton, the map and the read only map (20 rem, 25 rem from `md`, 15 rem). */
 export const MAP_HEIGHT_CLASS = "h-80 md:h-[25rem]";
 export const READ_ONLY_MAP_HEIGHT_CLASS = "h-60";
+/** The map of the public listing page (spec 0018): 15 rem on a phone, 20 rem from `md`. */
+export const LISTING_MAP_HEIGHT_CLASS = "h-60 md:h-80";

@@ -9,6 +9,9 @@ import type { PropertyZoneData } from "@/features/listing-detail/components/prop
 const HOA_HONG = {
   name: "Nhà trọ Hoa Hồng",
   fullAddress: "12 Trần Quang Khải, Phường Tân Định, Thành phố Hồ Chí Minh",
+  // No saved point: the part with the map is left out (spec 0018).
+  latitude: null,
+  longitude: null,
 };
 
 /** All six kinds of fee: one free, four with a note, and one note close to the 100 character limit. */
@@ -76,6 +79,8 @@ export const PROPERTY_BARE: PropertyZoneData = {
   name: "Nhà trọ sinh viên Hoa Hồng cơ sở 2 gần Đại học Sư phạm Kỹ thuật",
   fullAddress:
     "Hẻm 245/12/8 Nguyễn Thị Minh Khai nối dài, Phường Tăng Nhơn Phú, Thành phố Hồ Chí Minh",
+  latitude: null,
+  longitude: null,
   fees: [],
   amenities: [],
 };

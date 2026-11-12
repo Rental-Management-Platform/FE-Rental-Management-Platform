@@ -1,4 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { publicPin } from "@/features/location-map/area";
+import { ListingLocation } from "@/features/location-map/components/listing-location";
 import { AmenityList } from "@/features/property/components/amenity-list";
 import { FeeList } from "@/features/property/components/fee-list";
 import type { PropertyInListing } from "@/lib/api/types";
@@ -6,7 +8,7 @@ import type { PropertyInListing } from "@/lib/api/types";
 /** What the zone reads from the property of a listing. */
 export type PropertyZoneData = Pick<
   PropertyInListing,
-  "name" | "fullAddress" | "fees" | "amenities"
+  "name" | "fullAddress" | "latitude" | "longitude" | "fees" | "amenities"
 >;
 
 /**
@@ -15,6 +17,9 @@ export type PropertyZoneData = Pick<
  * says; scope #11).
  *
  * - "Nhà trọ": the name and the full address, always there.
+ * - "Vị trí trên bản đồ": the saved point on a map that loads when it scrolls into view
+ *   (`ListingLocation`, spec 0018). Left out when the property has no point, or one that is
+ *   outside the city.
  * - "Các khoản phí ngoài tiền thuê": `FeeList`, one row for each fee, in the order the API gives.
  * - "Tiện ích": `AmenityList`, the amenities as the API sorted them, by name.
  *
@@ -31,6 +36,7 @@ export function PropertyZone({
   property: PropertyZoneData;
   className?: string;
 }) {
+  const pin = publicPin(property.latitude, property.longitude);
   return (
     <Card className={className}>
       <CardContent className="gap-5">
@@ -43,6 +49,13 @@ export function PropertyZone({
             </p>
           </div>
         </section>
+
+        {pin && (
+          <section className="flex flex-col gap-2">
+            <h2 className="text-base">Vị trí trên bản đồ</h2>
+            <ListingLocation pin={pin} />
+          </section>
+        )}
 
         <FeeList fees={property.fees} />
         <AmenityList amenities={property.amenities} />
