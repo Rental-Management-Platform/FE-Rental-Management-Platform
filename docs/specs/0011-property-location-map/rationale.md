@@ -89,7 +89,7 @@ The most familiar map in Vietnam, with the Places and Geocoding services.
 | Where the zone sits | third zone, after "Địa chỉ" | the ward must be chosen first and the address typed, so the map reads as the next step; #11 adds its zones after | before the address |
 | Number fields visibility | shown while the map is open | closed with no pin, the zone should be one button | always shown |
 | Reading a typed number | a dot or a comma, shown with a dot | Vietnamese keyboards often type a comma, and the API needs a dot | accept only a dot |
-| Street hint content | only house number and road | the full OpenStreetMap name can carry old district names that no longer exist | the whole `display_name` |
+| Street text content | only house number and road | the full OpenStreetMap name can carry old district names that no longer exist | the whole `display_name` |
 | Schema shape | `createPropertySchema(wards)`, a pure function | the ward box is data, and a static schema cannot hold it | check the box in the submit handler |
 | Nominatim base address and tile address | constants, not environment variables | they are not secrets or per machine settings, and a swap is a code change either way | env variables read through `src/lib/env.ts` |
 | Read only map in the listing forms | no area check, no ward box, opened by a button | the point is shown as stored and the person cannot change it there | always shown, or text only |
@@ -99,9 +99,33 @@ The most familiar map in Vietnam, with the Places and Geocoding services.
 
 Option 1 fits the forces. The pin is optional and the project is a demo with no budget, so a map that needs no key, account or card removes the whole class of setup problems, and the soft failure design (number fields, a hint that can be wrong, a map that can be blocked) means the weak parts of free public services cannot stop a landlord from saving. Leaflet draws exactly what is needed, one pin on a flat map, and loads only when opened, which meets the scope's "do not slow the page" line. The backend rules are exact and strict, so putting the same two checks in the browser (the city boxes and the raw ward box) turns most errors into messages next to the pin before a request is sent.
 
-The engineer picked each of these on its own (Leaflet, react-leaflet, OpenStreetMap tiles, Nominatim, button triggered lookup that never moves a hand placed pin, the hint with a "Dùng địa chỉ này" button, keep the pin and explain when the search finds nothing in the ward, remove the pin when a ward change leaves it outside, one finger scroll with two finger map, a button that opens a small read only map in the listing forms), and all matched my recommendations. No preference was overridden.
+The engineer picked each of these on its own (Leaflet, react-leaflet, OpenStreetMap tiles, Nominatim, button triggered lookup that never moves a hand placed pin, the hint with a "Dùng địa chỉ này" button (replaced on 2026-11-12, see the update below), keep the pin and explain when the search finds nothing in the ward, remove the pin when a ward change leaves it outside, one finger scroll with two finger map, a button that opens a small read only map in the listing forms), and all matched my recommendations. No preference was overridden.
 
 Options 2 to 4 are not wrong, only worse for now. MapLibre adds weight and a key for a prettier map that one pin does not need. Goong and Google cost money or setup, and Goong's better Vietnamese data is only an expectation. The price of Option 1 is real and written in Consequences: the free services are shared and can disappear, so the swap point is kept to two files.
+
+## Update of 2026-11-12: the street field fills itself
+
+**What changed and why.** The first version showed the nearest street as a hint with a button "Dùng địa chỉ này" and never wrote into the form on its own. The engineer asked for the opposite while the build was under way (M1): when the pin is chosen, the street field should fill in by itself, and typing the address should move the pin (that half was already AC-8). The reasons given were speed and fewer steps for the landlord. The earlier worry, that OpenStreetMap data in Vietnam is thin and an automatic fill could be wrong or erase typed text, still stands, so it is handled by rules and not by a button.
+
+**Decision calls (picked with the engineer, both matched the recommendation):**
+
+| Question | Pick | Why | Runner up |
+|---|---|---|---|
+| Does editing the address move a pin the landlord placed by hand? | No. Only the button "Tìm địa chỉ trên bản đồ" moves it | fixing one typo in the text must not throw away a pin placed on the exact spot; the lookup by address is usually only as exact as the street | the last action always wins (address and pin always agree, but a precise pin can be replaced by a rough result) |
+| An answer with a road but no house number | fill only an empty field; otherwise keep the text and say so | OpenStreetMap often lacks house numbers, and a street alone would erase the number the landlord typed | always fill the road (simpler, loses numbers) |
+
+**Reversed later the same day.** Trying the first version, the engineer asked for the opposite on both calls above: wherever the pin is picked, the address changes to that place (no protection for typed text, and a road alone replaces it too), and a typed address reaches the map only through a button, now named "Tìm vị trí trên bản đồ" (no search on leaving the field or on opening the map, so a pin placed by hand is no longer a special case). Kept from the calls below: an answer is dropped when the person edited the field while it was on its way, and a fill starts no lookup. The two rows above are history; `index.md` holds the current rules. The engineer asked for this to be changed directly, without a new `/architect` run, so `/develop` edited the spec.
+
+**Calls made while writing (the RECOMMEND items):**
+
+| Question | Pick | Why | Runner up |
+|---|---|---|---|
+| The person edits the field while the answer is on its way | drop the answer | their text is the newest truth, and an overwrite under their cursor is the worst surprise | apply it anyway |
+| Does a fill start the address search? | no, it is a write from code and fires no blur | otherwise a click could loop into a search and back, and each step costs a request on a shared limit | start the search and let the pin settle |
+| Telling the landlord the field changed | a visible note in the live region: "Đã điền địa chỉ theo điểm ghim: …, có thể chưa đúng, hãy kiểm tra lại." | an automatic change must be seen and heard, and the doubt about the data is stated | no note |
+| The fill after a lookup result or typed numbers | none, only after a click or a drag | those two already come from an address or from numbers the person chose; filling again would fight them | fill after every pin change |
+
+**Other corrections made in the same pass (not part of the request, found while building).** (1) The ward boxes get their own query because the shared ward cache is seeded without `bounds` by the home page (spec 0016, AC-10). (2) `location-field.tsx` lives in the property feature because it needs the form types. (3) The `/dev/ui` section and its acceptance criterion were removed, following the engineer's decision of 2026-11-12 that new UI is no longer drawn there first.
 
 ## Evidence: the web check of 2026-11-05
 
