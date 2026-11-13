@@ -139,12 +139,7 @@ export function FormDemo() {
         >
           <h3 className="text-xl">Đăng nhập</h3>
           <FieldGroup>
-            <FormField
-              control={control}
-              name="email"
-              label="Email"
-              description="Dùng để đăng nhập và nhận thông báo."
-            >
+            <FormField control={control} name="email" label="Email">
               {({ field, aria }) => (
                 <Input
                   type="email"
@@ -156,12 +151,7 @@ export function FormDemo() {
                 />
               )}
             </FormField>
-            <FormField
-              control={control}
-              name="password"
-              label="Mật khẩu"
-              description="Ít nhất 8 ký tự."
-            >
+            <FormField control={control} name="password" label="Mật khẩu">
               {({ field, aria }) => (
                 <Input
                   type="password"

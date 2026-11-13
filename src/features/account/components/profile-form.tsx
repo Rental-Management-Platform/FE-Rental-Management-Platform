@@ -113,7 +113,6 @@ export function ProfileForm({
               control={control}
               name="name"
               label="Tên (không bắt buộc)"
-              description="Tối đa 100 ký tự."
             >
               {({ field, aria }) => (
                 <Input
@@ -132,11 +131,6 @@ export function ProfileForm({
               name="phone"
               label={
                 isLandlord ? "Số điện thoại" : "Số điện thoại (không bắt buộc)"
-              }
-              description={
-                isLandlord
-                  ? "Số này là số liên hệ hiện trên mọi tin của bạn. Đổi số là đổi ở mọi tin cùng lúc."
-                  : "Để trống nếu bạn không muốn lưu số."
               }
             >
               {({ field, aria }) => (

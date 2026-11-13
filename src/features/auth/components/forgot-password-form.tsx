@@ -118,12 +118,7 @@ export function ForgotPasswordForm() {
         className="flex flex-col gap-4"
       >
         <FieldGroup>
-          <FormField
-            control={control}
-            name="email"
-            label="Email"
-            description="Email bạn đã dùng để đăng ký."
-          >
+          <FormField control={control} name="email" label="Email">
             {({ field, aria }) => (
               <Input
                 type="email"

@@ -214,30 +214,22 @@ export function LocationField({
               </p>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField
-                  control={control}
-                  name="latitude"
-                  label="Vĩ độ"
-                  description="Ví dụ 10.7721. Có thể dùng dấu chấm hoặc dấu phẩy."
-                >
+                <FormField control={control} name="latitude" label="Vĩ độ">
                   {({ field, aria }) => (
                     <PinNumberInput
                       field={field}
                       aria={aria}
+                      placeholder="10.7721"
                       onApply={location.applyFields}
                     />
                   )}
                 </FormField>
-                <FormField
-                  control={control}
-                  name="longitude"
-                  label="Kinh độ"
-                  description="Ví dụ 106.6983. Có thể dùng dấu chấm hoặc dấu phẩy."
-                >
+                <FormField control={control} name="longitude" label="Kinh độ">
                   {({ field, aria }) => (
                     <PinNumberInput
                       field={field}
                       aria={aria}
+                      placeholder="106.6983"
                       onApply={location.applyFields}
                     />
                   )}
@@ -290,10 +282,13 @@ export function LocationField({
 function PinNumberInput({
   field,
   aria,
+  placeholder,
   onApply,
 }: {
   field: ControllerRenderProps<PropertyInput, "latitude" | "longitude">;
   aria: FormFieldAria;
+  /** An example number, in place of a help line under the box. */
+  placeholder: string;
   onApply: () => void;
 }) {
   return (
@@ -301,6 +296,7 @@ function PinNumberInput({
       size="lg"
       inputMode="decimal"
       autoComplete="off"
+      placeholder={placeholder}
       {...field}
       {...aria}
       onBlur={() => {

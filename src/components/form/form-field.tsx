@@ -34,7 +34,12 @@ interface FormFieldProps<
   control: Control<TFieldValues, unknown, TTransformed>;
   name: TName;
   label: string;
-  /** Help text. It gives way to the error message while the field is invalid. */
+  /**
+   * A live reading under the box, such as what typed digits read as in money. Not for
+   * instructions, limits or examples: the product keeps no help text under a field. The label
+   * ends with "(không bắt buộc)" for an optional field, the placeholder shows an example, and an
+   * error says what is wrong. It gives way to the error message while the field is invalid.
+   */
   description?: string;
   /** Keeps the label for screen readers and hides it on screen. */
   hideLabel?: boolean;
@@ -58,7 +63,7 @@ interface FormFieldProps<
 }
 
 /**
- * One form field: a visible label, the control, then help text or the error under it. The ids
+ * One form field: a visible label, the control, then the error (or a live reading) under it. The ids
  * come from `useId`, so two fields on a page never share one. shadcn's `Field` does not link
  * an error to its control by itself, so this does: `aria-describedby` and `aria-invalid` go
  * on the control and `data-invalid` on the field.

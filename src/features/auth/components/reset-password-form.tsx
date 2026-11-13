@@ -142,12 +142,7 @@ function ResetFields({
         className="flex flex-col gap-4"
       >
         <FieldGroup>
-          <FormField
-            control={control}
-            name="newPassword"
-            label="Mật khẩu mới"
-            description="Từ 8 đến 128 ký tự."
-          >
+          <FormField control={control} name="newPassword" label="Mật khẩu mới">
             {({ field, aria }) => (
               <PasswordInput
                 autoComplete="new-password"

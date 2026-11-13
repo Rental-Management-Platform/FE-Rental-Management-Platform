@@ -174,11 +174,11 @@ export function FeeRowsField({
   );
 }
 
-// The line under the price box: what the typed digits read as, "Miễn phí" for 0, and a hint
-// while the box is empty. Nothing while the text is not a number (the box says why after a
-// send). `FormField` hides it while the box has an error, so the error takes its place.
+// The line under the price box: what the typed digits read as, "Miễn phí" for 0. Nothing while the
+// box is empty or the text is not a number (the box says why after a send). It is a live reading
+// and never an instruction. `FormField` hides it while the box has an error, so the error takes
+// its place.
 function priceLine(text: string): string | undefined {
-  if (text.trim() === "") return "Nhập 0 nếu miễn phí.";
   const price = readFeePrice(text);
   return price === null ? undefined : formatFeePrice(price);
 }
@@ -308,8 +308,7 @@ function FeeRow({
         <FormField
           control={control}
           name={`fees.${index}.note`}
-          label="Ghi chú"
-          description="Không bắt buộc, tối đa 100 ký tự."
+          label="Ghi chú (không bắt buộc)"
         >
           {({ field, aria }) => (
             <Input

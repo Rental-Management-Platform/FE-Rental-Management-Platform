@@ -9,12 +9,7 @@ import { FailureNotice } from "@/components/form/failure-notice";
 import { FormField } from "@/components/form/form-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { amenityCatalogOf } from "@/features/amenities/amenity-catalog";
@@ -238,12 +233,7 @@ export function PropertyForm({
         </CardHeader>
         <CardContent>
           <FieldGroup>
-            <FormField
-              control={control}
-              name="name"
-              label="Tên nhà trọ"
-              description="Từ 2 đến 100 ký tự."
-            >
+            <FormField control={control} name="name" label="Tên nhà trọ">
               {({ field, aria }) => (
                 <Input
                   size="lg"
@@ -268,7 +258,6 @@ export function PropertyForm({
               control={control}
               name="addressText"
               label="Số nhà và tên đường"
-              description="Chỉ nhập số nhà và tên đường, không nhập phường, xã hay tỉnh."
             >
               {({ field, aria }) => (
                 <Input
@@ -285,7 +274,6 @@ export function PropertyForm({
               control={control}
               name="wardCode"
               label="Phường, xã hoặc đặc khu"
-              description="Chọn từ danh sách. Địa chỉ không có cấp quận, huyện."
             >
               {({ field, aria }) => (
                 <WardPicker
@@ -315,11 +303,7 @@ export function PropertyForm({
                 className="bg-muted"
                 value={provinceName}
                 placeholder="Tự điền theo phường hoặc xã"
-                aria-describedby={`${provinceId}-description`}
               />
-              <FieldDescription id={`${provinceId}-description`}>
-                Đi theo phường hoặc xã đã chọn.
-              </FieldDescription>
             </Field>
           </FieldGroup>
         </CardContent>

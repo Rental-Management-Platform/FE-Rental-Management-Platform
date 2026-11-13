@@ -149,12 +149,7 @@ function RegisterFields() {
                 />
               )}
             </FormField>
-            <FormField
-              control={control}
-              name="password"
-              label="Mật khẩu"
-              description="Từ 8 đến 128 ký tự."
-            >
+            <FormField control={control} name="password" label="Mật khẩu">
               {({ field, aria }) => (
                 <PasswordInput
                   autoComplete="new-password"
@@ -185,9 +180,6 @@ function RegisterFields() {
               name="phone"
               label={
                 isLandlord ? "Số điện thoại" : "Số điện thoại (không bắt buộc)"
-              }
-              description={
-                isLandlord ? "Dùng để người tìm trọ liên hệ bạn." : undefined
               }
             >
               {({ field, aria }) => (

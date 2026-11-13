@@ -104,7 +104,6 @@ export function ChangePasswordForm() {
               control={control}
               name="newPassword"
               label="Mật khẩu mới"
-              description="Từ 8 đến 128 ký tự."
             >
               {({ field, aria }) => (
                 <PasswordInput

@@ -90,12 +90,7 @@ export function ListingForm({
         <CardContent>
           <FieldGroup>
             {property}
-            <FormField
-              control={control}
-              name="title"
-              label="Tiêu đề"
-              description="Từ 5 đến 120 ký tự."
-            >
+            <FormField control={control} name="title" label="Tiêu đề">
               {({ field, aria }) => (
                 <Input
                   size="lg"
@@ -106,12 +101,7 @@ export function ListingForm({
                 />
               )}
             </FormField>
-            <FormField
-              control={control}
-              name="description"
-              label="Mô tả"
-              description="Từ 10 đến 5.000 ký tự, văn bản thường."
-            >
+            <FormField control={control} name="description" label="Mô tả">
               {({ field, aria }) => (
                 <Textarea
                   rows={6}
@@ -137,7 +127,6 @@ export function ListingForm({
               control={control}
               name="price"
               label="Giá thuê (đồng mỗi tháng)"
-              description="Từ 100.000 đến 100.000.000."
             >
               {({ field, aria }) => {
                 const previewId = `${aria.id}-preview`;
@@ -165,12 +154,7 @@ export function ListingForm({
                 );
               }}
             </FormField>
-            <FormField
-              control={control}
-              name="areaM2"
-              label="Diện tích (m²)"
-              description="Tối đa một chữ số sau dấu phẩy."
-            >
+            <FormField control={control} name="areaM2" label="Diện tích (m²)">
               {({ field, aria }) => (
                 <Input
                   size="lg"
@@ -185,8 +169,7 @@ export function ListingForm({
             <FormField
               control={control}
               name="deposit"
-              label="Tiền cọc (đồng)"
-              description="Để trống nếu không thu cọc."
+              label="Tiền cọc (đồng, không bắt buộc)"
             >
               {({ field, aria }) => {
                 const previewId = `${aria.id}-preview`;
@@ -213,8 +196,7 @@ export function ListingForm({
             <FormField
               control={control}
               name="availableFrom"
-              label="Ngày vào ở"
-              description="Để trống nếu có thể vào ở ngay."
+              label="Ngày vào ở (không bắt buộc)"
             >
               {({ field, aria }) => <DatePicker {...field} {...aria} />}
             </FormField>

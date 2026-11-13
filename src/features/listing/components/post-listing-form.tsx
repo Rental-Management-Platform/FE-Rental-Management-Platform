@@ -49,8 +49,6 @@ import { PostPhotos } from "./post-photos";
 // lacks is shown as the form level message, and focus goes to the first field in this order.
 const FIELDS: readonly Path<ListingInput>[] = ["propertyId", ...LISTING_FIELDS];
 
-const PROPERTY_HINT = "Địa chỉ, phí và tiện ích lấy từ nhà trọ bạn chọn.";
-
 const NO_PHOTO_MESSAGE = "Chọn ít nhất 1 ảnh.";
 const BAD_PHOTO_MESSAGE =
   "Có ảnh chưa dùng được. Hãy bỏ ảnh đã đánh dấu rồi đăng lại.";
@@ -286,7 +284,7 @@ export function PostListingForm({
             control={control}
             name="propertyId"
             label="Nhà trọ"
-            description={chosen?.fullAddress ?? PROPERTY_HINT}
+            description={chosen?.fullAddress}
           >
             {({ field, aria }) => (
               <Select value={field.value} onValueChange={field.onChange}>
