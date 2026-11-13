@@ -20,7 +20,7 @@ spec [0005](../specs/0005-sign-up-and-sign-in/index.md) · Chọn: một trang �
 
 ## Slice 6: Tài khoản và hoàn thiện
 
-### 27. Password recovery
+### 27. Password recovery · done
 Hai trang: xin liên kết (`/forgot-password`) và đặt lại (`/reset-password?token=...`, đường dẫn này cố định vì email trỏ thẳng vào). Mã trong liên kết được đọc rồi xóa khỏi thanh địa chỉ.
 **Done when:** xin liên kết hiện cùng một câu cho mọi email, đặt lại thành công thì về trang đăng nhập, liên kết hỏng (`RESET_TOKEN_INVALID`) có nút xin liên kết mới.
 - [x] Build it: `/develop password recovery` (không có spec riêng: xây theo `api-for-frontend.md` mục 6.7, 6.8 và phần "Quên mật khẩu" của mục 7, cùng việc spec 0005 để lại cho dòng này)
@@ -29,7 +29,7 @@ quyết định khi xây (không có spec): hai trang nằm trong nhóm `(auth)`
   - [x] M1 Xin liên kết: trang `/forgot-password`, biểu mẫu email, thông báo cùng một câu cho mọi email, 429, dòng "Quên mật khẩu?" ở trang đăng nhập
   - [x] M2 Đặt lại mật khẩu: trang `/reset-password`, đọc mã rồi xóa khỏi thanh địa chỉ, mật khẩu mới, `RESET_TOKEN_INVALID` kèm nút xin liên kết mới, thành công thì về trang đăng nhập (chưa thử được nhánh thành công với một mã thật, vì mã chỉ có trong email; đã thử bằng mã giả: mã bị xóa khỏi thanh địa chỉ, `RESET_TOKEN_INVALID` thật từ backend, không có mã, kiểm tra ô mật khẩu)
 
-### 28. My profile and change password
+### 28. My profile and change password · done
 Trang tài khoản chung cho mọi loại: xem và sửa tên, số điện thoại (người đăng bài không được xóa số), đổi mật khẩu, đăng xuất mọi thiết bị. Email, loại tài khoản và ngày tham gia chỉ đọc.
 **Done when:** lưu hồ sơ cập nhật ngay tên trên thanh trên cùng, `PHONE_TAKEN` hiện ở ô số, đổi mật khẩu báo rõ các thiết bị khác sẽ phải đăng nhập lại, `CURRENT_PASSWORD_WRONG` hiện ở ô mật khẩu hiện tại.
 - [x] Build it: `/develop my profile and change password` (không có spec riêng: xây theo `api-for-frontend.md` mục 6.35, 6.9, 6.5 và phần "Trang hồ sơ cá nhân" và "Đổi mật khẩu" của mục 7, cùng việc spec 0001, 0005 và 0008 để lại cho dòng này)
