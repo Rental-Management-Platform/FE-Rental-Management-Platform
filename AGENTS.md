@@ -46,7 +46,7 @@ Stored in `docs/specs/`, one folder per decision: `docs/specs/NNNN-title/index.m
 - Layout: `src/features/<name>/{components,api,hooks,schemas}`, shared UI in `src/components`, shared code in `src/lib`, routes in `src/app` (groups `(public)`, `(auth)`, `(tenant)`, `(landlord)`, `(admin)`).
 - Data: the server reads public data as a guest and never holds a token. Anything that needs a login runs in the browser with the access token in memory only.
 - Env: read only through `src/lib/env.ts` (browser) and `src/lib/env.server.ts` (server only), both validated with Zod.
-- Forms: React Hook Form + Zod for light checks. The backend is the real validator, so map its `errors[].field` onto fields.
+- Forms: React Hook Form + Zod for light checks. The backend is the real validator, so map its `errors[].field` onto fields. No help text under a field: an optional field ends its label with "(không bắt buộc)", an example goes in the placeholder, and the error says what is wrong (`design.md`, "Forms").
 - UI: Vietnamese only, `vi-VN` money and area, dates in `Asia/Ho_Chi_Minh`, accessibility baseline WCAG AA.
 - Design system: build all UI to `design.md` (art direction and build mandate); token values live in `src/app/globals.css`.
 - Tokens: semantic classes only (`bg-primary`, `text-muted-foreground`), no raw colors. A new text or control color pair is added to `scripts/check-contrast.mjs`, or `npm run check` fails.

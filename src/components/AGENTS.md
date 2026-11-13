@@ -19,6 +19,7 @@ Shared UI for every feature. The look is fixed by [design.md](../../design.md) a
 
 - Semantic tokens only (`bg-primary`, `text-muted-foreground`). No raw color. Values live in `src/app/globals.css`, and a new text or control color pair must be added to `scripts/check-contrast.mjs` in the same change.
 - Add a shadcn component with the CLI, one at a time (`npx shadcn@latest add <name>`, never `--all`, never `--overwrite` without approval). Then apply the edits listed in spec 0003 ("Edits after adding shadcn files"): focus ring, `overlay` token for backdrops, Vietnamese labels, sizes, no `dark:` classes.
+- A form field is a label, the control and the error: no help text under a box, no `FieldDescription`. An optional field ends its label with "(không bắt buộc)", an example goes in the placeholder, and `FormField`'s `description` is only for a live reading of what was typed, such as digits read back as money (`design.md`, "Forms").
 - `className` is for layout, not for restyling. Use the variants and sizes a component already has.
 - Every visible and screen reader string is Vietnamese. Icon only buttons have an `aria-label`. A dialog, sheet or alert dialog always has a title (`sr-only` if hidden).
 - Control heights are 32, 40 and 44 px. Public pages use `size="lg"` at every width. The focus ring comes from `FOCUS_RING` in `src/lib/focus-ring.ts`.
