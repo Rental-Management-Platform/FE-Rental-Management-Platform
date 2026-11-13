@@ -10,14 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { MY_PROPERTIES_PATH } from "@/features/property/property-list";
 import type { OwnerListingDetail } from "@/lib/api/types";
 import { formatArea, formatMoney } from "@/lib/format";
+import { editListingHref, MY_LISTINGS_PATH } from "../listing-filter";
 import { ListingStatusBadge } from "./listing-status-badge";
 
 // What the page shows once the listing exists, in place of the form. Everything comes from the
 // 201 answer; `fullAddress` is joined by the backend, so it is shown as it came. The public path
-// is text, not a link, because the public listing page arrives with #9. #12 replaces this view
-// with a trip to the list of my listings.
+// is text, not a link, because the public listing page arrives with #9. Under the buttons are the
+// links on to the two lists (spec 0019, AC-17), so the result is no longer a dead end.
 export function ListingCreated({
   listing,
   onPostAnother,
@@ -89,9 +91,16 @@ export function ListingCreated({
             Đăng tin khác
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link href={`/landlord/listings/${listing.id}/edit`}>
-              Sửa tin này
-            </Link>
+            <Link href={editListingHref(listing.id)}>Sửa tin này</Link>
+          </Button>
+        </div>
+        {/* The way on from here: the two lists (spec 0019, AC-17). */}
+        <div className="flex flex-wrap gap-3">
+          <Button asChild variant="ghost" size="lg">
+            <Link href={MY_LISTINGS_PATH}>Tin của tôi</Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href={MY_PROPERTIES_PATH}>Nhà trọ của tôi</Link>
           </Button>
         </div>
       </CardContent>

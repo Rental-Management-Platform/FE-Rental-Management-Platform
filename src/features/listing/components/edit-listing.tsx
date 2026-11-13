@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShieldAlertIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { BreadcrumbTrail } from "@/components/layout/breadcrumb-trail";
 import { PageHeader } from "@/components/layout/page-header";
 import { ErrorState } from "@/components/states/error-state";
 import { ForbiddenState } from "@/components/states/forbidden-state";
@@ -18,6 +19,8 @@ import {
   ownerListingQuery,
   type ListingBlock,
 } from "../api/owner-listing";
+import { refreshAfterListingWrite } from "../api/refresh-after-write";
+import { MY_LISTINGS_PATH } from "../listing-filter";
 import { EditListingForm } from "./edit-listing-form";
 import { ListingPhotos } from "./listing-photos";
 import { ListingStatusBadge } from "./listing-status-badge";
@@ -81,9 +84,11 @@ export function EditListing() {
             // siblings.
             key={`form-${data.id}`}
             listing={data}
-            onSaved={(saved) =>
-              queryClient.setQueryData(ownerListingKey(id), saved)
-            }
+            onSaved={(saved) => {
+              queryClient.setQueryData(ownerListingKey(id), saved);
+              // The title, price and photos shown in "Tin của tôi" may have changed.
+              void refreshAfterListingWrite(queryClient);
+            }}
             onBlocked={setBlocked}
           />
         </div>
@@ -102,6 +107,12 @@ export function EditListing() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        breadcrumb={
+          <BreadcrumbTrail
+            parent={{ label: "Tin của tôi", href: MY_LISTINGS_PATH }}
+            current="Sửa tin"
+          />
+        }
         title="Sửa tin"
         description={
           <>

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { BreadcrumbTrail } from "@/components/layout/breadcrumb-trail";
 import { PageHeader } from "@/components/layout/page-header";
 import { LoadingState } from "@/components/states/loading-state";
 import { NewListing } from "@/features/listing/components/new-listing";
+import { MY_LISTINGS_PATH } from "@/features/listing/listing-filter";
 
 // The route gate draws a loading state until the session is known, so the validator of instant
 // navigation never sees this page and warns that the segment was dropped. A page behind a
@@ -18,6 +20,12 @@ export default function NewListingPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
+        breadcrumb={
+          <BreadcrumbTrail
+            parent={{ label: "Tin của tôi", href: MY_LISTINGS_PATH }}
+            current="Đăng tin mới"
+          />
+        }
         title="Đăng tin mới"
         description="Điền thông tin phòng cho thuê. Tin hiện ngay khi đăng, không có bước duyệt."
       />

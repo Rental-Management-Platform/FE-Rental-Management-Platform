@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MY_LISTINGS_PATH } from "@/features/listing/listing-filter";
 import type { Property } from "@/lib/api/types";
+import { MY_PROPERTIES_PATH, postListingHref } from "../property-list";
 import { AmenityList } from "./amenity-list";
 import { FeeList } from "./fee-list";
 
 // What the page shows once the property exists. `fullAddress` is joined by the backend, so it
 // is shown as it came and never put together here (api-for-frontend.md, 6.17). "Đăng tin cho
-// nhà trọ này" opens the listing form with this property chosen (spec 0006, AC-14). #12 replaces
-// this view with a trip to the list of properties.
+// nhà trọ này" opens the listing form with this property chosen (spec 0006, AC-14). Under the
+// buttons are the links on to the two lists (spec 0019, AC-17), so the result is no longer a
+// dead end.
 export function PropertyCreated({
   property,
   onAddAnother,
@@ -58,9 +61,7 @@ export function PropertyCreated({
         <AmenityList amenities={property.amenities} headingLevel="h3" />
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link
-              href={`/landlord/listings/new?propertyId=${encodeURIComponent(property.id)}`}
-            >
+            <Link href={postListingHref(property.id)}>
               Đăng tin cho nhà trọ này
             </Link>
           </Button>
@@ -71,6 +72,15 @@ export function PropertyCreated({
             onClick={onAddAnother}
           >
             Thêm nhà trọ khác
+          </Button>
+        </div>
+        {/* The way on from here: the two lists (spec 0019, AC-17). */}
+        <div className="flex flex-wrap gap-3">
+          <Button asChild variant="ghost" size="lg">
+            <Link href={MY_PROPERTIES_PATH}>Nhà trọ của tôi</Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href={MY_LISTINGS_PATH}>Tin của tôi</Link>
           </Button>
         </div>
       </CardContent>

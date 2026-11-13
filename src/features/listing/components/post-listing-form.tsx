@@ -26,6 +26,7 @@ import { useFormFailure } from "@/lib/forms/use-form-failure";
 import { useApi } from "@/lib/session/auth-provider";
 import { createListing } from "../api/create-listing";
 import { findPostedListing } from "../api/find-posted-listing";
+import { refreshAfterListingWrite } from "../api/refresh-after-write";
 import { useLeaveWarning } from "../hooks/use-leave-warning";
 import { usePickedPhotos } from "../hooks/use-picked-photos";
 import {
@@ -151,6 +152,8 @@ export function PostListingForm({
     attempt.current = null;
     // The property's `listingCount` moved. Not returned, so the result does not wait for the read.
     void queryClient.invalidateQueries({ queryKey: propertiesKey });
+    // "Tin của tôi" has a new row, and the limit may have moved (spec 0019, AC-17).
+    void refreshAfterListingWrite(queryClient);
     toast.success("Đã đăng tin", { description: listing.title });
     onPosted(listing, picked.handOver(sentIds));
   };

@@ -10,6 +10,7 @@ import {
   ownerListingKey,
   type ListingBlock,
 } from "./owner-listing";
+import { refreshAfterListingWrite } from "./refresh-after-write";
 
 /**
  * `POST /listings/:id/images` (api-for-frontend.md, 6.28): one photo, the new `ListingImage`.
@@ -71,42 +72,52 @@ export const withoutImage = (listing: OwnerListingDetail, imageId: Uuid) =>
 
 // The cache entry is the one list of saved photos (spec 0007, key invariants): a 201 adds, a
 // 204 removes. An entry that is not loaded stays as it is.
+//
+// The cover of a row in "Tin của tôi" is the first photo, so every change to the photos also
+// marks the pages of that list out of date (spec 0019, AC-17). They are read when next opened:
+// the person is on the edit page, so no list is open.
 
 /** Writes a new photo into the cache entry of the listing. */
 export const cacheAddImage = (
   queryClient: QueryClient,
   id: Uuid,
   image: ListingImage,
-) =>
+) => {
   queryClient.setQueryData<OwnerListingDetail>(
     ownerListingKey(id),
     (listing) =>
       listing === undefined ? undefined : withImage(listing, image),
   );
+  void refreshAfterListingWrite(queryClient);
+};
 
 /** Removes a deleted photo from the cache entry of the listing. */
 export const cacheRemoveImage = (
   queryClient: QueryClient,
   id: Uuid,
   imageId: Uuid,
-) =>
+) => {
   queryClient.setQueryData<OwnerListingDetail>(
     ownerListingKey(id),
     (listing) =>
       listing === undefined ? undefined : withoutImage(listing, imageId),
   );
+  void refreshAfterListingWrite(queryClient);
+};
 
 /** Puts the photos the server holds into the cache entry. Only the photos: the rest stays. */
 export const cacheSetImages = (
   queryClient: QueryClient,
   id: Uuid,
   images: readonly ListingImage[],
-) =>
+) => {
   queryClient.setQueryData<OwnerListingDetail>(
     ownerListingKey(id),
     (listing) =>
       listing === undefined ? undefined : withImages(listing, images),
   );
+  void refreshAfterListingWrite(queryClient);
+};
 
 /** The ids of the saved photos the cache holds now. Read right before a send (AC-9). */
 export const knownImageIds = (
