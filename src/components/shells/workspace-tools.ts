@@ -14,6 +14,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { ACCOUNT_PATH } from "@/features/account/access";
 import { LANDLORD_CHAT_BASE } from "@/features/chat/access";
 import type { PermissionKey } from "@/lib/api/types";
 import type { SessionState } from "@/lib/session/create-session";
@@ -139,7 +140,8 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     description: "Sửa tên, số điện thoại và đổi mật khẩu.",
     icon: UserRound,
     permission: "profile:read",
-    status: "soon",
+    status: "ready",
+    href: ACCOUNT_PATH,
   },
 ];
 
@@ -221,7 +223,8 @@ export const ADMIN_TOOLS: readonly Tool[] = [
     description: "Sửa tên, số điện thoại và đổi mật khẩu.",
     icon: UserRound,
     permission: "profile:read",
-    status: "soon",
+    status: "ready",
+    href: ACCOUNT_PATH,
   },
 ];
 

@@ -4,8 +4,10 @@ import {
   MessageCircle,
   Search,
   ShieldCheck,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
+import { ACCOUNT_PATH } from "@/features/account/access";
 import { LANDLORD_CHAT_BASE, TENANT_CHAT_BASE } from "@/features/chat/access";
 import { FAVORITES_PATH } from "@/features/favorites/access";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
@@ -81,7 +83,14 @@ export const ADMIN_NAV: readonly NavItem[] = [
 // the item shows only to someone who may read conversations. The saved listings of a renter are in
 // the main menu (`PUBLIC_NAV`), not here, so the phone sheet does not list them twice.
 export const ACCOUNT_LINKS: Record<"all" | AccountType, readonly NavItem[]> = {
-  all: [],
+  all: [
+    {
+      label: "Tài khoản",
+      href: ACCOUNT_PATH,
+      icon: UserRound,
+      permission: "profile:read",
+    },
+  ],
   tenant: [
     {
       label: "Tin nhắn",
