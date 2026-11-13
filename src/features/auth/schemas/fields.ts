@@ -18,3 +18,14 @@ export const emailField = z
   .min(1, "Nhập email của bạn.")
   .max(EMAIL_MAX, `Email tối đa ${EMAIL_MAX} ký tự.`)
   .regex(LOOSE_EMAIL, "Email không đúng định dạng.");
+
+export const PASSWORD_MESSAGE = "Mật khẩu cần từ 8 đến 128 ký tự.";
+
+/**
+ * A new password: 8 to 128 characters. Spaces are kept as typed, because the backend keeps them
+ * too. Sign up, password reset and (later) change password all use this one rule.
+ */
+export const passwordField = z
+  .string()
+  .min(8, PASSWORD_MESSAGE)
+  .max(128, PASSWORD_MESSAGE);

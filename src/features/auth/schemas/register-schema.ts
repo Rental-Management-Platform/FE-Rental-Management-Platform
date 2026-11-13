@@ -1,13 +1,12 @@
 import { z } from "zod";
 import type { RegisterBody } from "@/lib/api/types";
-import { emailField } from "./fields";
+import { emailField, passwordField } from "./fields";
 
 // Light checks only: the backend is the real validator (api-for-frontend.md, 6.2).
 
 export const ACCOUNT_TYPES = ["landlord", "tenant"] as const;
 export type RegisterAccountType = (typeof ACCOUNT_TYPES)[number];
 
-const PASSWORD_MESSAGE = "Mật khẩu cần từ 8 đến 128 ký tự.";
 const PHONE_REQUIRED = "Người đăng bài cần có số điện thoại.";
 const PHONE_FORMAT =
   "Số điện thoại di động Việt Nam gồm 10 số, ví dụ 0912 345 678.";
@@ -31,8 +30,7 @@ const accountTypeField = z
 export const registerSchema = z
   .object({
     email: emailField,
-    // Spaces are kept as typed: the backend keeps them too.
-    password: z.string().min(8, PASSWORD_MESSAGE).max(128, PASSWORD_MESSAGE),
+    password: passwordField,
     name: z.string().trim().max(100, "Tên tối đa 100 ký tự."),
     phone: z.string(),
     accountType: accountTypeField,

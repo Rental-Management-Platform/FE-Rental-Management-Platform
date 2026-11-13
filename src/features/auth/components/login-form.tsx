@@ -115,6 +115,11 @@ function LoginFields() {
           )}
         </FormField>
       </FieldGroup>
+      <div className="-mt-2 flex justify-end">
+        <AuthLink href="/forgot-password" className="inline-block py-1">
+          Quên mật khẩu?
+        </AuthLink>
+      </div>
       <FailureNotice failure={failure} message={errors.root?.server?.message} />
       <Button
         type="submit"

@@ -56,7 +56,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 24 | Permissions by account type | Slice 5 | planned |
 | 25 | Orders of all landlords | Slice 5 | planned |
 | 26 | Revenue statistics | Slice 5 | planned |
-| 27 | Password recovery | Slice 6 | planned |
+| 27 | Password recovery | Slice 6 | in-progress |
 | 28 | My profile and change password | Slice 6 | planned |
 | 29 | Location pin on listing detail | Slice 6 | in-progress |
 
@@ -65,7 +65,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây là thứ tự các dòng trong bảng At a glance (dòng 30 được xếp sau dòng 4 vì xây trước dòng 5), nên trong một file các số không liền nhau.
 
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
-* [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 2 planned.
+* [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 1 done, 1 in-progress, 1 planned.
 * [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 8 done, 1 planned, 2 dropped (#16, #29).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 5 done, 2 in-progress, 2 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 8 planned.
