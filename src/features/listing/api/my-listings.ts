@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import type { ApiClient } from "@/lib/api/client";
 import type { OwnerListingSummary, Page } from "@/lib/api/types";
 import type { ListingFilter } from "../listing-filter";
+import { listingsOfMineKey } from "./owner-listing";
 
 /** Ten rows a page, the same on the table and on the phone (spec 0019, AC-1). */
 export const MY_LISTINGS_PAGE_SIZE = 10;
@@ -10,7 +11,7 @@ export const MY_LISTINGS_PAGE_SIZE = 10;
  * The cache key all the pages of "Tin của tôi" live under. It sits next to `ownerListingKey`
  * (`["listing", "mine", id]`) and never meets it: the third part is the word "list".
  */
-export const myListingsKey = ["listing", "mine", "list"] as const;
+export const myListingsKey = [...listingsOfMineKey, "list"] as const;
 
 /** Which page of which filter the address asks for. */
 export interface MyListingsParams {

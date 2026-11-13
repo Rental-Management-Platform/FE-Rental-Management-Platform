@@ -20,9 +20,14 @@ export const PROPERTY_FORM_FIELDS: readonly Path<PropertyInput>[] = [
   "amenityKeys",
 ];
 
-/** Shown in the amenities zone after `AMENITY_UNKNOWN`, once the removed boxes have been cleared. */
-export const AMENITY_REMOVED_MESSAGE =
-  "Một số tiện ích đã bị gỡ khỏi danh sách và đã được bỏ chọn. Hãy xem lại rồi bấm Tạo nhà trọ.";
+/**
+ * Shown in the amenities zone after `AMENITY_UNKNOWN`, once the removed boxes have been cleared.
+ * It names the button of the form that is open: "Tạo nhà trọ" or, when editing, "Lưu thay đổi".
+ */
+export const amenityRemovedMessage = (submitLabel: string) =>
+  `Một số tiện ích đã bị gỡ khỏi danh sách và đã được bỏ chọn. Hãy xem lại rồi bấm ${submitLabel}.`;
+
+export const AMENITY_REMOVED_MESSAGE = amenityRemovedMessage("Tạo nhà trọ");
 
 /**
  * A message for the whole fees zone (a kind twice, more than six) has no box of its own, so

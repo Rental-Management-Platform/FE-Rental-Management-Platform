@@ -20,8 +20,16 @@ export const listingBlock = (error: unknown): ListingBlock | null => {
   return error.code === "NOT_RESOURCE_OWNER" ? "forbidden" : null;
 };
 
+/**
+ * The start of every cache key of my own listings: the pages of "Tin của tôi" and the listings
+ * opened for editing. A write that touches all of them (saving a property, whose name and address
+ * every listing carries) marks this key out of date.
+ */
+export const listingsOfMineKey = ["listing", "mine"] as const;
+
 /** The cache entry of one listing of mine. A save writes its answer here. */
-export const ownerListingKey = (id: string) => ["listing", "mine", id] as const;
+export const ownerListingKey = (id: string) =>
+  [...listingsOfMineKey, id] as const;
 
 /**
  * `GET /me/listings/:id` (api-for-frontend.md, 6.21): the listing in every status, with the

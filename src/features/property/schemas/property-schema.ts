@@ -118,12 +118,38 @@ export type PropertyWard = Pick<
 >;
 
 /**
+ * What the edit form started from for the pin: the ward and the two coordinate texts of the
+ * saved property. A pin still equal to this is the saved one, left alone by the person.
+ */
+export type PinBaseline = Pick<
+  PropertyInput,
+  "wardCode" | "latitude" | "longitude"
+>;
+
+/**
  * The schema of the form, as a pure function of the ward list, because the box of a ward is
  * data (spec 0011, AC-7). A ward that is not in the list (the catalog is still loading, or the
  * ward is not chosen yet) counts as having no box, so only the two city boxes are checked.
+ *
+ * The edit form passes `saved`. A saved pin that the person did not touch (same ward, same two
+ * texts) is not checked against the ward: a property saved before the backend checked pins can
+ * hold one outside its ward, it is only warned about, never blocks a save and is never sent again
+ * (spec 0011, AC-12; spec 0019, AC-15). The moment the person changes the ward or a number, the
+ * checks run as usual.
  */
-export const createPropertySchema = (wards: readonly PropertyWard[]) =>
+export const createPropertySchema = (
+  wards: readonly PropertyWard[],
+  saved?: PinBaseline | null,
+) =>
   propertyShape.superRefine(({ latitude, longitude, wardCode }, ctx) => {
+    if (
+      saved &&
+      wardCode === saved.wardCode &&
+      latitude.trim() === saved.latitude &&
+      longitude.trim() === saved.longitude
+    ) {
+      return;
+    }
     const ward = wards.find((entry) => entry.code === wardCode) ?? null;
     for (const { field, message } of pinFieldIssues(
       latitude,
