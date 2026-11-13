@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ACCOUNT_PATH } from "@/features/account/access";
 import { LANDLORD_CHAT_BASE } from "@/features/chat/access";
+import { MY_LISTINGS_PATH } from "@/features/listing/listing-filter";
 import type { PermissionKey } from "@/lib/api/types";
 import type { SessionState } from "@/lib/session/create-session";
 import type { NavItem } from "./nav-config";
@@ -107,7 +108,8 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     icon: ListChecks,
     permission: "listing:read",
     stat: "myListings",
-    status: "soon",
+    status: "ready",
+    href: MY_LISTINGS_PATH,
   },
   {
     // Spec 0012, AC-19. The number on the card is the unread count the page header indicator

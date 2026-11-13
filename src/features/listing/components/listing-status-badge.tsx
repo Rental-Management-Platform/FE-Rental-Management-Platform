@@ -11,15 +11,18 @@ interface ListingStatusBadgeProps {
   status: ListingStatus;
   /** From the same answer as `status`: a `visible` listing can still be held back from guests. */
   isPublic: boolean;
+  /** A table cell: the reason line under a held back listing is one short sentence. */
+  compact?: boolean;
 }
 
 // A status is always words with an icon, never color alone. `visible` splits in two: shown to
 // guests, or held back because the landlord is over the listing limit or has no trial and no
 // plan. The backend does not say which until #17 reads the membership, so the reason line names
-// both causes (spec 0006). #12 reuses this label in the list of my listings.
+// both causes (spec 0006). The list of my listings reuses this label (spec 0019, AC-2).
 export function ListingStatusBadge({
   status,
   isPublic,
+  compact = false,
 }: ListingStatusBadgeProps) {
   if (status === "visible" && isPublic) {
     return (
@@ -36,9 +39,16 @@ export function ListingStatusBadge({
           <TriangleAlertIcon data-icon="inline-start" />
           Đang bị ẩn bớt khỏi khách
         </Badge>
-        <p className="max-w-md text-sm text-muted-foreground">
-          Tin vẫn tính vào số tin đang hiện nhưng khách chưa thấy, vì vượt hạn
-          mức hoặc hết dùng thử.
+        <p
+          className={
+            compact
+              ? "max-w-56 text-sm whitespace-normal text-muted-foreground"
+              : "max-w-md text-sm text-muted-foreground"
+          }
+        >
+          {compact
+            ? "Khách chưa thấy tin này: vượt hạn mức hoặc hết dùng thử."
+            : "Tin vẫn tính vào số tin đang hiện nhưng khách chưa thấy, vì vượt hạn mức hoặc hết dùng thử."}
         </p>
       </div>
     );

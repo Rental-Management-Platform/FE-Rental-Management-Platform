@@ -1,7 +1,7 @@
 # 0019. Quản lý nhà trọ và tin của tôi
 
 **Date**: 2026-11-13
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
