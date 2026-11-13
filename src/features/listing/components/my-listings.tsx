@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 import { parsePageParam } from "@/features/listing-search/schemas/search-params";
 import { isApiError } from "@/lib/api/errors";
 import type { OwnerListingSummary } from "@/lib/api/types";
+import { lastPageOf } from "@/lib/pagination";
 import { useApi, useSession } from "@/lib/session/auth-provider";
 import { can } from "@/lib/session/can";
 import { useCountdown } from "@/lib/use-countdown";
@@ -31,7 +32,6 @@ import {
 import { useDeleteListing } from "../hooks/use-delete-listing";
 import { useListingActions } from "../hooks/use-listing-actions";
 import {
-  lastPageOf,
   listHeading,
   myListingsHref,
   NEW_LISTING_PATH,

@@ -49,10 +49,6 @@ export function myListingsHref(filter: ListingFilter, page: number): string {
   return query === "" ? MY_LISTINGS_PATH : `${MY_LISTINGS_PATH}?${query}`;
 }
 
-/** The last page that can hold a row, never below 1 (a `total` of 0 still has page 1). */
-export const lastPageOf = (total: number, pageSize: number): number =>
-  Math.max(1, Math.ceil(total / pageSize));
-
 /** Whether a listing in `status` belongs in the list of `filter`. */
 export const matchesFilter = (
   filter: ListingFilter,

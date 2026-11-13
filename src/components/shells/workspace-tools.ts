@@ -17,6 +17,7 @@ import {
 import { ACCOUNT_PATH } from "@/features/account/access";
 import { LANDLORD_CHAT_BASE } from "@/features/chat/access";
 import { MY_LISTINGS_PATH } from "@/features/listing/listing-filter";
+import { MY_PROPERTIES_PATH } from "@/features/property/property-list";
 import type { PermissionKey } from "@/lib/api/types";
 import type { SessionState } from "@/lib/session/create-session";
 import type { NavItem } from "./nav-config";
@@ -87,7 +88,8 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     icon: House,
     permission: "property:read",
     stat: "propertyCount",
-    status: "soon",
+    status: "ready",
+    href: MY_PROPERTIES_PATH,
   },
   {
     id: "listing.create",

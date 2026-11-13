@@ -84,7 +84,7 @@ Khu chủ trọ đầu tiên, cũng là khung trang cho cả khu này. Danh sác
 - [ ] Build it: `/develop manage my properties and listings`
   - [x] M1 Sợi chỉ mỏng: một tin thật được thấy rồi ẩn và hiện. Truy vấn danh sách tin, trang `/landlord/listings` với bảng và nhãn trạng thái, nút Ẩn hoặc Hiện chờ máy chủ, bật công cụ "Tin của tôi" (AC-1, AC-2, AC-5, AC-9, AC-18 phần menu)
   - [x] M2 Danh sách tin đủ: bốn liên kết lọc, `?page=` và tự lùi về trang cuối, trạng thái trống, luật ảnh bìa, hộp xóa tin, mọi lỗi của ẩn, hiện, xóa, khối dọc dưới `md` (AC-3 đến AC-10, AC-19)
-  - [ ] M3 Danh sách nhà trọ: `/landlord/properties`, hàng nhà trọ, nút xóa tắt khi còn tin, 409 và 404, bật công cụ "Nhà trọ của tôi" (AC-11, AC-12, AC-18 phần menu)
+  - [x] M3 Danh sách nhà trọ: `/landlord/properties`, hàng nhà trọ, nút xóa tắt khi còn tin, 409 và 404, bật công cụ "Nhà trọ của tôi" (AC-11, AC-12, AC-18 phần menu)
   - [ ] M4 Sửa nhà trọ: tách ô nhập khỏi biểu mẫu tạo, PATCH chỉ ô đã đổi, luật đổi phường, mọi lỗi khi lưu (AC-13 đến AC-16)
   - [ ] M5 Nối và hoàn thiện: breadcrumb, liên kết từ màn kết quả, làm mới danh sách sau khi đăng, lưu và đổi ảnh, quyền ẩn nút, xóa `dev-check`, kiểm ở 320, 390, 768 và 1280 px, `npm run check` và `npm run build` (AC-17 đến AC-19)
 - [ ] Verify it: `/check verify manage my properties and listings`

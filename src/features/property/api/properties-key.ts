@@ -4,3 +4,7 @@
  * listing marks them out of date (it moves the `listingCount` of its property).
  */
 export const propertiesKey = ["properties"] as const;
+
+/** The cache entry of one property opened for editing (spec 0019). */
+export const propertyDetailKey = (id: string) =>
+  [...propertiesKey, "detail", id] as const;
