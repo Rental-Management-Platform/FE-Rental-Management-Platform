@@ -10,7 +10,9 @@ import { useApi, useSession } from "@/lib/session/auth-provider";
 import { can } from "@/lib/session/can";
 import { profileQuery } from "../api/profile";
 import { AccountDetails } from "./account-details";
+import { ChangePasswordForm } from "./change-password-form";
 import { ProfileForm } from "./profile-form";
+import { SignOutAll } from "./sign-out-all";
 
 // The account page of every signed in person (scope #28), read in the browser with the access
 // token. The gate in the route group has already let a signed in person through; this reads the
@@ -45,6 +47,8 @@ export function AccountScreen() {
             profile={profile.data}
             canEdit={mayEdit}
           />
+          <ChangePasswordForm />
+          <SignOutAll />
         </>
       );
     }
