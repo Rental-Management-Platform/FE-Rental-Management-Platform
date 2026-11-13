@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { MyListings } from "@/features/listing/components/my-listings";
+import { Suspense } from "react";
+import {
+  MyListings,
+  MyListingsSkeleton,
+} from "@/features/listing/components/my-listings";
 
 // The route gate draws a loading state until the session is known, so the validator of instant
 // navigation never sees this page and warns that the segment was dropped. A page behind a
@@ -12,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function MyListingsPage() {
-  return <MyListings />;
+  // `MyListings` reads `useSearchParams` (the filter and the page), which needs a boundary.
+  return (
+    <Suspense fallback={<MyListingsSkeleton />}>
+      <MyListings />
+    </Suspense>
+  );
 }

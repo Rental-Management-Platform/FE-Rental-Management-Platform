@@ -28,6 +28,7 @@ interface ListingsTableProps {
   rows: readonly OwnerListingSummary[];
   rowOf: (id: string) => RowUi;
   onToggle: (listing: OwnerListingSummary) => void;
+  onDelete: (listing: OwnerListingSummary) => void;
 }
 
 const COLUMNS = 6;
@@ -37,7 +38,12 @@ const COLUMNS = 6;
  * The line about a row's last write is a row of its own under it, so a long message never
  * stretches a cell.
  */
-export function ListingsTable({ rows, rowOf, onToggle }: ListingsTableProps) {
+export function ListingsTable({
+  rows,
+  rowOf,
+  onToggle,
+  onDelete,
+}: ListingsTableProps) {
   return (
     <Table>
       <TableCaption className="sr-only">Danh sách tin của bạn</TableCaption>
@@ -57,8 +63,8 @@ export function ListingsTable({ rows, rowOf, onToggle }: ListingsTableProps) {
           return (
             <Fragment key={listing.id}>
               <TableRow className={ui.notice ? "border-b-0" : undefined}>
-                <TableCell className="max-w-sm">
-                  <div className="flex min-w-64 items-center gap-3">
+                <TableCell className="max-w-72">
+                  <div className="flex min-w-56 items-center gap-3">
                     <ListingCover listing={listing} className="w-16" />
                     <div className="flex min-w-0 flex-col">
                       <Link
@@ -98,6 +104,7 @@ export function ListingsTable({ rows, rowOf, onToggle }: ListingsTableProps) {
                     ui={ui}
                     size="sm"
                     onToggle={onToggle}
+                    onDelete={onDelete}
                   />
                 </TableCell>
               </TableRow>
