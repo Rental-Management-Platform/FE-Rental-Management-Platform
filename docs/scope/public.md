@@ -152,7 +152,7 @@ Bảng giá công khai từ `GET /plans`: mỗi gói một thẻ (tên, giá, s�
 **Done when:** thẻ gói đúng dữ liệu và xếp giá tăng dần, nút Mua đúng theo vai trò, bấm Mua tạo đơn và chuyển sang bước xác nhận đơn.
 - [x] Design it (spec): `/architect pricing page`
 - [ ] Build it: `/develop pricing page`
-  - [ ] M1 Sợi chỉ mỏng: `src/features/order` (khóa, `createOrder`, `orderHref`), `getPlans`, trang `/bang-gia` với thẻ gói từ API thật, `canBuyPlans`, nút "Mua gói" tạo đơn rồi chuyển tới `/landlord/orders/<id>`, liên kết "Đăng nhập để mua", dòng cho người tìm trọ và admin (AC-2, AC-3, AC-4)
+  - [x] M1 Sợi chỉ mỏng: `src/features/order` (khóa, `createOrder`, `orderHref`), `getPlans`, trang `/bang-gia` với thẻ gói từ API thật, `canBuyPlans`, nút "Mua gói" tạo đơn rồi chuyển tới `/landlord/orders/<id>`, liên kết "Đăng nhập để mua", dòng cho người tìm trọ và admin (AC-2, AC-3, AC-4)
   - [ ] M2 Luồng mua đầy đủ: khóa mọi nút khi đang gửi, vùng thông báo, hàm thuần `classifyBuyError`, gói ngừng bán kèm đọc lại bảng giá, 429 đếm ngược, 403 ẩn nút, lỗi khác thành Alert đỏ (AC-5, AC-8, AC-9, AC-10, AC-11)
   - [ ] M3 Bối cảnh của chủ trọ: `MembershipStrip` với `showAction`, dòng nối kỳ, đọc đơn chờ và thông báo "Tiếp tục thanh toán", ghi đơn vào bộ nhớ sau khi tạo (AC-4, AC-6, AC-7)
   - [ ] M4 Hoàn thiện trang công khai: lỗi đọc và trạng thái rỗng, metadata, mục "Bảng giá" trong menu, sitemap, khung chờ chiều cao cố định, kiểm ở 320, 390, 768 và 1280 px, `npm run check` và `npm run build` (AC-1, AC-2, AC-12, AC-13, AC-14)
