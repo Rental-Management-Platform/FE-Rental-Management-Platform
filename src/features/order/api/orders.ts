@@ -56,3 +56,11 @@ export const orderQuery = (api: ApiClient, id: Uuid) =>
     queryKey: orderKey(id),
     queryFn: ({ signal }) => getOrder(api, id, signal),
   });
+
+/**
+ * `POST /orders/:id/cancel` (permission `order:cancel`), with no body. A 200 answer is the
+ * `cancelled` order with `cancelledAt`. Cancelling a cancelled order answers the same 200; a paid
+ * order answers 409 `ORDER_STATE_INVALID`. Mutations never retry (spec 0002).
+ */
+export const cancelOrder = (api: ApiClient, id: Uuid) =>
+  api.post<Order>(`/orders/${encodeURIComponent(id)}/cancel`);

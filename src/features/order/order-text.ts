@@ -3,7 +3,12 @@
 // order itself, which keeps a fixed copy of the plan as it was when the order was made.
 
 import { formatDateTime, formatMoney } from "@/lib/format";
-import type { IsoDateTime, Order, OrderStatus } from "@/lib/api/types";
+import type {
+  IsoDateTime,
+  Membership,
+  Order,
+  OrderStatus,
+} from "@/lib/api/types";
 
 /** The tab title of the order page, and the current step of its breadcrumb. */
 export const ORDER_PAGE_TITLE = "Đơn mua gói";
@@ -87,3 +92,38 @@ export const ORDER_NOT_FOUND_TITLE = "Không tìm thấy đơn";
 export const ORDER_FORBIDDEN_MESSAGE = "Bạn không có quyền xem đơn mua gói.";
 
 export const ORDER_LOAD_FAILED_TITLE = "Không tải được đơn";
+
+export const CANCEL = "Hủy đơn";
+
+export const CANCELLING = "Đang hủy";
+
+export const CANCEL_DIALOG_TITLE = "Hủy đơn này?";
+
+export const CANCEL_DIALOG_DESCRIPTION =
+  "Đơn đã hủy không thanh toán lại được. Muốn mua gói, bạn chọn lại ở bảng giá.";
+
+/** The safe button of the cancel dialog, next to the destructive "Hủy đơn". */
+export const KEEP_ORDER = "Giữ đơn";
+
+/** The link of the plan gone notice, and the sentence under the start line of a pending order. */
+export const CHOOSE_ANOTHER_PLAN = "Chọn gói khác";
+
+export const CHOOSE_ANOTHER_HINT = "Chọn gói khác ở bảng giá sẽ hủy đơn này.";
+
+/**
+ * When the plan of a pending order starts (AC-4), from the shared membership. A running plan means
+ * the new one joins after it, on the day `paidUntil` the backend gave (the front end adds up no
+ * days). With the trial or no plan it starts at once. With no membership read (loading, failed or
+ * refused) there is no line, and nothing is blocked.
+ */
+export function startLine(
+  membership: Pick<Membership, "state" | "subscription"> | undefined,
+): string | null {
+  if (membership === undefined) return null;
+  if (membership.state === "plan") {
+    return membership.subscription === null
+      ? null
+      : `Gói mới bắt đầu sau khi gói hiện tại hết, vào ${formatDateTime(membership.subscription.paidUntil)}.`;
+  }
+  return "Gói bắt đầu ngay khi bạn thanh toán xong.";
+}

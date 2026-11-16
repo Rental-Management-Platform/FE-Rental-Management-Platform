@@ -8,7 +8,7 @@ import { ErrorState } from "@/components/states/error-state";
 import { ForbiddenState } from "@/components/states/forbidden-state";
 import { NotFoundState } from "@/components/states/not-found-state";
 import { Card } from "@/components/ui/card";
-import type { Order } from "@/lib/api/types";
+import type { Order, Uuid } from "@/lib/api/types";
 import { useOrder } from "../hooks/use-order";
 import { orderBlock } from "../order-block";
 import { ORDERS_PATH } from "../order-paths";
@@ -22,6 +22,11 @@ import {
   ORDER_PAGE_TITLE,
   ORDERS_CRUMB,
 } from "../order-text";
+import {
+  OrderActionsProvider,
+  useOrderActions,
+} from "./order-actions-provider";
+import { OrderNotices } from "./order-notices";
 import { CancelledResult, PaidResult } from "./order-results";
 import { OrderSkeleton } from "./order-skeleton";
 import { OrderStatusBadge } from "./order-status-badge";
@@ -30,50 +35,52 @@ import { PaymentZone } from "./payment-zone";
 
 // The one view of an order, by its status (spec 0022): confirmation, paid result or cancelled
 // result. A pending order shows its plan and then the payment; a finished one shows the result
-// first, because that is the news, and the plan under it.
+// first, because that is the news, and the plan under it. The notice area is above both, so a
+// failure stays readable when it changes the view.
 function OrderView({ order }: { order: Order }) {
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-2">
-      {order.status === "pending" && (
-        <>
-          <OrderSummary order={order} />
-          <PaymentZone order={order} />
-        </>
-      )}
-      {order.status === "paid" && (
-        <>
-          <PaidResult order={order} />
-          <OrderSummary order={order} />
-        </>
-      )}
-      {order.status === "cancelled" && (
-        <>
-          <CancelledResult order={order} />
-          <OrderSummary order={order} />
-        </>
-      )}
+    <div className="flex flex-col gap-6">
+      <OrderNotices />
+      <div className="grid items-start gap-6 lg:grid-cols-2">
+        {order.status === "pending" && (
+          <>
+            <OrderSummary order={order} />
+            <PaymentZone />
+          </>
+        )}
+        {order.status === "paid" && (
+          <>
+            <PaidResult order={order} />
+            <OrderSummary order={order} />
+          </>
+        )}
+        {order.status === "cancelled" && (
+          <>
+            <CancelledResult order={order} />
+            <OrderSummary order={order} />
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
-/**
- * The order page, `/landlord/orders/[id]` (scope #19, spec 0022). It runs in the browser behind
- * the route gate, because an order needs a login, and reads the id with `useParams`, so its route
- * keeps it inside a `<Suspense>` boundary.
- *
- * The page shows the order whenever there is data: an order stored by a press on "Mua" shows at
- * once and is read again behind it, and a later failed read never replaces what is on screen.
- * Someone else's order and an id that does not exist give the same not found state. When the
- * status changes (a payment here, or a payment made in another tab that a focus read brings in),
- * the view changes and focus moves to the new `h1`, because the control that had it is gone.
- */
-export function OrderPage() {
-  const { id } = useParams<{ id: string }>();
+function OrderNotFound() {
+  return (
+    <NotFoundState
+      title={ORDER_NOT_FOUND_TITLE}
+      backHref={ORDERS_PATH}
+      backLabel={BACK_TO_ORDERS}
+    />
+  );
+}
+
+function OrderScreen({ id }: { id: Uuid }) {
   const { query, allowed, validId } = useOrder(id);
+  const { failure, titleRef } = useOrderActions();
   const order = query.data;
   const status = order?.status;
 
-  const titleRef = useRef<HTMLHeadingElement>(null);
   // The status of the last render, to tell a change of view from the first one. A status that
   // arrives after the loading state is not a change: nothing had focus yet.
   const shownStatus = useRef(status);
@@ -86,20 +93,16 @@ export function OrderPage() {
       titleRef.current?.focus();
     }
     shownStatus.current = status;
-  }, [status]);
+  }, [status, titleRef]);
 
   if (!allowed) return <ForbiddenState message={ORDER_FORBIDDEN_MESSAGE} />;
 
   const block =
     order === undefined && query.isError ? orderBlock(query.error) : null;
-  if (!validId || block === "not-found") {
-    return (
-      <NotFoundState
-        title={ORDER_NOT_FOUND_TITLE}
-        backHref={ORDERS_PATH}
-        backLabel={BACK_TO_ORDERS}
-      />
-    );
+  // A pay or a cancel that the backend answered "no such order of yours" is the same page as a
+  // read that did: nothing says whether an order with that id exists.
+  if (!validId || block === "not-found" || failure?.kind === "not-found") {
+    return <OrderNotFound />;
   }
   if (block === "forbidden") {
     return <ForbiddenState message={ORDER_FORBIDDEN_MESSAGE} />;
@@ -137,5 +140,25 @@ export function OrderPage() {
       />
       {renderBody()}
     </div>
+  );
+}
+
+/**
+ * The order page, `/landlord/orders/[id]` (scope #19, spec 0022). It runs in the browser behind
+ * the route gate, because an order needs a login, and reads the id with `useParams`, so its route
+ * keeps it inside a `<Suspense>` boundary.
+ *
+ * The page shows the order whenever there is data: an order stored by a press on "Mua" shows at
+ * once and is read again behind it, and a later failed read never replaces what is on screen.
+ * Someone else's order and an id that does not exist give the same not found state. When the
+ * status changes (a payment or a cancel here, or one made in another tab that a focus read brings
+ * in), the view changes and focus moves to the new `h1`, because the control that had it is gone.
+ */
+export function OrderPage() {
+  const { id } = useParams<{ id: string }>();
+  return (
+    <OrderActionsProvider id={id}>
+      <OrderScreen id={id} />
+    </OrderActionsProvider>
   );
 }
