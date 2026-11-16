@@ -5,6 +5,10 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  HOLD_BACK_LINE,
+  type HoldBackCause,
+} from "@/features/membership/membership-text";
 import type { ListingStatus } from "@/lib/api/types";
 
 interface ListingStatusBadgeProps {
@@ -13,16 +17,24 @@ interface ListingStatusBadgeProps {
   isPublic: boolean;
   /** A table cell: the reason line under a held back listing is one short sentence. */
   compact?: boolean;
+  /**
+   * Why a held back listing is held back, read from the shared membership (`useHoldBackCause`).
+   * `null` or absent when it is not known, and the reason line then names both causes.
+   */
+  cause?: HoldBackCause | null;
 }
 
 // A status is always words with an icon, never color alone. `visible` splits in two: shown to
 // guests, or held back because the landlord is over the listing limit or has no trial and no
-// plan. The backend does not say which until #17 reads the membership, so the reason line names
-// both causes (spec 0006). The list of my listings reuses this label (spec 0019, AC-2).
+// plan. The backend does not say which, so the caller passes the cause it read from the shared
+// membership (spec 0020, AC-10); without it the reason line names both causes (spec 0006). The
+// label does not change with the cause, because it is scanned in a table. The list of my
+// listings reuses this label (spec 0019, AC-2).
 export function ListingStatusBadge({
   status,
   isPublic,
   compact = false,
+  cause = null,
 }: ListingStatusBadgeProps) {
   if (status === "visible" && isPublic) {
     return (
@@ -46,9 +58,11 @@ export function ListingStatusBadge({
               : "max-w-md text-sm text-muted-foreground"
           }
         >
-          {compact
-            ? "Khách chưa thấy tin này: vượt hạn mức hoặc hết dùng thử."
-            : "Tin vẫn tính vào số tin đang hiện nhưng khách chưa thấy, vì vượt hạn mức hoặc hết dùng thử."}
+          {cause !== null
+            ? HOLD_BACK_LINE[cause]
+            : compact
+              ? "Khách chưa thấy tin này: vượt hạn mức hoặc hết dùng thử."
+              : "Tin vẫn tính vào số tin đang hiện nhưng khách chưa thấy, vì vượt hạn mức hoặc hết dùng thử."}
         </p>
       </div>
     );

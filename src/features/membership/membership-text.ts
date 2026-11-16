@@ -55,6 +55,28 @@ const withLimit = (membership: Membership, headline: string): StripNotice => {
   };
 };
 
+/** Why a listing that is `visible` is still hidden from guests (spec 0020, AC-10). */
+export type HoldBackCause = "trial-ended" | "over-limit";
+
+/**
+ * The cause from the shared answer: the trial ended with no plan, else more listings showing
+ * than the limit. `null` when the answer is not loaded or neither holds, and the badge then keeps
+ * its generic sentence.
+ */
+export function holdBackCause(
+  membership: Membership | undefined,
+): HoldBackCause | null {
+  if (membership === undefined) return null;
+  if (membership.state === "expired") return "trial-ended";
+  return membership.overLimitCount > 0 ? "over-limit" : null;
+}
+
+/** The reason line of the badge for each cause. The label of the badge itself does not change. */
+export const HOLD_BACK_LINE: Record<HoldBackCause, string> = {
+  "trial-ended": "Khách chưa thấy tin này: bạn đã hết dùng thử và chưa có gói.",
+  "over-limit": "Khách chưa thấy tin này: bạn đang hiện nhiều tin hơn hạn mức.",
+};
+
 /**
  * The strip's text for one answer, or `null` when `state` is a value this version does not know
  * (the strip then draws nothing instead of guessing).

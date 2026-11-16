@@ -1,3 +1,7 @@
+import {
+  quotaRefusalOf,
+  type QuotaRefusal,
+} from "@/features/membership/refusal";
 import { describeError, isApiError, type ApiError } from "@/lib/api/errors";
 import type { OwnerListingDetail } from "@/lib/api/types";
 
@@ -12,8 +16,11 @@ export const STATE_CHANGED_MESSAGE =
 export type ToggleAction = "hide" | "show";
 
 export type ToggleFailure =
-  /** `MEMBERSHIP_REQUIRED` or `LISTING_QUOTA_REACHED`: the backend's own sentence, at the row. */
-  | { kind: "blocked"; message: string }
+  /**
+   * `MEMBERSHIP_REQUIRED` or `LISTING_QUOTA_REACHED`: the backend's own sentence at the row, with
+   * the code, so the row can show the way out of it (spec 0020, AC-8).
+   */
+  | ({ kind: "blocked" } & QuotaRefusal)
   /** The state moved under the page (409 `LISTING_STATE_INVALID`, 403 `LISTING_HIDDEN_BY_ADMIN`): read it again. */
   | { kind: "conflict" }
   /** 404 `LISTING_NOT_FOUND`: another tab deleted it. */
@@ -23,12 +30,11 @@ export type ToggleFailure =
   | { kind: "message"; message: string };
 
 export function classifyToggleError(error: unknown): ToggleFailure {
+  const refusal = quotaRefusalOf(error);
+  if (refusal !== null) return { kind: "blocked", ...refusal };
   if (isApiError(error)) {
     if (error.status === 429) return { kind: "rate-limited", error };
     switch (error.code) {
-      case "MEMBERSHIP_REQUIRED":
-      case "LISTING_QUOTA_REACHED":
-        return { kind: "blocked", message: error.message };
       case "LISTING_STATE_INVALID":
       case "LISTING_HIDDEN_BY_ADMIN":
         return { kind: "conflict" };

@@ -11,6 +11,7 @@ import { ForbiddenState } from "@/components/states/forbidden-state";
 import { LoadingState } from "@/components/states/loading-state";
 import { NotFoundState } from "@/components/states/not-found-state";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useHoldBackCause } from "@/features/membership/hooks/use-hold-back-cause";
 import type { OwnerListingDetail } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import {
@@ -39,6 +40,7 @@ export function EditListing() {
   const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const listing = useQuery(ownerListingQuery(api, id));
+  const cause = useHoldBackCause();
   // Set by a save that was answered "gone" or "not yours": it replaces the form.
   const [blocked, setBlocked] = useState<ListingBlock | null>(null);
   const blockRef = useRef<HTMLDivElement>(null);
@@ -129,7 +131,11 @@ export function EditListing() {
         }
         actions={
           data && (
-            <ListingStatusBadge status={data.status} isPublic={data.isPublic} />
+            <ListingStatusBadge
+              status={data.status}
+              isPublic={data.isPublic}
+              cause={cause}
+            />
           )
         }
       />

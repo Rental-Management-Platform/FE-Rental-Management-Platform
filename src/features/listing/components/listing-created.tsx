@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useHoldBackCause } from "@/features/membership/hooks/use-hold-back-cause";
 import { MY_PROPERTIES_PATH } from "@/features/property/property-list";
 import type { OwnerListingDetail } from "@/lib/api/types";
 import { formatArea, formatMoney } from "@/lib/format";
@@ -28,6 +29,7 @@ export function ListingCreated({
   onPostAnother: () => void;
 }) {
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const cause = useHoldBackCause();
 
   // The form and its focused button are gone, so focus would fall to the page. It goes to the
   // result instead, and a screen reader reads it.
@@ -54,6 +56,7 @@ export function ListingCreated({
         <ListingStatusBadge
           status={listing.status}
           isPublic={listing.isPublic}
+          cause={cause}
         />
         <dl className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1 sm:col-span-2">

@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import { membershipKey } from "@/features/membership/api/membership-query";
 import { isAbortError } from "@/lib/api/abort";
 import type {
   OwnerListingDetail,
@@ -39,7 +40,7 @@ const noticeOf = (
     case "conflict":
       return { kind: "warning", message: STATE_CHANGED_MESSAGE };
     case "blocked":
-      return { kind: "warning", message: failure.message };
+      return { kind: "blocked", code: failure.code, message: failure.message };
     case "rate-limited":
       return { kind: "rate-limited", error: failure.error };
     case "message":
@@ -152,7 +153,14 @@ export function useListingActions(
       const failure = classifyToggleError(error);
       if (failure.kind === "gone") dropGone(listing.id);
       else if (failure.kind === "conflict") await reread(listing.id, action);
-      else setRow(listing.id, { pending: false, notice: noticeOf(failure) });
+      else {
+        setRow(listing.id, { pending: false, notice: noticeOf(failure) });
+        // A refusal proves the strip was out of date, so the limit is read again. Nothing is sent
+        // again by itself (spec 0020, AC-8).
+        if (failure.kind === "blocked") {
+          void queryClient.invalidateQueries({ queryKey: membershipKey });
+        }
+      }
     } finally {
       inFlight.current.delete(listing.id);
     }

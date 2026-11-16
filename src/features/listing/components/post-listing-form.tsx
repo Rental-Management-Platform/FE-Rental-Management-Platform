@@ -14,6 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReadOnlyLocation } from "@/features/location-map/components/read-only-location";
+import { membershipKey } from "@/features/membership/api/membership-query";
+import { QuotaRefusalNotice } from "@/features/membership/components/quota-refusal-notice";
+import {
+  quotaRefusalOf,
+  type QuotaRefusal,
+} from "@/features/membership/refusal";
 import { propertiesKey } from "@/features/property/api/properties-key";
 import { isAbortError } from "@/lib/api/abort";
 import { describeError, isApiError, type ApiError } from "@/lib/api/errors";
@@ -102,6 +108,9 @@ export function PostListingForm({
   // What the backend said about each photo after a failed post, and the line under the zone.
   const [marks, setMarks] = useState<Readonly<Record<string, string>>>({});
   const [photoError, setPhotoError] = useState<string | null>(null);
+  // The post was refused for no plan or a reached limit (spec 0020, AC-9). Not a failure: it is
+  // drawn as a quiet warning with the way out, and the form stays as it is.
+  const [refusal, setRefusal] = useState<QuotaRefusal | null>(null);
   // The post whose answer was lost, or null. A ref: it never changes what is drawn.
   const attempt = useRef<PostAttempt | null>(null);
   const create = useMutation({
@@ -145,6 +154,7 @@ export function PostListingForm({
     clear();
     clearErrors("root.server");
     setMarks({});
+    setRefusal(null);
   };
 
   // The listing exists: tell the property list, say so, and hand the form over to the result.
@@ -253,7 +263,16 @@ export function PostListingForm({
         showPhotoFailure(error, sent);
         return;
       }
-      // Everything typed stays, also for the two quota errors: they are messages, never retried.
+      // The two quota refusals are messages, not failures: a warning with the way out, never
+      // retried, and everything typed stays. The refusal proves the strip was out of date, so the
+      // limit is read again (spec 0020, AC-9).
+      const refused = quotaRefusalOf(error);
+      if (refused !== null) {
+        setRefusal(refused);
+        void queryClient.invalidateQueries({ queryKey: membershipKey });
+        return;
+      }
+      // Everything typed stays for every other failure too.
       report(error);
       if (isApiError(error) && PROPERTY_ERRORS.includes(error.code)) {
         void onRefreshProperties().then((fresh) => {
@@ -337,6 +356,11 @@ export function PostListingForm({
           onMove={picked.move}
           onRemove={picked.remove}
         />
+      }
+      notice={
+        refusal !== null && (
+          <QuotaRefusalNotice code={refusal.code} message={refusal.message} />
+        )
       }
       failure={failure}
       message={errors.root?.server?.message}

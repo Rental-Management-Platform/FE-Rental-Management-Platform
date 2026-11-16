@@ -48,6 +48,12 @@ interface ListingFormProps {
    * edit page has none, because its photos are the zone of spec 0007.
    */
   photos?: ReactNode;
+  /**
+   * A notice that is not a failure, drawn above the submit button: the post form's refusal for no
+   * plan or a reached limit, a quiet warning with the way out (spec 0020, AC-9). The edit form
+   * has none.
+   */
+  notice?: ReactNode;
   /** `failure` and `secondsLeft` of `useFormFailure`, and `errors.root?.server?.message`. */
   failure: unknown;
   message: string | undefined;
@@ -66,6 +72,7 @@ export function ListingForm({
   onSubmit,
   property,
   photos,
+  notice,
   failure,
   message,
   secondsLeft,
@@ -207,6 +214,7 @@ export function ListingForm({
       {photos}
 
       <div className="flex flex-col gap-4">
+        {notice}
         <FailureNotice failure={failure} message={message} />
         <div className="flex flex-wrap gap-3">
           <Button
