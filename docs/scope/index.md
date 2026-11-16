@@ -51,7 +51,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 20 | Admin shell and users | Slice 5 | planned |
 | 21 | Listing moderation | Slice 5 | planned |
 | 36 | Review moderation | Slice 5 | planned |
-| 22 | Plans and trial settings | Slice 5 | planned |
+| 22 | Plans and trial settings | Slice 5 | in-progress |
 | 23 | Wards and amenities catalog | Slice 5 | planned |
 | 24 | Permissions by account type | Slice 5 | planned |
 | 25 | Orders of all landlords | Slice 5 | in-progress |

@@ -108,6 +108,7 @@ const FIELD_OF_CODE: Partial<Record<ApiErrorCode, string>> = {
   EMAIL_TAKEN: "email",
   PHONE_TAKEN: "phone",
   CURRENT_PASSWORD_WRONG: "currentPassword",
+  PLAN_NAME_TAKEN: "name",
 };
 
 /**

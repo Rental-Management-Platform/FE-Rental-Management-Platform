@@ -391,6 +391,9 @@ export interface Setting {
   updatedAt: IsoDateTime | null;
   updatedBy: Uuid | null;
 }
+// `min` and `max` come with the answer (api-for-frontend.md, 6.24), so a form holds no limit of its
+// own. `updatedAt` and `updatedBy` are null until the first change.
+export type SettingKey = Setting["key"];
 
 // ---------- Common request bodies ----------
 export interface RegisterBody {
