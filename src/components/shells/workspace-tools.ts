@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ACCOUNT_PATH } from "@/features/account/access";
+import { ADMIN_CATALOG_PATH } from "@/features/admin-catalog/admin-catalog-path";
 import { ADMIN_ORDERS_PATH } from "@/features/admin-orders/admin-orders-path";
 import { ADMIN_PLANS_PATH } from "@/features/admin-plans/admin-plans-path";
 import { LANDLORD_CHAT_BASE } from "@/features/chat/access";
@@ -154,8 +155,8 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
 ];
 
 // An admin tool is `soon` until the feature that ships its page turns it on: only the profile (#28),
-// the orders of every landlord (#25) and the plans and trial settings (#22) are ready today (the
-// rule is in spec 0008). An admin holds every permission, so no
+// the orders of every landlord (#25), the plans and trial settings (#22) and the catalog (#23) are
+// ready today (the rule is in spec 0008). An admin holds every permission, so no
 // card hides today: the field keeps the rule the same for both areas and survives a change in the
 // contract. Every money figure here is a test payment.
 export const ADMIN_TOOLS: readonly Tool[] = [
@@ -217,7 +218,8 @@ export const ADMIN_TOOLS: readonly Tool[] = [
     description: "Quản lý phường, xã, đặc khu và tiện ích.",
     icon: MapPinned,
     permission: "catalog:read",
-    status: "soon",
+    status: "ready",
+    href: ADMIN_CATALOG_PATH,
   },
   {
     id: "permissions",

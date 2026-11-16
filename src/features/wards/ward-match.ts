@@ -30,15 +30,20 @@ const wordsOf = (folded: string): string[] =>
  * accents ignored. Nothing typed matches everything, in the catalog order. Otherwise the wards
  * are ordered by where in the name the first typed word matches (the earlier word first), and
  * wards that tie keep the catalog order. So "ben" puts "Phường Bến Thành" before "Phường An Bên".
- * Only the name is compared, not the province. Pure: it never changes `wards`.
+ * Only the name is compared, not the province. Pure: it never changes `wards`. It keeps the whole
+ * row it was given, so a list that carries more than a `Ward` (the catalog with its boxes) comes
+ * back with the same rows.
  */
-export const matchWards = (wards: readonly Ward[], text: string): Ward[] => {
+export const matchWards = <T extends Ward>(
+  wards: readonly T[],
+  text: string,
+): T[] => {
   const typed = wordsOf(foldWardText(text))
     .slice(0, MAX_WORDS)
     .map((word) => word.slice(0, MAX_WORD_LENGTH));
   if (typed.length === 0) return [...wards];
 
-  const ranked: { ward: Ward; index: number; position: number }[] = [];
+  const ranked: { ward: T; index: number; position: number }[] = [];
   wards.forEach((ward, index) => {
     const nameWords = wordsOf(foldWardText(ward.name));
     const everyWordFound = typed.every((word) =>

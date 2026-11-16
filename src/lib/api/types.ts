@@ -189,6 +189,28 @@ export interface Amenity {
   key: string;
   name: string;
 }
+// `POST /wards` (api-for-frontend.md 6.30): four fields, no `bounds` and no district. `code` and
+// `provinceCode` are the keys of the row and cannot be changed afterwards.
+export interface WardBody {
+  code: string;
+  name: string;
+  provinceCode: string;
+  provinceName: string;
+}
+// `PATCH /wards/:code`: any of the two. The keys and the box (`bounds`) stay as they are.
+export interface WardPatch {
+  name?: string;
+  provinceName?: string;
+}
+// `POST /amenities`: `key` is the stable key the landlord forms send as `amenityKeys`.
+export interface AmenityBody {
+  key: string;
+  name: string;
+}
+// `PATCH /amenities/:key`: `name` is required, and the key cannot change.
+export interface AmenityPatch {
+  name: string;
+}
 export type FeeKind =
   "electricity" | "water" | "internet" | "parking" | "service" | "other";
 export type FeeUnit =
