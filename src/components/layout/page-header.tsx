@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
@@ -7,6 +7,9 @@ interface PageHeaderProps {
   breadcrumb?: ReactNode;
   // Buttons or links for the page. Right of the text from `md`, under it on a phone.
   actions?: ReactNode;
+  // For a page that changes its own view and must move focus to the new `h1` (the order page,
+  // spec 0022). The heading then takes focus by code only, with no ring of its own.
+  titleRef?: Ref<HTMLHeadingElement>;
   className?: string;
 }
 
@@ -18,6 +21,7 @@ export function PageHeader({
   description,
   breadcrumb,
   actions,
+  titleRef,
   className,
 }: PageHeaderProps) {
   return (
@@ -29,7 +33,13 @@ export function PageHeader({
     >
       <div className="flex min-w-0 flex-col gap-2">
         {breadcrumb}
-        <h1>{title}</h1>
+        <h1
+          ref={titleRef}
+          tabIndex={titleRef ? -1 : undefined}
+          className={titleRef ? "outline-hidden" : undefined}
+        >
+          {title}
+        </h1>
         {description && (
           <div className="max-w-2xl text-base text-muted-foreground">
             {description}

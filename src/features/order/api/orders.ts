@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { ApiClient } from "@/lib/api/client";
 import type { Order, Page, Uuid } from "@/lib/api/types";
-import { pendingOrderKey } from "./order-keys";
+import { orderKey, pendingOrderKey } from "./order-keys";
 
 /**
  * `POST /orders` (api-for-frontend.md, 6.27), for a landlord account with `order:create`. The body
@@ -27,4 +27,32 @@ export const pendingOrderQuery = (api: ApiClient) =>
         query: { status: "pending", page: 1, pageSize: 1 },
         signal,
       }),
+  });
+
+/**
+ * `GET /orders/:id` (`order:read`): one of my orders, in any status, from its own fixed fields.
+ * 404 `ORDER_NOT_FOUND` and 403 `NOT_RESOURCE_OWNER` both mean "not an order of mine" to the page.
+ */
+export const getOrder = (api: ApiClient, id: Uuid, signal?: AbortSignal) =>
+  api.get<Order>(`/orders/${encodeURIComponent(id)}`, { signal });
+
+/**
+ * `POST /orders/:id/pay` (permission `order:create`, landlord account only), with no body. A 200
+ * answer is the `paid` order with `paidAt`, `startsAt` and `endsAt`. Paying a paid order answers
+ * the same 200 and makes no second period; a plan turned off answers 409 `PLAN_INACTIVE` and
+ * leaves the order pending. Mutations never retry (spec 0002), so a press sends one request.
+ */
+export const payOrder = (api: ApiClient, id: Uuid) =>
+  api.post<Order>(`/orders/${encodeURIComponent(id)}/pay`);
+
+/**
+ * One order as a query (spec 0022, AC-2). An order stored by a press on "Mua" (spec 0021) shows at
+ * once and is read again in the background. The default `staleTime` of 0 and the default refetch
+ * on window focus are on purpose: a payment or a cancel made in another tab shows up when this
+ * tab gets focus.
+ */
+export const orderQuery = (api: ApiClient, id: Uuid) =>
+  queryOptions({
+    queryKey: orderKey(id),
+    queryFn: ({ signal }) => getOrder(api, id, signal),
   });
