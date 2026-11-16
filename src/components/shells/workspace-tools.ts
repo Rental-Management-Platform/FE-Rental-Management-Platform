@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ACCOUNT_PATH } from "@/features/account/access";
+import { ADMIN_ORDERS_PATH } from "@/features/admin-orders/admin-orders-path";
 import { LANDLORD_CHAT_BASE } from "@/features/chat/access";
 import { MY_LISTINGS_PATH } from "@/features/listing/listing-filter";
 import { ORDERS_PATH } from "@/features/order/order-paths";
@@ -151,9 +152,10 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
   },
 ];
 
-// Every admin tool is soon today, because #20 to #26 and #28 are planned. An admin holds every
-// permission, so no card hides today: the field keeps the rule the same for both areas and
-// survives a change in the contract. Every money figure here is a test payment.
+// An admin tool is `soon` until the feature that ships its page turns it on: only the profile (#28)
+// and the orders of every landlord (#25) are ready today. An admin holds every permission, so no
+// card hides today: the field keeps the rule the same for both areas and survives a change in the
+// contract. Every money figure here is a test payment.
 export const ADMIN_TOOLS: readonly Tool[] = [
   {
     id: "moderation",
@@ -183,7 +185,8 @@ export const ADMIN_TOOLS: readonly Tool[] = [
     icon: ReceiptText,
     permission: "order:report",
     stat: "paidOrders",
-    status: "soon",
+    status: "ready",
+    href: ADMIN_ORDERS_PATH,
   },
   {
     id: "revenue",

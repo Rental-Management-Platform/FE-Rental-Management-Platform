@@ -54,7 +54,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 22 | Plans and trial settings | Slice 5 | planned |
 | 23 | Wards and amenities catalog | Slice 5 | planned |
 | 24 | Permissions by account type | Slice 5 | planned |
-| 25 | Orders of all landlords | Slice 5 | planned |
+| 25 | Orders of all landlords | Slice 5 | in-progress |
 | 26 | Revenue statistics | Slice 5 | planned |
 | 27 | Password recovery | Slice 6 | done |
 | 28 | My profile and change password | Slice 6 | done |
