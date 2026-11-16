@@ -1,7 +1,7 @@
 # 0020. Membership status strip and quota notices
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
