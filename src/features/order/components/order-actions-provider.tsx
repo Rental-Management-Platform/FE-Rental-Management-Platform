@@ -64,7 +64,7 @@ export function OrderActionsProvider({
   const session = useSession();
   const queryClient = useQueryClient();
   const payment = usePayOrder(id);
-  const cancellation = useCancelOrder(id);
+  const cancellation = useCancelOrder();
 
   const titleRef = useRef<HTMLHeadingElement>(null);
   // `isPending` turns true a moment after the press, so a second press in the same instant would
@@ -94,8 +94,8 @@ export function OrderActionsProvider({
     if (sending.current || locked) return;
     sending.current = true;
     setFailure(null);
-    (kind === "pay" ? payment : cancellation).mutate(undefined, {
-      onError: (error) => {
+    const callbacks = {
+      onError: (error: unknown) => {
         sending.current = false;
         const next = classifyOrderError(error);
         setFailure(next);
@@ -105,7 +105,9 @@ export function OrderActionsProvider({
           void queryClient.invalidateQueries({ queryKey: orderKey(id) });
         }
       },
-    });
+    };
+    if (kind === "pay") payment.mutate(undefined, callbacks);
+    else cancellation.mutate(id, callbacks);
   };
 
   const askCancel = () => {

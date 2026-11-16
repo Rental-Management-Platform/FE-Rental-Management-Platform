@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BookOpenIcon, ReceiptTextIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ListPagination } from "@/components/list-pagination";
 import { EmptyState } from "@/components/states/empty-state";
@@ -18,17 +18,20 @@ import { MembershipStrip } from "@/features/membership/components/membership-str
 import { parsePageParam } from "@/features/listing-search/schemas/search-params";
 import { canBuyPlans } from "@/features/pricing/access";
 import { isApiError } from "@/lib/api/errors";
+import type { Order } from "@/lib/api/types";
 import { lastPageOf } from "@/lib/pagination";
 import { PRICING_PATH } from "@/lib/pricing-path";
 import { useApi, useSession } from "@/lib/session/auth-provider";
 import { can } from "@/lib/session/can";
 import { useCountdown } from "@/lib/use-countdown";
+import { useReturnFocus } from "@/lib/use-return-focus";
 import { cn } from "@/lib/utils";
 import {
   ORDERS_PAGE_SIZE,
   ordersListQuery,
   type OrdersListParams,
 } from "../api/orders";
+import { useCancelFromList } from "../hooks/use-cancel-from-list";
 import {
   ordersHeading,
   ordersHref,
@@ -37,6 +40,7 @@ import {
 } from "../order-filter";
 import {
   BUY_PLAN,
+  cancelSubject,
   NO_ORDERS_DESCRIPTION,
   NO_ORDERS_IN_FILTER_TITLE,
   NO_ORDERS_TITLE,
@@ -49,6 +53,8 @@ import {
   VIEW_ALL_ORDERS,
   VIEW_LAST_PAGE,
 } from "../order-text";
+import { CancelOrderDialog } from "./cancel-order-dialog";
+import { CancelRowNotice } from "./cancel-row-notice";
 import { OrderFilterTabs } from "./order-filter-tabs";
 import { OrderRowCards } from "./order-row-cards";
 import { OrdersTable } from "./orders-table";
@@ -78,6 +84,28 @@ export function OrdersPage() {
   const mayRead = can(session, "order:read");
   const query = useQuery({ ...ordersListQuery(api, params), enabled: mayRead });
   const { data } = query;
+
+  const heading = useRef<HTMLHeadingElement>(null);
+  const cancel = useCancelFromList();
+  // One dialog serves every row, so it has no trigger of its own: focus goes back to the "Hủy"
+  // button that opened it, unless the order was cancelled (the button is about to leave, so focus
+  // goes to the list heading, and the count in it is read out).
+  const { remember, onCloseAutoFocus: returnFocus } = useReturnFocus(
+    () => heading.current,
+  );
+  const onCloseAutoFocus = (event: Event) => {
+    if (cancel.takeCancelled()) {
+      event.preventDefault();
+      heading.current?.focus();
+    } else {
+      returnFocus(event);
+    }
+  };
+  const mayCancel = can(session, "order:cancel") && !cancel.hidden;
+  const askCancel = (order: Order) => {
+    remember();
+    cancel.ask(order);
+  };
 
   // A page past the last one (typed by hand) goes to the last page that has rows (AC-17). Never
   // while the rows on screen are the ones of the page before.
@@ -113,13 +141,17 @@ export function OrdersPage() {
     }
     return (
       <section aria-labelledby={HEADING_ID} className="flex flex-col">
-        {/* The count is read out again when it changes. With no rows the empty state below says
-            it, so the heading is for a screen reader only. */}
+        {/* Focus lands here when a row leaves, so the heading takes focus by code and has no ring
+            of its own: the person did not tab to it. The count is read out again when it changes.
+            With no rows the empty state below says it, so the heading is for a screen reader
+            only. */}
         <h2
           id={HEADING_ID}
+          ref={heading}
+          tabIndex={-1}
           aria-live="polite"
           className={cn(
-            "px-(--card-spacing) pt-4 pb-3 text-base",
+            "px-(--card-spacing) pt-4 pb-3 text-base outline-hidden",
             data.total === 0 && "sr-only",
           )}
         >
@@ -149,10 +181,16 @@ export function OrdersPage() {
             {/* The same rows twice: a table from `md` and stacked blocks below it. The hidden
                 one is `display: none`, so a screen reader reads only one. */}
             <div className="hidden md:block">
-              <OrdersTable rows={data.items} />
+              <OrdersTable
+                rows={data.items}
+                onCancel={mayCancel ? askCancel : undefined}
+              />
             </div>
             <div className="md:hidden">
-              <OrderRowCards rows={data.items} />
+              <OrderRowCards
+                rows={data.items}
+                onCancel={mayCancel ? askCancel : undefined}
+              />
             </div>
           </>
         )}
@@ -193,6 +231,19 @@ export function OrdersPage() {
         <OrderFilterTabs filter={params.filter} />
         {renderBody()}
       </Card>
+
+      <CancelOrderDialog
+        open={cancel.open}
+        onOpenChange={cancel.onOpenChange}
+        onConfirm={cancel.confirm}
+        onCloseAutoFocus={onCloseAutoFocus}
+        // The dialog stays open while the request runs, and a failure shows inside it.
+        keepOpen
+        pending={cancel.pending}
+        confirmLocked={cancel.confirmLocked}
+        subject={cancel.target ? cancelSubject(cancel.target) : undefined}
+        notice={<CancelRowNotice failure={cancel.failure} />}
+      />
     </div>
   );
 }

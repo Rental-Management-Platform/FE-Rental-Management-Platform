@@ -13,7 +13,13 @@ import { OrderStatusBadge } from "./order-status-badge";
  * buttons. The blocks sit inside the zone and are told apart by a hairline, never by a card of
  * their own, because a card never sits inside another card. It shows the same values as the table.
  */
-export function OrderRowCards({ rows }: { rows: readonly Order[] }) {
+export function OrderRowCards({
+  rows,
+  onCancel,
+}: {
+  rows: readonly Order[];
+  onCancel?: (order: Order) => void;
+}) {
   return (
     <ul className="flex flex-col">
       {rows.map((order) => (
@@ -45,7 +51,7 @@ export function OrderRowCards({ rows }: { rows: readonly Order[] }) {
               ? ` · Kỳ gói ${formatDateTime(order.startsAt)} đến ${formatDateTime(order.endsAt)}`
               : null}
           </p>
-          <OrderRowActions order={order} size="lg" />
+          <OrderRowActions order={order} size="lg" onCancel={onCancel} />
         </li>
       ))}
     </ul>

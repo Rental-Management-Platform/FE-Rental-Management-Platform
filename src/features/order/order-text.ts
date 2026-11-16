@@ -154,3 +154,18 @@ export const VIEW_LAST_PAGE = "Xem trang cuối";
 
 /** The way on from a pending order: the pricing page notice and a pending row of the history. */
 export const CONTINUE_PAYMENT = "Tiếp tục thanh toán";
+
+/** Inside the cancel dialog of a row, when the order is no longer there (AC-16). */
+export const ORDER_GONE = "Không tìm thấy đơn này.";
+
+/** Names the order in the cancel dialog of the history, where one dialog serves every row. */
+export const cancelSubject = (order: { code: string; planName: string }) =>
+  `Đơn ${order.code}, gói ${order.planName}.`;
+
+/** The name of a row button, so "Hủy" and "Tiếp tục thanh toán" are not the same in every row. */
+export const cancelRowLabel = (code: string) => `Hủy đơn ${code}`;
+
+export const continueRowLabel = (code: string) =>
+  `Tiếp tục thanh toán đơn ${code}`;
+
+export const CANCEL_ROW = "Hủy";

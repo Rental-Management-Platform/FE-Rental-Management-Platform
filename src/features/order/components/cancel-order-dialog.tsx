@@ -38,6 +38,8 @@ interface CancelOrderDialogProps {
   notice?: ReactNode;
   /** Locks the confirm button, for a wait after a 429. */
   confirmLocked?: boolean;
+  /** Names the order, for the history where one dialog serves every row. */
+  subject?: string;
 }
 
 /**
@@ -54,6 +56,7 @@ export function CancelOrderDialog({
   pending = false,
   notice,
   confirmLocked = false,
+  subject,
 }: CancelOrderDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -61,6 +64,7 @@ export function CancelOrderDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>{CANCEL_DIALOG_TITLE}</AlertDialogTitle>
           <AlertDialogDescription>
+            {subject && <span className="block font-medium">{subject}</span>}
             {CANCEL_DIALOG_DESCRIPTION}
           </AlertDialogDescription>
         </AlertDialogHeader>

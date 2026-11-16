@@ -22,7 +22,13 @@ import { OrderStatusBadge } from "./order-status-badge";
  * value is the order's own field, in the order the API gave: the front end sorts nothing and
  * computes no end of a period. The period shows for a paid order only.
  */
-export function OrdersTable({ rows }: { rows: readonly Order[] }) {
+export function OrdersTable({
+  rows,
+  onCancel,
+}: {
+  rows: readonly Order[];
+  onCancel?: (order: Order) => void;
+}) {
   return (
     <Table>
       <TableCaption className="sr-only">
@@ -73,7 +79,7 @@ export function OrdersTable({ rows }: { rows: readonly Order[] }) {
                 : null}
             </TableCell>
             <TableCell>
-              <OrderRowActions order={order} size="sm" />
+              <OrderRowActions order={order} size="sm" onCancel={onCancel} />
             </TableCell>
           </TableRow>
         ))}
