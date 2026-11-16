@@ -11,6 +11,7 @@ import { can } from "@/lib/session/can";
 import { profileQuery } from "../api/profile";
 import { AccountDetails } from "./account-details";
 import { ChangePasswordForm } from "./change-password-form";
+import { LandlordNumbers } from "./landlord-numbers";
 import { ProfileForm } from "./profile-form";
 import { SignOutAll } from "./sign-out-all";
 
@@ -41,6 +42,11 @@ export function AccountScreen() {
       return (
         <>
           <AccountDetails profile={profile.data} />
+          {/* Only a landlord has a public page with numbers. A tenant or an admin gets no zone and
+              no request (scope #38). */}
+          {profile.data.accountType === "landlord" && (
+            <LandlordNumbers landlordId={profile.data.id} />
+          )}
           <ProfileForm
             // A different person starts a different form.
             key={profile.data.id}
