@@ -150,7 +150,14 @@ Trang chủ giới thiệu đặt trước ô tìm kiếm: lời giới thiệu 
 ### 18. Pricing page
 Bảng giá công khai từ `GET /plans`: mỗi gói một thẻ (tên, giá, số tin tối đa, số ngày). Nút "Mua" chỉ cho chủ trọ đã đăng nhập; khách được dẫn đi đăng nhập; người tìm trọ và admin không có nút.
 **Done when:** thẻ gói đúng dữ liệu và xếp giá tăng dần, nút Mua đúng theo vai trò, bấm Mua tạo đơn và chuyển sang bước xác nhận đơn.
+- [x] Design it (spec): `/architect pricing page`
 - [ ] Build it: `/develop pricing page`
+  - [ ] M1 Sợi chỉ mỏng: `src/features/order` (khóa, `createOrder`, `orderHref`), `getPlans`, trang `/bang-gia` với thẻ gói từ API thật, `canBuyPlans`, nút "Mua gói" tạo đơn rồi chuyển tới `/landlord/orders/<id>`, liên kết "Đăng nhập để mua", dòng cho người tìm trọ và admin (AC-2, AC-3, AC-4)
+  - [ ] M2 Luồng mua đầy đủ: khóa mọi nút khi đang gửi, vùng thông báo, hàm thuần `classifyBuyError`, gói ngừng bán kèm đọc lại bảng giá, 429 đếm ngược, 403 ẩn nút, lỗi khác thành Alert đỏ (AC-5, AC-8, AC-9, AC-10, AC-11)
+  - [ ] M3 Bối cảnh của chủ trọ: `MembershipStrip` với `showAction`, dòng nối kỳ, đọc đơn chờ và thông báo "Tiếp tục thanh toán", ghi đơn vào bộ nhớ sau khi tạo (AC-4, AC-6, AC-7)
+  - [ ] M4 Hoàn thiện trang công khai: lỗi đọc và trạng thái rỗng, metadata, mục "Bảng giá" trong menu, sitemap, khung chờ chiều cao cố định, kiểm ở 320, 390, 768 và 1280 px, `npm run check` và `npm run build` (AC-1, AC-2, AC-12, AC-13, AC-14)
+- [ ] Verify it: `/check verify pricing page`
+spec [0021](../specs/0021-pricing-page.md) · Chọn: trang `/bang-gia` tạo đơn ngay khi bấm "Mua" rồi mở `/landlord/orders/[id]` (mã đơn nằm trong địa chỉ; #19 xây trang đó và lịch sử ở `/landlord/orders`, tới lúc đó bấm Mua thành công rơi vào trang không tìm thấy); khóa mọi nút Mua trong lúc gửi; `409 PLAN_INACTIVE` và `404 PLAN_NOT_FOUND` thì cảnh báo và đọc lại bảng giá, `429` thông báo đếm ngược và khóa nút, `403` cảnh báo và ẩn nút; đơn chờ được báo ở đầu trang kèm "Tiếp tục thanh toán"; chủ trọ thấy dải trạng thái của #17 không có nút mua cùng dòng nối kỳ; khách quay về `/bang-gia` sau khi đăng nhập; trang vào menu công khai và sitemap, giữ bố cục của màn mẫu. Đề xuất thay mặt (đổi được): luật nút Mua là chủ trọ có `order:create` (`canBuyPlans`), thư mục `src/features/order/` dùng chung với #19, bỏ dòng "Khoảng X mỗi tin", đọc gói ở máy chủ và không lưu giữa các lần xem. Dự kiến #19 xây `/landlord/orders/[id]` và `/landlord/orders`.
 
 ## Slice 6: Tài khoản và hoàn thiện
 
