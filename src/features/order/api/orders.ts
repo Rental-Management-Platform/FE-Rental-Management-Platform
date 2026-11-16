@@ -1,7 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { ApiClient } from "@/lib/api/client";
 import type { Order, Page, Uuid } from "@/lib/api/types";
-import { orderKey, pendingOrderKey } from "./order-keys";
+import type { OrderFilter } from "../order-filter";
+import { orderKey, ordersListKey, pendingOrderKey } from "./order-keys";
 
 /**
  * `POST /orders` (api-for-frontend.md, 6.27), for a landlord account with `order:create`. The body
@@ -64,3 +65,50 @@ export const orderQuery = (api: ApiClient, id: Uuid) =>
  */
 export const cancelOrder = (api: ApiClient, id: Uuid) =>
   api.post<Order>(`/orders/${encodeURIComponent(id)}/cancel`);
+
+/** Ten rows a page, the same on the table and on the phone (spec 0022, AC-14). */
+export const ORDERS_PAGE_SIZE = 10;
+
+/** Which page of which filter the address asks for. */
+export interface OrdersListParams {
+  filter: OrderFilter;
+  page: number;
+}
+
+/**
+ * `GET /orders` (`order:read`, api-for-frontend.md 6.27): my orders in every status, newest first.
+ * "Tất cả" sends no `status`. The rows keep the order the API gave: the front end sorts nothing.
+ */
+export const fetchOrders = (
+  api: ApiClient,
+  { filter, page }: OrdersListParams,
+  signal?: AbortSignal,
+) =>
+  api.get<Page<Order>>("/orders", {
+    query: {
+      page,
+      pageSize: ORDERS_PAGE_SIZE,
+      ...(filter === "all" ? {} : { status: filter }),
+    },
+    signal,
+  });
+
+/**
+ * One page of the history. The previous page stays on screen while the next one loads, but only
+ * inside the same filter: rows of another filter under a new highlighted tab would be a lie. The
+ * default `staleTime` of 0 is on purpose: an order paid or cancelled elsewhere shows up when the
+ * page opens or the window gets focus.
+ */
+export const ordersListQuery = (api: ApiClient, params: OrdersListParams) =>
+  queryOptions({
+    queryKey: ordersListKey({
+      status: params.filter,
+      page: params.page,
+      pageSize: ORDERS_PAGE_SIZE,
+    }),
+    queryFn: ({ signal }) => fetchOrders(api, params, signal),
+    placeholderData: (previous, previousQuery) =>
+      previousQuery?.queryKey[2].status === params.filter
+        ? previous
+        : undefined,
+  });

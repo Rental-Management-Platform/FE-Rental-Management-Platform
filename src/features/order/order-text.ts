@@ -127,3 +127,30 @@ export function startLine(
   }
   return "Gói bắt đầu ngay khi bạn thanh toán xong.";
 }
+
+// The history, `/landlord/orders` (AC-13 and AC-17).
+
+export const ORDERS_DESCRIPTION =
+  "Mọi đơn mua gói của bạn. Thanh toán chỉ là thanh toán thử, không có tiền thật.";
+
+export const BUY_PLAN = "Mua gói";
+
+export const ORDERS_FORBIDDEN_MESSAGE = "Bạn không có quyền xem đơn mua gói.";
+
+export const ORDERS_FAILED_TITLE = "Không tải được danh sách đơn";
+
+export const NO_ORDERS_TITLE = "Bạn chưa có đơn nào";
+
+export const NO_ORDERS_DESCRIPTION =
+  "Chọn một gói ở bảng giá, đơn sẽ hiện ở đây.";
+
+export const NO_ORDERS_IN_FILTER_TITLE = "Chưa có đơn nào ở mục này";
+
+export const VIEW_ALL_ORDERS = "Xem tất cả đơn";
+
+export const ORDERS_PAGE_EMPTY_TITLE = "Trang này không có đơn";
+
+export const VIEW_LAST_PAGE = "Xem trang cuối";
+
+/** The way on from a pending order: the pricing page notice and a pending row of the history. */
+export const CONTINUE_PAYMENT = "Tiếp tục thanh toán";

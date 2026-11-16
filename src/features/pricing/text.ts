@@ -69,7 +69,8 @@ export const pendingOrderMessage = (order: {
 }) =>
   `Bạn có một đơn chờ thanh toán: gói ${order.planName}, ${formatMoney(order.price)}. Chọn gói khác sẽ hủy đơn này.`;
 
-export const CONTINUE_PAYMENT = "Tiếp tục thanh toán";
+// The words of this link live with the order feature, which owns the order page and the history.
+export { CONTINUE_PAYMENT } from "@/features/order/order-text";
 
 /** For a renter, an admin, or a landlord without `order:create`: no button, and this line. */
 export const NOT_A_BUYER_NOTE =

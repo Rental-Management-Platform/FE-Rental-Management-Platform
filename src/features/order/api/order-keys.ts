@@ -13,3 +13,14 @@ export const pendingOrderKey = [...ordersKey, "pending"] as const;
 
 /** One order by its id: written from the 201 answer of a create, read by #19's page. */
 export const orderKey = (id: Uuid) => [...ordersKey, id] as const;
+
+/**
+ * One page of the history (spec 0022, AC-14). The word "list" is the second part, so it never
+ * meets an order id (ids are UUIDs) or the word "pending". It starts with `ordersKey`, so a pay or
+ * a cancel marks every page out of date.
+ */
+export const ordersListKey = (params: {
+  status: string;
+  page: number;
+  pageSize: number;
+}) => [...ordersKey, "list", params] as const;
