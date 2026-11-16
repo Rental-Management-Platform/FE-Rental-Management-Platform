@@ -15,6 +15,7 @@ import { LoadingState } from "@/components/states/loading-state";
 import { RateLimitNotice } from "@/components/states/rate-limit-notice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { MembershipStrip } from "@/features/membership/components/membership-strip";
 import { parsePageParam } from "@/features/listing-search/schemas/search-params";
 import { isApiError } from "@/lib/api/errors";
 import type { OwnerListingSummary } from "@/lib/api/types";
@@ -204,6 +205,8 @@ export function MyListings() {
           </Can>
         }
       />
+
+      <MembershipStrip />
 
       {/* One zone: the filter links are its title row, the rows run edge to edge under them. */}
       <Card>

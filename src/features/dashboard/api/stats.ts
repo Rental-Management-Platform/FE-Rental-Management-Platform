@@ -3,6 +3,10 @@ import type { StatKey } from "@/components/shells/workspace-tools";
 import { getUnread } from "@/features/chat/api/chat-api";
 import { chatKeys } from "@/features/chat/api/chat-keys";
 import { UNREAD_STALE_MS } from "@/features/chat/api/chat-queries";
+import {
+  getMembership,
+  membershipKey,
+} from "@/features/membership/api/membership-query";
 import type { ApiClient } from "@/lib/api/client";
 import type {
   Membership,
@@ -25,7 +29,9 @@ export type CountSource =
   | "moderation" // admin: GET /moderation/listings?status=hidden_by_admin
   | "users" // admin: GET /users
   | "lockedUsers"; // admin: GET /users?status=locked
-export type SourceName = CountSource | "membership" | "revenue" | "unreadChat"; // landlord: GET /me/conversations/unread-count (the page header indicator reads it too)
+// `membership` is GET /me/membership, read through the entry the status strip shares (spec 0020);
+// `unreadChat` is GET /me/conversations/unread-count (the page header indicator reads it too).
+export type SourceName = CountSource | "membership" | "revenue" | "unreadChat";
 
 type CountValue = {
   [S in CountSource]: { source: S; total: number };
@@ -40,18 +46,22 @@ export type SourceValue =
   | ({ source: "revenue" } & Pick<RevenueResponse, "paidCount" | "paidAmount">)
   | ({ source: "unreadChat" } & Pick<UnreadSummary, "unreadConversations">);
 
-// What a source keeps in the cache under its key. The chat count is the API answer itself, because
-// the indicator in the page header reads the same entry (spec 0012, AC-19); `select` turns it
-// into a `SourceValue` for the card.
-type CachedSource = SourceValue | UnreadSummary;
+// What a source keeps in the cache under its key. The chat count and the membership are the API
+// answers themselves, because the page header indicator (spec 0012, AC-19) and the status strip
+// (spec 0020, AC-6) read the same entries; `select` turns them into a `SourceValue` for the card.
+// The three shapes tell themselves apart by a field only one of them has.
+type CachedSource = SourceValue | UnreadSummary | Membership;
 
-const isUnreadSummary = (cached: CachedSource): cached is UnreadSummary =>
-  !("source" in cached);
-
-const toSourceValue = (cached: CachedSource): SourceValue =>
-  isUnreadSummary(cached)
-    ? { source: "unreadChat", unreadConversations: cached.unreadConversations }
-    : cached;
+const toSourceValue = (cached: CachedSource): SourceValue => {
+  if ("source" in cached) return cached;
+  if ("unreadConversations" in cached) {
+    return {
+      source: "unreadChat",
+      unreadConversations: cached.unreadConversations,
+    };
+  }
+  return { source: "membership", membership: cached };
+};
 
 // The permission the API of a source needs. A source is requested only when the person holds it,
 // and a person without it gets no request and no slot (spec 0008, "Value sourcing").
@@ -100,8 +110,12 @@ const totalReader =
     return { source, total: page.total };
   };
 
-// `unreadChat` has no reader here: it reads the chat key through `sourceQuery`.
-const READERS: Record<Exclude<SourceName, "unreadChat">, Reader> = {
+// `unreadChat` and `membership` have no reader here: they read their shared keys through
+// `sourceQuery`.
+const READERS: Record<
+  Exclude<SourceName, "unreadChat" | "membership">,
+  Reader
+> = {
   // GET /properties (6.17): the landlord's own properties.
   properties: totalReader("properties", "/properties"),
   // GET /me/listings (6.18): the landlord's own listings that an admin hid.
@@ -115,11 +129,6 @@ const READERS: Record<Exclude<SourceName, "unreadChat">, Reader> = {
   // GET /users (6.34): every account, and the locked ones.
   users: totalReader("users", "/users"),
   lockedUsers: totalReader("lockedUsers", "/users", { status: "locked" }),
-  // GET /me/membership (6.25): the trial or the plan, the limit and what is left of it.
-  membership: async (api, signal) => ({
-    source: "membership",
-    membership: await api.get<Membership>("/me/membership", { signal }),
-  }),
   // GET /orders/revenue (6.38) with no dates: every paid order. Its only parameters are `from`,
   // `to` and `groupBy`; `page`, `pageSize` and `status` are rejected.
   revenue: async (api, signal) => {
@@ -134,18 +143,30 @@ const READERS: Record<Exclude<SourceName, "unreadChat">, Reader> = {
 export const sourceQuery = (
   api: ApiClient,
   source: SourceName,
-): UseQueryOptions<CachedSource, Error, SourceValue> =>
-  source === "unreadChat"
-    ? // The same key and the same reader as `unreadQueryOptions` of chat, so the card and the
+): UseQueryOptions<CachedSource, Error, SourceValue> => {
+  switch (source) {
+    case "unreadChat":
+      // The same key and the same reader as `unreadQueryOptions` of chat, so the card and the
       // indicator are one request and one cache entry. No second key (spec 0012, AC-19).
-      {
+      return {
         queryKey: chatKeys.unread(),
         queryFn: ({ signal }) => getUnread(api, signal),
         staleTime: UNREAD_STALE_MS,
         select: toSourceValue,
-      }
-    : {
+      };
+    case "membership":
+      // The same key and the same reader as the status strip (spec 0020, AC-6): the cards and the
+      // strip show the numbers of one answer. The default `staleTime`, like the strip.
+      return {
+        queryKey: membershipKey,
+        queryFn: ({ signal }) => getMembership(api, signal),
+        select: toSourceValue,
+      };
+    default:
+      return {
         queryKey: [...dashboardKey, source],
         queryFn: ({ signal }) => READERS[source](api, signal),
         select: toSourceValue,
       };
+  }
+};

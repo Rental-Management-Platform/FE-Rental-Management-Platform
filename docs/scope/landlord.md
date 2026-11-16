@@ -97,7 +97,7 @@ Dải trạng thái đầu khu quản lý tin từ `GET /me/membership`: còn ba
 **Done when:** dải trạng thái đúng ở cả ba trạng thái (dùng thử, gói, hết hạn), hai lỗi chặn hiện đúng thông báo kèm nút "Mua gói" hoặc gợi ý ẩn bớt tin, biểu mẫu không mất chữ, dải cập nhật sau mỗi lần đăng, ẩn, hiện, xóa.
 - [x] Design it (spec): `/architect membership status and quota notices`
 - [ ] Build it: `/develop membership status and quota notices`
-  - [ ] M1 Sợi chỉ mỏng: hằng `PRICING_PATH` (`/bang-gia`), truy vấn dùng chung `["membership"]` trong `src/features/membership`, nguồn `membership` của dashboard đọc cùng mục đó, dải ba trạng thái với số thật trên "Tin của tôi", `refreshAfterListingWrite` đọc lại hạn mức (AC-1, AC-2, AC-5, AC-6, AC-11)
+  - [x] M1 Sợi chỉ mỏng: hằng `PRICING_PATH` (`/bang-gia`), truy vấn dùng chung `["membership"]` trong `src/features/membership`, nguồn `membership` của dashboard đọc cùng mục đó, dải ba trạng thái với số thật trên "Tin của tôi", `refreshAfterListingWrite` đọc lại hạn mức (AC-1, AC-2, AC-5, AC-6, AC-11)
   - [ ] M2 Dải đủ trạng thái: hàm thuần `describeMembership`, giọng thông tin hay cảnh báo, dòng vượt hạn mức, liên kết "Xem bảng giá", khung chờ, lỗi kèm "Thử lại", 429 và ẩn khi thiếu quyền (AC-2, AC-3, AC-4, AC-12, AC-13)
   - [ ] M3 Bị từ chối và nguyên nhân: dòng tại hàng có thêm nút "Mua gói" hoặc gợi ý, thông báo cảnh báo trong biểu mẫu đăng tin, đọc lại hạn mức sau khi bị từ chối, nguyên nhân trong nhãn "đang bị ẩn bớt khỏi khách" (AC-5, AC-7, AC-8, AC-9, AC-10)
   - [ ] M4 Trang "Đăng tin mới" và hoàn thiện: dải ở trang đăng tin, kiểm ở 320, 390, 768 và 1280 px, `npm run check` và `npm run build` (AC-1, AC-5, AC-12)
