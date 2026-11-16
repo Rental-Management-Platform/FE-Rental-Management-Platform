@@ -10,6 +10,7 @@ import { ErrorState } from "@/components/states/error-state";
 import { LoadingState } from "@/components/states/loading-state";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { MembershipStrip } from "@/features/membership/components/membership-strip";
 import type { OwnerListingDetail, PropertyListItem } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import { propertiesQuery } from "../api/properties";
@@ -156,10 +157,15 @@ export function NewListing() {
     );
   };
 
+  // The strip sits above the form and above the result, so it stays on screen after a post and
+  // shows the new count (spec 0020, AC-1 and AC-5).
   return (
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-      {renderMain()}
-      <ListingTips />
+    <div className="flex flex-col gap-6">
+      <MembershipStrip />
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        {renderMain()}
+        <ListingTips />
+      </div>
     </div>
   );
 }
