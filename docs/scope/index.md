@@ -45,7 +45,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 35 | Landlord reviews | Slice 3 | done |
 | 37 | Listing reviews | Slice 3 | done |
 | 16 | Home page | Slice 3 | dropped |
-| 17 | Membership status and quota notices | Slice 4 | planned |
+| 17 | Membership status and quota notices | Slice 4 | in-progress |
 | 18 | Pricing page | Slice 4 | planned |
 | 19 | Checkout and order history | Slice 4 | planned |
 | 20 | Admin shell and users | Slice 5 | planned |
@@ -67,7 +67,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Foundations](foundations.md): nền tảng kỹ thuật và thiết kế (#1 đến #4, và #30). 5 done.
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 3 done.
 * [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 9 done, 1 planned, 1 dropped (#16).
-* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 7 done, 2 planned.
+* [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33). 7 done, 1 in-progress, 1 planned.
 * [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 8 planned.
 * [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 done.
 
