@@ -1,7 +1,7 @@
 # 0021. Pricing page and the buy button
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
