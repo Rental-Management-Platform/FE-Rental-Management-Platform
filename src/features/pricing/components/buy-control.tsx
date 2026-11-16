@@ -46,9 +46,13 @@ export function BuyControl({ plan }: { plan: Plan }) {
       type="button"
       size="lg"
       // A plan name can be up to 60 characters, so the label may wrap and the button grows
-      // from its 44 px instead of running out of the card.
-      className="h-auto min-h-11 w-full py-2 whitespace-normal"
-      disabled={locked}
+      // from its 44 px instead of running out of the card. `aria-disabled` does not dim a button
+      // on its own, so the dimmed look of a disabled one is added here.
+      className="h-auto min-h-11 w-full py-2 whitespace-normal aria-disabled:opacity-50"
+      // `aria-disabled` and not `disabled`, so focus stays on the pressed button while the order
+      // is made (the rule of the follow button and the chat box). `buy` ignores a press while
+      // locked, so a click or Enter on a locked button does nothing.
+      aria-disabled={locked || undefined}
       aria-busy={busy || undefined}
       onClick={() => buy(plan.id)}
     >

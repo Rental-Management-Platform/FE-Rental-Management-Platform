@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import {
   createContext,
   use,
+  useMemo,
   useRef,
   useTransition,
   type ReactNode,
@@ -43,8 +44,12 @@ export function BuyProvider({ children }: { children: ReactNode }) {
   const sending = useRef(false);
 
   // The mutation clears its error when the next press starts, so "a new press clears the old
-  // failure" needs no state of its own.
-  const failure = mutation.isError ? classifyBuyError(mutation.error) : null;
+  // failure" needs no state of its own. The object is stable for one failure, so whoever reacts
+  // to a new failure (the notice area moves focus) runs once for it and not on every render.
+  const failure = useMemo(
+    () => (mutation.isError ? classifyBuyError(mutation.error) : null),
+    [mutation.isError, mutation.error],
+  );
   // The wait of a 429 counts down here too, so the buttons come back when it ends. The notice
   // counts for the eyes on its own.
   const waitLeft = useCountdown(

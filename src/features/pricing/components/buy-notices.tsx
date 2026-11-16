@@ -1,6 +1,7 @@
 "use client";
 
 import { TriangleAlertIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { FailureNotice } from "@/components/form/failure-notice";
 import { RateLimitNotice } from "@/components/states/rate-limit-notice";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -17,8 +18,24 @@ import { PendingOrderNotice } from "./pending-order-notice";
  */
 export function BuyNotices() {
   const { failure } = useBuy();
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Two failures take away what had focus: a refused permission hides every button, and a plan
+  // that is gone loses its card when the plans are read again. Focus goes to the notice, which a
+  // screen reader then reads, and the next Tab reaches the cards. The other failures leave the
+  // pressed button where it is, still focused.
+  useEffect(() => {
+    if (failure?.kind === "denied" || failure?.kind === "plan-gone") {
+      ref.current?.focus();
+    }
+  }, [failure]);
+
   return (
-    <div className="flex flex-col gap-4 empty:hidden">
+    <div
+      ref={ref}
+      tabIndex={-1}
+      className="flex flex-col gap-4 outline-none empty:hidden"
+    >
       <PendingOrderNotice />
       {failure !== null && <FailureAlert failure={failure} />}
     </div>
