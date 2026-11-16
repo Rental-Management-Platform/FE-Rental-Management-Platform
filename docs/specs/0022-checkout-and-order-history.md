@@ -1,7 +1,7 @@
 # 0022. Checkout and order history
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
@@ -242,4 +242,4 @@ The approach is Tracer Bullet (from the scope): milestone 1 runs one thin thread
 - [ ] When #25 (orders of all landlords) is designed, decide whether `OrderStatusBadge` and the order summary move to `src/components`.
 - [ ] Decide later whether the paid view should say how many held back listings the new plan brings back. The front end must not compute it (the plan's limit may be lower than the count), so it needs a field from the backend.
 - [ ] After the build, `/check verify` should include the two tab cases (paid in one tab and cancelled in the other), because no button reaches `ORDER_STATE_INVALID` on its own.
-- [ ] Tick the follow up of spec 0021 that says #19 builds `/landlord/orders/[id]` and `/landlord/orders`, once this feature is done.
+- [x] Tick the follow up of spec 0021 that says #19 builds `/landlord/orders/[id]` and `/landlord/orders`, once this feature is done.

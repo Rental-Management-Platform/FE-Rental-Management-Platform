@@ -218,7 +218,7 @@ The approach is Tracer Bullet (from the scope): milestone 1 runs one thin thread
 ## Follow-up
 
 - [ ] #18 creates `/bang-gia` with `PRICING_PATH`. Until then every "Mua gói" and "Xem bảng giá" leads to the 404 page.
-- [ ] #19 calls `invalidateQueries({ queryKey: membershipKey })` after a test payment (and after cancelling an order if the plan could change), so the strip and the dashboard cards follow.
+- [x] #19 calls `invalidateQueries({ queryKey: membershipKey })` after a test payment (and after cancelling an order if the plan could change), so the strip and the dashboard cards follow.
 - [ ] `/sync` ticks the follow ups this spec closes: spec 0005 ("Item #17 decides how quota and trial limits are shown"), spec 0006 (the #17 follow up and the `isPublic` cause), spec 0019 (the #17 follow up and AC-6's "no Mua gói button yet", now replaced by AC-8 here).
 - [ ] `/sync` or `/scope` notes that spec 0001's route table names `/pricing` and `/landlords/[id]`, now `/bang-gia` and `/chu-tro/[id]`.
 - [ ] Spec 0008's `describeStat` text for the cards is unchanged on purpose. If the engineer later wants the dashboard to name the cause too, that is a small separate change.

@@ -228,7 +228,7 @@ The approach is Tracer Bullet (from the scope): milestone 1 runs one thin thread
 
 ## Follow-up
 
-- [ ] #19 builds `/landlord/orders/[id]` (it may show the order already in the cache from the 201 answer, and reads `GET /orders/:id`) and `/landlord/orders`, turns the "Gói và đơn của tôi" tool to `ready` with that address, and after a test payment calls `invalidateQueries` for `membershipKey` (spec 0020) and `ordersKey`.
+- [x] #19 builds `/landlord/orders/[id]` (it may show the order already in the cache from the 201 answer, and reads `GET /orders/:id`) and `/landlord/orders`, turns the "Gói và đơn của tôi" tool to `ready` with that address, and after a test payment calls `invalidateQueries` for `membershipKey` (spec 0020) and `ordersKey`.
 - [ ] `/sync` adds `bang-gia` to the reserved top level names and `/bang-gia` and `/landlord/orders` to the route table of spec 0001, and ticks the follow up of spec 0020 that says #18 creates `/bang-gia`.
 - [ ] If the number of plans ever goes above 50, the pricing read needs paging. It is not expected.
 - [ ] Decide later whether a plan chosen before sign in should be remembered (a `?plan=` on the sign in link). The engineer chose the simple return to `/bang-gia` for now.
