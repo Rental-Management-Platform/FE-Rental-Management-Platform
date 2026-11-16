@@ -23,6 +23,9 @@ export const buyLabel = (planName: string) => `Mua gói ${planName}`;
 
 export const BUYING = "Đang tạo đơn";
 
+/** Added after the backend's sentence when the plan is gone (`PLAN_INACTIVE`, `PLAN_NOT_FOUND`). */
+export const CHOOSE_ANOTHER_PLAN = "Hãy chọn gói khác.";
+
 /** For a renter, an admin, or a landlord without `order:create`: no button, and this line. */
 export const NOT_A_BUYER_NOTE =
   "Chỉ chủ trọ mới mua được gói, nên tài khoản này không có nút mua.";

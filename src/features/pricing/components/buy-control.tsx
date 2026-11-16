@@ -23,7 +23,7 @@ const SIGN_IN_HREF = authHref("/login", PRICING_PATH);
  */
 export function BuyControl({ plan }: { plan: Plan }) {
   const session = useSession();
-  const { locked, busyPlanId, buy } = useBuy();
+  const { locked, busyPlanId, hidden, buy } = useBuy();
 
   if (session.status === "loading") {
     return <div aria-hidden="true" className="h-11 w-full" />;
@@ -37,7 +37,8 @@ export function BuyControl({ plan }: { plan: Plan }) {
     );
   }
 
-  if (!canBuyPlans(session)) return null;
+  // The backend refused the permission on a press (`hidden`): no button for the rest of the visit.
+  if (!canBuyPlans(session) || hidden) return null;
 
   const busy = busyPlanId === plan.id;
   return (

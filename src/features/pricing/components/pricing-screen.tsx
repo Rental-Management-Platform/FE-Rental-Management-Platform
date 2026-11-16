@@ -1,5 +1,6 @@
 import { getPlans } from "../api/get-plans";
 import { BuyControl } from "./buy-control";
+import { BuyNotices } from "./buy-notices";
 import { BuyProvider } from "./buy-provider";
 import { PlanCard } from "./plan-card";
 import { ViewerNote } from "./viewer-note";
@@ -18,6 +19,7 @@ export async function PricingScreen() {
 
   return (
     <BuyProvider>
+      <BuyNotices />
       <ul className="grid gap-6 md:grid-cols-3">
         {plans.map((plan) => (
           <li key={plan.id} className="grid">
