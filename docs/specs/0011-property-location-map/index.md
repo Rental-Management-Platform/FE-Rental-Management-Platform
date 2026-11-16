@@ -1,7 +1,7 @@
 # 0011. Property location map: pick where a property is on a map
 
 **Date**: 2026-11-05, updated 2026-11-12 (the street field fills itself and a typed address reaches the map only through a button, no `/dev/ui` section, the ward boxes get their own query; see the Follow-up)
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
