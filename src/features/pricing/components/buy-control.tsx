@@ -45,7 +45,9 @@ export function BuyControl({ plan }: { plan: Plan }) {
     <Button
       type="button"
       size="lg"
-      className="w-full"
+      // A plan name can be up to 60 characters, so the label may wrap and the button grows
+      // from its 44 px instead of running out of the card.
+      className="h-auto min-h-11 w-full py-2 whitespace-normal"
       disabled={locked}
       aria-busy={busy || undefined}
       onClick={() => buy(plan.id)}

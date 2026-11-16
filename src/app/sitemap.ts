@@ -4,6 +4,7 @@ import { serverGet } from "@/lib/api/server";
 import type { Page, PublicListingSummary } from "@/lib/api/types";
 import { env } from "@/lib/env";
 import { listingPath } from "@/lib/listing-path";
+import { PRICING_PATH } from "@/lib/pricing-path";
 
 // At most 20 reads of 50 rows: 1,000 listings, far under the 50,000 address limit of a sitemap,
 // and at most 20 of the 300 reads a minute that every server render shares (spec 0010, AC-17).
@@ -12,7 +13,7 @@ const PAGE_SIZE = 50;
 const MAX_PAGES = 20;
 
 /**
- * `/sitemap.xml`: the home page and every public listing, as absolute addresses. It reads the
+ * `/sitemap.xml`: the home page, the pricing page and every public listing, as absolute addresses. It reads the
  * list as a guest, one page after another, so it holds only what a guest can see. It is fresh on
  * every request, because Next.js caches a sitemap unless it uses a request time API, and a listing
  * that was just hidden must leave it at once. A failed read is thrown, so the answer is a 500,
@@ -22,7 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();
 
   const site = env.NEXT_PUBLIC_SITE_URL;
-  const entries: MetadataRoute.Sitemap = [{ url: `${site}/` }];
+  const entries: MetadataRoute.Sitemap = [
+    { url: `${site}/` },
+    { url: `${site}${PRICING_PATH}` },
+  ];
   // The newest first order can shift while the walk runs, so a row can appear on two pages.
   const seen = new Set<string>();
 

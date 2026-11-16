@@ -8,6 +8,33 @@ export const PRICING_TITLE = "Bảng giá gói đăng tin";
 export const PRICING_DESCRIPTION =
   "Chọn gói theo số tin bạn cần hiện cùng lúc. Giá tính cho một kỳ, và thanh toán chỉ là thanh toán thử.";
 
+/** The description of the page for search engines and link cards. No plan data in it. */
+export const PRICING_META_DESCRIPTION =
+  "Xem các gói đăng tin của Mái Hiên: giá một kỳ, số tin hiện cùng lúc và số ngày mỗi kỳ. Thanh toán chỉ là thanh toán thử.";
+
+/** The title shown when no plan is on sale (AC-12). There is no buy control with it. */
+export const NO_PLANS_TITLE = "Chưa có gói nào đang bán";
+
+export const PLANS_FAILED_TITLE = "Không tải được bảng giá";
+
+/** The zone under the cards: three things to know before buying (the sample screen's copy). */
+export const GOOD_TO_KNOW_TITLE = "Cần biết trước khi mua";
+
+export const GOOD_TO_KNOW = [
+  {
+    title: "Dùng thử trước",
+    text: "Chủ trọ mới có một kỳ dùng thử với số tin giới hạn. Hết kỳ mà chưa có gói thì tin biến khỏi trang tìm trọ.",
+  },
+  {
+    title: "Gói thay hạn mức dùng thử",
+    text: "Gói đang chạy thay hạn mức dùng thử. Tin bị ẩn bớt vì vượt hạn mức hiện lại ngay khi thanh toán xong.",
+  },
+  {
+    title: "Gia hạn không mất ngày nào",
+    text: "Mua khi gói còn hạn thì kỳ mới nối vào cuối kỳ hiện tại.",
+  },
+] as const;
+
 /** The three points under the price of a card, from the numbers of the plan. */
 export const planPoints = (plan: {
   maxListings: number;

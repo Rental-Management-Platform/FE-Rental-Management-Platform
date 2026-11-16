@@ -4,6 +4,7 @@ import {
   MessageCircle,
   Search,
   ShieldCheck,
+  TagIcon,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -12,6 +13,7 @@ import { LANDLORD_CHAT_BASE, TENANT_CHAT_BASE } from "@/features/chat/access";
 import { FAVORITES_PATH } from "@/features/favorites/access";
 import type { AccountType, PermissionKey } from "@/lib/api/types";
 import { homePathOf } from "@/lib/next-path";
+import { PRICING_PATH } from "@/lib/pricing-path";
 import { ADMIN_TOOLS, LANDLORD_TOOLS, navItemsOf } from "./workspace-tools";
 
 export type NavItem = {
@@ -49,6 +51,7 @@ export const toPublicNavItems = (items: readonly NavItem[]): PublicNavItem[] =>
 // footer is static and leaves out any item with a permission, so it never shows there.
 export const PUBLIC_NAV: readonly NavItem[] = [
   { label: "Tìm trọ", href: "/", icon: Search },
+  { label: "Bảng giá", href: PRICING_PATH, icon: TagIcon },
   {
     label: "Tin đã lưu",
     href: FAVORITES_PATH,

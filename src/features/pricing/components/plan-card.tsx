@@ -22,7 +22,7 @@ export function PlanCard({ plan, footer }: { plan: Plan; footer: ReactNode }) {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h2 className="text-xl">{plan.name}</h2>
+          <h2 className="text-xl break-words">{plan.name}</h2>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
