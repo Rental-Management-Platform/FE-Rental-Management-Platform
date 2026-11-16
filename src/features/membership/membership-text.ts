@@ -1,7 +1,8 @@
 // What the status strip says about a membership (spec 0020, AC-2, AC-3 and AC-13). Pure: no
 // React, no network, so the rules can be read and tested on their own. Nothing is computed here
 // beyond joining text and formatting: every number is a field of the answer, and the only
-// comparisons are `state`, `paidUntil` against `endsAt`, and the checks of AC-13.
+// comparisons are `state`, `remaining` equal to 0, `overLimitCount` and `visibleCount` above 0,
+// and `paidUntil` against `endsAt`.
 import type { Membership } from "@/lib/api/types";
 import { formatCount, formatDateTime } from "@/lib/format";
 
@@ -20,11 +21,39 @@ export interface StripNotice {
   action: WayOut | null;
 }
 
+/**
+ * What to do when the limit is reached. The strip says it when there is no room, and the notice
+ * of a refused "Hiện" says it after `LISTING_QUOTA_REACHED` (spec 0020, AC-3 and AC-8).
+ */
+export const QUOTA_HINT = "Hãy ẩn hoặc xóa bớt một tin, hoặc mua gói lớn hơn.";
+
 const showing = ({ visibleCount, listingLimit }: Membership) =>
   `đang hiện ${formatCount(visibleCount)} trên ${formatCount(listingLimit)} tin`;
 
 const sameMoment = (a: string, b: string) =>
   new Date(a).getTime() === new Date(b).getTime();
+
+// A trial or a plan: `info` while there is room. With no room left, or listings cut back over
+// the limit, it is a `warning` that says how many guests cannot see and what can be done.
+const withLimit = (membership: Membership, headline: string): StripNotice => {
+  const { remaining, overLimitCount } = membership;
+  if (remaining !== 0 && overLimitCount <= 0) {
+    return { tone: "info", headline, lines: [], action: null };
+  }
+  return {
+    tone: "warning",
+    headline,
+    lines: [
+      ...(overLimitCount > 0
+        ? [
+            `${formatCount(overLimitCount)} tin đang bị ẩn bớt khỏi khách vì vượt hạn mức`,
+          ]
+        : []),
+      QUOTA_HINT,
+    ],
+    action: "pricing",
+  };
+};
 
 /**
  * The strip's text for one answer, or `null` when `state` is a value this version does not know
@@ -37,12 +66,7 @@ export function describeMembership(membership: Membership): StripNotice | null {
         membership.trialDaysLeft === null
           ? "Đang dùng thử"
           : `Còn ${formatCount(membership.trialDaysLeft)} ngày dùng thử`;
-      return {
-        tone: "info",
-        headline: `${days} · ${showing(membership)}`,
-        lines: [],
-        action: null,
-      };
+      return withLimit(membership, `${days} · ${showing(membership)}`);
     }
     case "plan": {
       const { subscription } = membership;
@@ -54,12 +78,7 @@ export function describeMembership(membership: Membership): StripNotice | null {
                 ? ""
                 : ` (đã trả đến ${formatDateTime(subscription.paidUntil)})`
             }`;
-      return {
-        tone: "info",
-        headline: `${plan} · ${showing(membership)}`,
-        lines: [],
-        action: null,
-      };
+      return withLimit(membership, `${plan} · ${showing(membership)}`);
     }
     case "expired":
       return {
@@ -67,6 +86,12 @@ export function describeMembership(membership: Membership): StripNotice | null {
         headline: "Bạn đã hết dùng thử và chưa có gói.",
         lines: [
           "Bạn chưa đăng tin mới hay hiện lại tin được. Ẩn, sửa và xóa tin vẫn dùng được.",
+          // When expired, every listing that is showing is held back from guests (6.25).
+          ...(membership.visibleCount > 0
+            ? [
+                `Khách chưa thấy ${formatCount(membership.visibleCount)} tin của bạn.`,
+              ]
+            : []),
         ],
         action: "buy",
       };
