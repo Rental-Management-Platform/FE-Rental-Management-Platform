@@ -8,16 +8,18 @@ import { describeError } from "@/lib/api/errors";
 import type { BuyFailure } from "../buy-failure";
 import { CHOOSE_ANOTHER_PLAN } from "../text";
 import { useBuy } from "./buy-provider";
+import { PendingOrderNotice } from "./pending-order-notice";
 
 /**
- * The notice area directly above the cards (spec 0021). It holds at most one failure notice, and
- * a new press clears the old one. `empty:hidden` drops the area when nothing is in it, so the
+ * The notice area directly above the cards (spec 0021): the reminder of an unpaid order first,
+ * then at most one failure notice, and a new press clears the old failure. `empty:hidden` drops the area when nothing is in it, so the
  * page gap does not grow for nothing.
  */
 export function BuyNotices() {
   const { failure } = useBuy();
   return (
     <div className="flex flex-col gap-4 empty:hidden">
+      <PendingOrderNotice />
       {failure !== null && <FailureAlert failure={failure} />}
     </div>
   );

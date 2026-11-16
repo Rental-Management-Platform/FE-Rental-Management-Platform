@@ -27,11 +27,20 @@ const isDenied = (error: unknown) =>
  *
  * An answer that is already shown stays shown when a later read fails, so the numbers never turn
  * into an error just because the window was focused while the network was down.
+ *
+ * `showAction` (default true) draws the "Mua gói" or "Xem bảng giá" button of the strip. The
+ * pricing page turns it off (spec 0021, AC-6), because the plans are right below the strip.
  */
-export function MembershipStrip() {
+export function MembershipStrip({
+  showAction = true,
+}: {
+  showAction?: boolean;
+}) {
   const { query, allowed } = useMembership();
   if (!allowed) return null;
-  if (query.data !== undefined) return <StripAlert membership={query.data} />;
+  if (query.data !== undefined) {
+    return <StripAlert membership={query.data} showAction={showAction} />;
+  }
   if (query.isError) {
     return isDenied(query.error) ? null : (
       <StripFailure error={query.error} onRetry={() => void query.refetch()} />
@@ -55,7 +64,13 @@ function StripSkeleton() {
 
 // A quiet status region: it is read as one sentence when its text changes, and it is words plus
 // an icon, never color alone. An unknown `state` draws nothing.
-function StripAlert({ membership }: { membership: Membership }) {
+function StripAlert({
+  membership,
+  showAction,
+}: {
+  membership: Membership;
+  showAction: boolean;
+}) {
   const notice = describeMembership(membership);
   if (notice === null) return null;
 
@@ -71,7 +86,7 @@ function StripAlert({ membership }: { membership: Membership }) {
           ))}
         </AlertDescription>
       )}
-      {notice.action !== null && (
+      {showAction && notice.action !== null && (
         <div className="col-start-2 mt-2 flex flex-wrap gap-3">
           <PricingAction way={notice.action} />
         </div>

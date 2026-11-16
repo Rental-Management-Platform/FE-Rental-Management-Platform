@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
+import { MembershipSection } from "@/features/pricing/components/membership-section";
 import { PlansSkeleton } from "@/features/pricing/components/plans-skeleton";
 import { PricingScreen } from "@/features/pricing/components/pricing-screen";
 import { PRICING_DESCRIPTION, PRICING_TITLE } from "@/features/pricing/text";
@@ -11,6 +12,11 @@ export default function PricingPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
       <PageHeader title={PRICING_TITLE} description={PRICING_DESCRIPTION} />
+      {/* The status strip of a landlord reads the session and a query clock in the browser, so it
+          sits in its own boundary and the server HTML holds nothing for it. */}
+      <Suspense fallback={null}>
+        <MembershipSection />
+      </Suspense>
       <Suspense fallback={<PlansSkeleton />}>
         <PricingScreen />
       </Suspense>
