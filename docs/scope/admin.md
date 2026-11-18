@@ -4,10 +4,17 @@ Khu quản trị: người dùng, kiểm duyệt tin và đánh giá, gói, danh
 
 ## Slice 5: Khu admin
 
-### 20. Admin shell and users · needs a decision
+### 20. Admin shell and users
 Khung khu admin và trang người dùng đầu tiên, nơi định ra mẫu bảng, bộ lọc và hộp nhập lý do để các màn sau dùng lại. Bảng từ `GET /users` (tìm theo email, tên, số điện thoại; lọc theo loại tài khoản và trạng thái), khóa và mở khóa kèm lý do bắt buộc, và thu hồi mọi phiên của một người (`POST /users/:id/revoke-sessions`, quyền `user:revoke`): nút ở mỗi dòng, hỏi xác nhận, buộc người đó đăng nhập lại mà không đổi trạng thái tài khoản.
 **Done when:** admin tìm và lọc được, khóa rồi mở khóa kèm lý do được, thu hồi phiên có hỏi xác nhận và báo `USER_NOT_FOUND` nếu người đó không còn, nút khóa ẩn ở dòng của chính mình (`CANNOT_LOCK_SELF`), trạng thái dòng cập nhật sau thao tác, 403 `ACCOUNT_LOCKED` hay 401 thì đưa về trang đăng nhập.
-- [ ] Design it (spec): `/architect admin shell and users`
+- [x] Design it (spec): `/architect admin shell and users`
+- [ ] Build it: `/develop admin shell and users`
+  - [x] M1 Sợi chỉ mỏng: địa chỉ `/admin/users`, đọc `GET /users` với tài khoản admin, tiêu đề đếm tổng, bảng và khối xếp với trạng thái kèm lý do khóa (chưa có nút), đang tải, lỗi kèm "Thử lại", 429, thiếu quyền, công cụ "Người dùng" thành `ready` (AC-1, AC-2, AC-11)
+  - [ ] M2 Bộ lọc, ô tìm và trang trong địa chỉ: hai ô chọn loại tài khoản và trạng thái, ô tìm chờ 400 ms rồi thay địa chỉ, giá trị lạ về mặc định, trang quá cuối về trang cuối, hai trạng thái rỗng kèm "Xóa bộ lọc" (AC-3, AC-4)
+  - [ ] M3 Hộp nhập lý do dùng chung, khóa và mở khóa: `ReasonDialog` và `reason-schema` trong `src/components/form/`, luật nút theo dòng, đọc lại danh sách trước khi đóng hộp, toast gọi tên tài khoản, xung đột giữa hai admin (`ACCOUNT_ALREADY_LOCKED`, `ACCOUNT_NOT_LOCKED`, `USER_NOT_FOUND`), lỗi nằm trong hộp (AC-5 đến AC-9)
+  - [ ] M4 Thu hồi phiên và hoàn thiện: hộp xác nhận thu hồi, nút theo quyền `user:lock` và `user:revoke`, kiểm ở 320, 390, 768 và 1280 px chỉ bằng bàn phím, `npm run check` và `npm run build` (AC-5, AC-10 đến AC-12)
+- [ ] Verify it: `/check verify admin shell and users`
+spec [0023](../specs/0023-admin-users-reason-dialog.md) · Chọn: một trang `/admin/users` dựng trên mẫu của #25, #22 và #23 (khung admin và mẫu bảng đã có sẵn nên không dựng khung mới); hộp nhập lý do dùng chung `ReasonDialog` đặt ở `src/components/form/` ngay từ bây giờ cho #21 và #36; bộ lọc, ô tìm (chờ 400 ms) và trang nằm trong địa chỉ; hai nút hiện sẵn ở dòng, dòng của mình không có nút, dòng đã khóa chỉ có "Mở khóa"; khóa được cả admin khác, hộp nhắc đây là tài khoản quản trị; sau khi ghi thì đọc lại danh sách trước khi đóng hộp; xung đột giữa hai admin đóng hộp và báo bằng toast; không có liên kết nào ở dòng người dùng.
 
 ### 21. Listing moderation
 Bảng tin cho admin từ `GET /moderation/listings` (tìm, lọc theo trạng thái và chủ trọ), ẩn hoặc gỡ ẩn kèm lý do 1 đến 500 ký tự. Nhắc rằng gỡ ẩn không tự hiện tin, chủ trọ phải bấm Hiện.
