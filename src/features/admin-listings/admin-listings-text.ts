@@ -58,7 +58,7 @@ export const FILTERS_LABEL = "Tìm và lọc tin";
 
 export const SEARCH_LABEL = "Tìm kiếm";
 
-export const SEARCH_PLACEHOLDER = "Tiêu đề, tên nhà trọ, địa chỉ hoặc phường";
+export const SEARCH_PLACEHOLDER = "Tiêu đề, nhà trọ hoặc địa chỉ";
 
 export const STATUS_FILTER_LABEL = "Trạng thái";
 
