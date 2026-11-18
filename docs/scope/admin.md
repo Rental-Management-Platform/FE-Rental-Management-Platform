@@ -24,7 +24,7 @@ Bảng tin cho admin từ `GET /moderation/listings` (tìm, lọc theo trạng t
 - [ ] Build it: `/develop listing moderation` (không cần spec riêng: theo `api-for-frontend.md` mục 6.29, dùng lại mẫu bảng, bộ lọc và phân trang của #20 và #25 và hộp nhập lý do `ReasonDialog` của #20 theo spec [0023](../specs/0023-admin-users-reason-dialog.md))
   - [x] M1 Sợi chỉ mỏng: địa chỉ `/admin/listings`, đọc `GET /moderation/listings` với tài khoản admin, tiêu đề đếm tổng, bảng và khối xếp kèm nhãn trạng thái và lý do ẩn, đang tải, lỗi kèm "Thử lại", 429, thiếu quyền, công cụ "Kiểm duyệt tin" thành `ready`
   - [x] M2 Bộ lọc, ô tìm và trang trong địa chỉ: ô tìm (chờ 400 ms), ô chọn trạng thái, ô chọn chủ trọ, tên chủ trọ trong bảng làm bộ lọc, giá trị lạ về mặc định, trang quá cuối về trang cuối, hai trạng thái rỗng kèm "Xóa bộ lọc"
-  - [ ] M3 Ẩn và gỡ ẩn: nút theo trạng thái dòng, `ReasonDialog` dùng chung, thay dòng bằng kết quả trả về rồi đọc lại danh sách trước khi đóng hộp, toast gọi tên tin kèm lời nhắc chủ trọ phải bấm Hiện, `LISTING_STATE_INVALID` và `LISTING_NOT_FOUND` đóng hộp và tải lại, lỗi nằm trong hộp
+  - [x] M3 Ẩn và gỡ ẩn: nút theo trạng thái dòng, `ReasonDialog` dùng chung, thay dòng bằng kết quả trả về rồi đọc lại danh sách trước khi đóng hộp, toast gọi tên tin kèm lời nhắc chủ trọ phải bấm Hiện, `LISTING_STATE_INVALID` và `LISTING_NOT_FOUND` đóng hộp và tải lại, lỗi nằm trong hộp
   - [ ] M4 Hoàn thiện: kiểm ở 320, 390, 768 và 1280 px chỉ bằng bàn phím, tiêu điểm sau khi hộp đóng, số trên thẻ dashboard làm mới, `npm run check` và `npm run build`
 
 ### 36. Review moderation

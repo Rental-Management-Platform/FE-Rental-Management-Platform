@@ -5,6 +5,7 @@ import { BookOpenIcon, ShieldAlertIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, type ReactNode } from "react";
+import { ReasonDialog } from "@/components/form/reason-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { ListPagination } from "@/components/list-pagination";
 import { EmptyState } from "@/components/states/empty-state";
@@ -15,6 +16,7 @@ import { Card } from "@/components/ui/card";
 import { ListFailure } from "@/features/admin-catalog/components/list-failure";
 import { parsePageParam } from "@/features/listing-search/schemas/search-params";
 import { isApiError } from "@/lib/api/errors";
+import type { ModerationListing } from "@/lib/api/types";
 import { lastPageOf } from "@/lib/pagination";
 import { useApi, useSession } from "@/lib/session/auth-provider";
 import { can } from "@/lib/session/can";
@@ -47,8 +49,10 @@ import {
   parseModerationFilters,
   type ModerationFilters,
 } from "../moderation-filter";
+import { useModerationFlow } from "../hooks/use-moderation-flow";
 import { ModerationCards } from "./moderation-cards";
 import { ModerationFilterBar } from "./moderation-filter-bar";
+import { ModerationRowActions } from "./moderation-row-actions";
 import { ModerationTable } from "./moderation-table";
 
 const HEADING_ID = RESULTS_HEADING_ID;
@@ -73,6 +77,7 @@ export function AdminListingsPage() {
   const router = useRouter();
   const session = useSession();
   const mayModerate = can(session, "listing:moderate");
+  const moderation = useModerationFlow();
   const query = useQuery({
     ...adminListingsListQuery(api, params),
     enabled: mayModerate,
@@ -105,6 +110,17 @@ export function AdminListingsPage() {
 
   const landlordHref = (landlordId: string) =>
     adminListingsHref({ ...filters, landlordId }, 1);
+  const renderActions = (
+    listing: ModerationListing,
+    size: "sm" | "lg",
+  ): ReactNode => (
+    <ModerationRowActions
+      listing={listing}
+      size={size}
+      onHide={moderation.ask}
+      onUnhide={moderation.ask}
+    />
+  );
 
   const renderBody = (): ReactNode => {
     if (data === undefined) {
@@ -158,10 +174,18 @@ export function AdminListingsPage() {
             {/* The same rows twice: a table from `md` and stacked blocks below it. The hidden
                 one is `display: none`, so a screen reader reads only one. */}
             <div className="hidden md:block">
-              <ModerationTable rows={data.items} landlordHref={landlordHref} />
+              <ModerationTable
+                rows={data.items}
+                landlordHref={landlordHref}
+                actions={(listing) => renderActions(listing, "sm")}
+              />
             </div>
             <div className="md:hidden">
-              <ModerationCards rows={data.items} landlordHref={landlordHref} />
+              <ModerationCards
+                rows={data.items}
+                landlordHref={landlordHref}
+                actions={(listing) => renderActions(listing, "lg")}
+              />
             </div>
           </>
         )}
@@ -189,6 +213,20 @@ export function AdminListingsPage() {
       />
       <ModerationFilterBar filters={filters} />
       <Card>{renderBody()}</Card>
+
+      {/* One dialog for every row. It has no trigger of its own, so it takes focus back through
+          `useReturnFocus` (inside `useModerationFlow`). */}
+      <ReasonDialog
+        open={moderation.open}
+        onOpenChange={moderation.onOpenChange}
+        title={moderation.title}
+        description={moderation.description}
+        confirmLabel={moderation.confirmLabel}
+        tone={moderation.tone}
+        placeholder={moderation.placeholder}
+        onSubmit={moderation.submit}
+        onCloseAutoFocus={moderation.onCloseAutoFocus}
+      />
     </div>
   );
 }
