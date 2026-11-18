@@ -26,6 +26,13 @@ import {
 } from "../permission-model";
 import { EditableCell, FixedCell, LockedCell } from "./permission-cells";
 
+// The four account columns are one width and centered, so the boxes, locks and ticks of every row
+// stand on the same vertical line as the title above them. A cell that holds a checkbox loses its
+// right padding by default (the select column of a data table); here it keeps it, or its middle
+// would sit 6 px left of the middle of the title.
+const TYPE_COLUMN = "w-40 text-center";
+const MARK_CELL = "text-center [&:has([role=checkbox])]:pr-3";
+
 /** What the table and the blocks of the matrix need to draw a box and to change it. */
 export interface MatrixProps {
   modules: readonly MatrixModule[];
@@ -61,14 +68,14 @@ export function PermissionMatrix({
         <TableRow>
           <TableHead>{COLUMN_ACTION}</TableHead>
           {EDITABLE_TYPES.map((type) => (
-            <TableHead key={type} className="text-center">
+            <TableHead key={type} className={TYPE_COLUMN}>
               {typeNames[type]}
               <span className="block text-xs font-normal">
                 {countLabel(current(type).size)}
               </span>
             </TableHead>
           ))}
-          <TableHead className="text-center">
+          <TableHead className={TYPE_COLUMN}>
             {typeNames.admin}
             <span className="block text-xs font-normal">{FIXED_TYPE_NOTE}</span>
           </TableHead>
@@ -105,7 +112,7 @@ export function PermissionMatrix({
                     action.action,
                   );
                   return (
-                    <TableCell key={type} className="text-center">
+                    <TableCell key={type} className={MARK_CELL}>
                       {action.adminOnly ? (
                         <LockedCell label={label} />
                       ) : (
@@ -119,7 +126,7 @@ export function PermissionMatrix({
                     </TableCell>
                   );
                 })}
-                <TableCell className="text-center">
+                <TableCell className={MARK_CELL}>
                   <FixedCell
                     has={adminKeys.has(action.key)}
                     label={cellLabel(

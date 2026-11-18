@@ -2,6 +2,11 @@ import { CheckIcon, LockIcon, MinusIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ADMIN_ONLY, NO, YES } from "../admin-permissions-text";
 
+// The three kinds of cell all sit in a column whose title is centered, so each one centers its own
+// mark as a block (`flex justify-center`). A `Checkbox` is itself a block, which `text-center` does
+// not move, while an inline icon would sit in the middle: mixing the two put the boxes at the left
+// of a column and the locks and ticks in its middle.
+
 /**
  * One box of the matrix for a landlord or a tenant. Its name carries the type, the module and the
  * action, so a screen reader hears which one it is. It is off for a person without
@@ -19,12 +24,14 @@ export function EditableCell({
   onToggle: () => void;
 }) {
   return (
-    <Checkbox
-      checked={checked}
-      disabled={disabled}
-      onCheckedChange={onToggle}
-      aria-label={label}
-    />
+    <div className="flex items-center justify-center">
+      <Checkbox
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={onToggle}
+        aria-label={label}
+      />
+    </div>
   );
 }
 
@@ -35,12 +42,12 @@ export function EditableCell({
  */
 export function LockedCell({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center justify-center text-muted-foreground">
+    <div className="flex items-center justify-center text-muted-foreground">
       <LockIcon aria-hidden="true" className="size-4" />
       <span className="sr-only">
         {label}: {ADMIN_ONLY}
       </span>
-    </span>
+    </div>
   );
 }
 
@@ -50,7 +57,7 @@ export function LockedCell({ label }: { label: string }) {
  */
 export function FixedCell({ has, label }: { has: boolean; label: string }) {
   return (
-    <span className="inline-flex items-center justify-center text-muted-foreground">
+    <div className="flex items-center justify-center text-muted-foreground">
       {has ? (
         <CheckIcon aria-hidden="true" className="size-4" />
       ) : (
@@ -59,6 +66,6 @@ export function FixedCell({ has, label }: { has: boolean; label: string }) {
       <span className="sr-only">
         {label}: {has ? YES : NO}
       </span>
-    </span>
+    </div>
   );
 }
