@@ -48,6 +48,7 @@ import {
   type ModerationFilters,
 } from "../moderation-filter";
 import { ModerationCards } from "./moderation-cards";
+import { ModerationFilterBar } from "./moderation-filter-bar";
 import { ModerationTable } from "./moderation-table";
 
 const HEADING_ID = RESULTS_HEADING_ID;
@@ -186,6 +187,7 @@ export function AdminListingsPage() {
         title={ADMIN_LISTINGS_TITLE}
         description={ADMIN_LISTINGS_DESCRIPTION}
       />
+      <ModerationFilterBar filters={filters} />
       <Card>{renderBody()}</Card>
     </div>
   );

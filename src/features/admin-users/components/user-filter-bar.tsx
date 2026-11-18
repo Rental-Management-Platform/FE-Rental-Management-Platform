@@ -1,13 +1,12 @@
 "use client";
 
-import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
+import { useCallback, useId } from "react";
+import { DebouncedSearchBox } from "@/components/form/debounced-search-box";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -37,9 +36,6 @@ import {
   type StatusFilter,
   type UserFilters,
 } from "../user-filter";
-
-/** How long the search box waits after the last key before it changes the address. */
-const SEARCH_DELAY_MS = 400;
 
 const TYPE_OPTIONS: readonly { value: AccountTypeFilter; label: string }[] = [
   { value: "all", label: ALL_TYPES },
@@ -80,7 +76,13 @@ export function UserFilterBar({ filters }: { filters: UserFilters }) {
     <Card role="search" aria-label={FILTERS_LABEL}>
       <CardContent className="flex flex-col gap-4">
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_15rem_15rem]">
-          <SearchBox value={filters.q} onSearch={search} />
+          <DebouncedSearchBox
+            value={filters.q}
+            onSearch={search}
+            clean={cleanQuery}
+            label={SEARCH_LABEL}
+            placeholder={SEARCH_PLACEHOLDER}
+          />
           <Field>
             <FieldLabel htmlFor={typeId}>{TYPE_FILTER_LABEL}</FieldLabel>
             <Select
@@ -134,76 +136,5 @@ export function UserFilterBar({ filters }: { filters: UserFilters }) {
         )}
       </CardContent>
     </Card>
-  );
-}
-
-/**
- * The search box owns its text while the person types: it never takes the address text back
- * because of its own echo, or a trailing space would vanish under the finger. It takes the address
- * text again only when the address changes from outside (the "Xóa bộ lọc" button, Back). `pushed`
- * is the text this box last wrote to the address, so an address equal to it is its own echo.
- * Enter does not wait for the 400 ms.
- */
-function SearchBox({
-  value,
-  onSearch,
-}: {
-  value: string;
-  onSearch: (q: string) => void;
-}) {
-  const id = useId();
-  const [text, setText] = useState(value);
-  const [pushed, setPushed] = useState(value);
-  const [seen, setSeen] = useState(value);
-
-  // An address that is not what this box wrote is an outside change: take its text.
-  if (value !== seen) {
-    setSeen(value);
-    if (value !== pushed) {
-      setPushed(value);
-      setText(value);
-    }
-  }
-
-  useEffect(() => {
-    const next = cleanQuery(text);
-    if (next === pushed) return;
-    const timer = setTimeout(() => {
-      setPushed(next);
-      onSearch(next);
-    }, SEARCH_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [text, pushed, onSearch]);
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    const next = cleanQuery(text);
-    if (next === pushed) return;
-    setPushed(next);
-    onSearch(next);
-  };
-
-  return (
-    <form onSubmit={submit}>
-      <Field>
-        <FieldLabel htmlFor={id}>{SEARCH_LABEL}</FieldLabel>
-        <div className="relative">
-          <SearchIcon
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <Input
-            id={id}
-            type="search"
-            size="lg"
-            autoComplete="off"
-            placeholder={SEARCH_PLACEHOLDER}
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            className="pl-9"
-          />
-        </div>
-      </Field>
-    </form>
   );
 }
