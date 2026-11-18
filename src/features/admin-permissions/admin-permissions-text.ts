@@ -131,6 +131,7 @@ const MODULE_LABEL: Record<string, string> = {
   conversation: "Cuộc trò chuyện",
   message: "Tin nhắn",
   review: "Đánh giá",
+  statistic: "Thống kê",
 };
 
 const ACTION_LABEL: Record<string, string> = {
@@ -164,6 +165,8 @@ const ACTION_OVERRIDE: Record<string, string> = {
   "conversation:update": "Đánh dấu đã đọc",
   "message:create": "Gửi tin nhắn",
   "review:moderate": "Ẩn và gỡ ẩn đánh giá",
+  "statistic:read": "Xem thống kê của chủ trọ",
+  "statistic:report": "Xem thống kê tổng quan của nền tảng",
 };
 
 export const moduleLabel = (module: string): string =>
