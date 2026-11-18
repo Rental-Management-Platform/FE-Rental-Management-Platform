@@ -1,7 +1,7 @@
 # 0023. Admin users and the shared reason dialog
 
 **Date**: 2026-11-18
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

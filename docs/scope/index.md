@@ -48,7 +48,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 17 | Membership status and quota notices | Slice 4 | done |
 | 18 | Pricing page | Slice 4 | done |
 | 19 | Checkout and order history | Slice 4 | done |
-| 20 | Admin shell and users | Slice 5 | in-progress |
+| 20 | Admin shell and users | Slice 5 | done |
 | 21 | Listing moderation | Slice 5 | planned |
 | 36 | Review moderation | Slice 5 | planned |
 | 22 | Plans and trial settings | Slice 5 | in-progress |
