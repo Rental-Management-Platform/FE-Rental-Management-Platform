@@ -138,3 +138,23 @@ export const ALREADY_ACTIVE_TOAST =
 
 export const GONE_TOAST =
   "Tài khoản này không còn tồn tại. Danh sách đã được tải lại.";
+
+// The revoke dialog. It is an alert dialog, so the first focus lands on the safe button.
+
+export const REVOKE_BUTTON = "Thu hồi phiên";
+
+export const revokeButtonName = (email: string) => `Thu hồi phiên của ${email}`;
+
+export const revokeTitle = (label: string) => `Thu hồi mọi phiên của ${label}?`;
+
+export const REVOKE_DESCRIPTION =
+  "Người này sẽ phải đăng nhập lại ở mọi thiết bị. Tài khoản không bị khóa và không đổi gì khác.";
+
+export const REVOKE_CONFIRM = "Thu hồi phiên";
+
+export const REVOKING = "Đang thu hồi";
+
+export const REVOKE_KEEP = "Hủy";
+
+export const revokedToast = (label: string) =>
+  `Đã thu hồi mọi phiên của ${label}`;

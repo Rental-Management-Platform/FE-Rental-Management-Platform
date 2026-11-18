@@ -23,9 +23,9 @@ import {
   unlockedToast,
   userLabel,
 } from "../admin-users-text";
-import { RESULTS_HEADING_ID } from "../admin-users-path";
 import { adminUsersKey } from "../api/admin-users-keys";
 import { lockUser, unlockUser } from "../api/users";
+import { rowFocusTarget } from "../row-focus";
 import { classifyUserError } from "../user-failure";
 
 /** The words of the dialog for the row it was opened on. Empty while no row was asked about. */
@@ -57,15 +57,6 @@ const dialogWords = (user: AdminUserListItem | null) => {
       };
 };
 
-// A button of the row, in the table or in the blocks, whichever one is on screen. The other is
-// `display: none`, so it has no `offsetParent` and cannot take focus.
-const buttonOfRow = (id: string): HTMLElement | undefined =>
-  [
-    ...document.querySelectorAll<HTMLElement>(
-      `[data-user-actions="${CSS.escape(id)}"] button`,
-    ),
-  ].find((button) => button.offsetParent !== null);
-
 /**
  * The reason dialog of the users table (scope #20, spec 0023, AC-6 to AC-9), shared by every row:
  * which row it asks about, whether it is open, and what sending does.
@@ -87,11 +78,8 @@ export function useLockFlow() {
   const queryClient = useQueryClient();
   const [target, setTarget] = useState<AdminUserListItem | null>(null);
   const [open, setOpen] = useState(false);
-  const targetId = target?.id;
-  const { remember, onCloseAutoFocus } = useReturnFocus(
-    () =>
-      (targetId === undefined ? undefined : buttonOfRow(targetId)) ??
-      document.getElementById(RESULTS_HEADING_ID),
+  const { remember, onCloseAutoFocus } = useReturnFocus(() =>
+    rowFocusTarget(target?.id),
   );
 
   const write = useMutation({

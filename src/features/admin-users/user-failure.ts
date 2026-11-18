@@ -1,7 +1,7 @@
 // What a failed write on an account means to the page (scope #20, spec 0023, AC-8). Pure: no
 // React, no router.
 
-import { isApiError } from "@/lib/api/errors";
+import { describeError, isApiError, type ApiError } from "@/lib/api/errors";
 
 /**
  * Sorts a failed lock, unlock or revoke:
@@ -29,4 +29,21 @@ export function classifyUserError(error: unknown): UserWriteOutcome {
     }
   }
   return "other";
+}
+
+/**
+ * What the revoke dialog shows for a failure that keeps it open (a 404 `USER_NOT_FOUND` closes it
+ * instead, see `classifyUserError`): a 429 counts the wait down and keeps "Thu hồi phiên" off, any
+ * other failure is a message, with the support code for a 5xx.
+ */
+export type RevokeFailure =
+  | { kind: "rate-limited"; error: ApiError }
+  | { kind: "message"; message: string; requestId: string | null };
+
+export function describeRevokeFailure(error: unknown): RevokeFailure {
+  if (isApiError(error) && error.status === 429) {
+    return { kind: "rate-limited", error };
+  }
+  const { message, requestId } = describeError(error);
+  return { kind: "message", message, requestId };
 }

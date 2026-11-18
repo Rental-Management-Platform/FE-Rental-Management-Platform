@@ -69,3 +69,11 @@ export const lockUser = (api: ApiClient, id: Uuid, reason: string) =>
  */
 export const unlockUser = (api: ApiClient, id: Uuid, reason: string) =>
   api.post<User>(`/users/${id}/unlock`, { reason });
+
+/**
+ * `POST /users/:id/revoke-sessions` (`user:revoke`, 6.12): ends every login session of the person
+ * and changes nothing else, so the account stays as it is and the person signs in again. No body,
+ * and the answer is a 204.
+ */
+export const revokeSessions = (api: ApiClient, id: Uuid) =>
+  api.post<void>(`/users/${id}/revoke-sessions`);

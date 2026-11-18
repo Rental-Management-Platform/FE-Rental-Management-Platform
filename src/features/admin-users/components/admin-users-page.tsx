@@ -42,6 +42,7 @@ import {
   type AdminUsersParams,
 } from "../api/users";
 import { useLockFlow } from "../hooks/use-lock-flow";
+import { useRevokeFlow } from "../hooks/use-revoke-flow";
 import { rowActions } from "../row-actions";
 import {
   adminUsersHref,
@@ -51,6 +52,7 @@ import {
 } from "../user-filter";
 import { UserCards } from "./user-cards";
 import { UserFilterBar } from "./user-filter-bar";
+import { RevokeDialog } from "./revoke-dialog";
 import { UserRowActions } from "./user-row-actions";
 import { UsersTable } from "./users-table";
 
@@ -80,6 +82,7 @@ export function AdminUsersPage() {
   const mayRevoke = can(session, "user:revoke");
   const viewerId = session.status === "user" ? session.user.id : null;
   const lock = useLockFlow();
+  const revoke = useRevokeFlow();
   const query = useQuery({
     ...adminUsersListQuery(api, params),
     enabled: mayRead,
@@ -122,6 +125,7 @@ export function AdminUsersPage() {
       size={size}
       onLock={lock.ask}
       onUnlock={lock.ask}
+      onRevoke={revoke.ask}
     />
   );
 
@@ -231,6 +235,15 @@ export function AdminUsersPage() {
         placeholder={lock.placeholder}
         onSubmit={lock.submit}
         onCloseAutoFocus={lock.onCloseAutoFocus}
+      />
+      <RevokeDialog
+        title={revoke.title}
+        open={revoke.open}
+        onOpenChange={revoke.onOpenChange}
+        pending={revoke.pending}
+        failure={revoke.failure}
+        onConfirm={() => void revoke.confirm()}
+        onCloseAutoFocus={revoke.onCloseAutoFocus}
       />
     </div>
   );
