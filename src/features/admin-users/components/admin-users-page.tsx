@@ -5,6 +5,7 @@ import { BookOpenIcon, UsersRoundIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, type ReactNode } from "react";
+import { ReasonDialog } from "@/components/form/reason-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { ListPagination } from "@/components/list-pagination";
 import { EmptyState } from "@/components/states/empty-state";
@@ -15,11 +16,12 @@ import { Card } from "@/components/ui/card";
 import { ListFailure } from "@/features/admin-catalog/components/list-failure";
 import { parsePageParam } from "@/features/listing-search/schemas/search-params";
 import { isApiError } from "@/lib/api/errors";
+import type { AdminUserListItem } from "@/lib/api/types";
 import { lastPageOf } from "@/lib/pagination";
 import { useApi, useSession } from "@/lib/session/auth-provider";
 import { can } from "@/lib/session/can";
 import { cn } from "@/lib/utils";
-import { ADMIN_USERS_PATH } from "../admin-users-path";
+import { ADMIN_USERS_PATH, RESULTS_HEADING_ID } from "../admin-users-path";
 import {
   ADMIN_USERS_DESCRIPTION,
   ADMIN_USERS_FAILED_TITLE,
@@ -39,6 +41,8 @@ import {
   adminUsersListQuery,
   type AdminUsersParams,
 } from "../api/users";
+import { useLockFlow } from "../hooks/use-lock-flow";
+import { rowActions } from "../row-actions";
 import {
   adminUsersHref,
   hasFilters,
@@ -47,9 +51,10 @@ import {
 } from "../user-filter";
 import { UserCards } from "./user-cards";
 import { UserFilterBar } from "./user-filter-bar";
+import { UserRowActions } from "./user-row-actions";
 import { UsersTable } from "./users-table";
 
-const HEADING_ID = "admin-users-title";
+const HEADING_ID = RESULTS_HEADING_ID;
 
 /**
  * "Người dùng" (scope #20, `GET /users`): every account with its type, its status and, for a
@@ -71,6 +76,10 @@ export function AdminUsersPage() {
   const router = useRouter();
   const session = useSession();
   const mayRead = can(session, "user:read");
+  const mayLock = can(session, "user:lock");
+  const mayRevoke = can(session, "user:revoke");
+  const viewerId = session.status === "user" ? session.user.id : null;
+  const lock = useLockFlow();
   const query = useQuery({
     ...adminUsersListQuery(api, params),
     enabled: mayRead,
@@ -101,6 +110,21 @@ export function AdminUsersPage() {
     return <ForbiddenState message={ADMIN_USERS_FORBIDDEN_MESSAGE} />;
   }
 
+  // An admin with neither permission sees no action column, whatever the row is.
+  const showActions = mayLock || mayRevoke;
+  const renderActions = (
+    user: AdminUserListItem,
+    size: "sm" | "lg",
+  ): ReactNode => (
+    <UserRowActions
+      user={user}
+      actions={rowActions(user, viewerId, { lock: mayLock, revoke: mayRevoke })}
+      size={size}
+      onLock={lock.ask}
+      onUnlock={lock.ask}
+    />
+  );
+
   const renderBody = (): ReactNode => {
     if (data === undefined) {
       return query.isError ? (
@@ -117,11 +141,13 @@ export function AdminUsersPage() {
       <section aria-labelledby={HEADING_ID} className="flex flex-col">
         {/* The count is read out again when it changes. With no rows the empty state below says
             it, so the heading is for a screen reader only. */}
+        {/* `tabIndex` lets code send focus here when the row of a write left the list. */}
         <h2
           id={HEADING_ID}
+          tabIndex={-1}
           aria-live="polite"
           className={cn(
-            "px-(--card-spacing) pt-4 pb-3 text-base",
+            "px-(--card-spacing) pt-4 pb-3 text-base outline-hidden",
             data.total === 0 && "sr-only",
           )}
         >
@@ -151,10 +177,20 @@ export function AdminUsersPage() {
             {/* The same rows twice: a table from `md` and stacked blocks below it. The hidden
                 one is `display: none`, so a screen reader reads only one. */}
             <div className="hidden md:block">
-              <UsersTable rows={data.items} />
+              <UsersTable
+                rows={data.items}
+                actions={
+                  showActions ? (user) => renderActions(user, "sm") : undefined
+                }
+              />
             </div>
             <div className="md:hidden">
-              <UserCards rows={data.items} />
+              <UserCards
+                rows={data.items}
+                actions={
+                  showActions ? (user) => renderActions(user, "lg") : undefined
+                }
+              />
             </div>
           </>
         )}
@@ -182,6 +218,20 @@ export function AdminUsersPage() {
       />
       <UserFilterBar filters={filters} />
       <Card>{renderBody()}</Card>
+
+      {/* One dialog for every row. It has no trigger of its own, so it takes focus back through
+          `useReturnFocus` (inside `useLockFlow`). */}
+      <ReasonDialog
+        open={lock.open}
+        onOpenChange={lock.onOpenChange}
+        title={lock.title}
+        description={lock.description}
+        confirmLabel={lock.confirmLabel}
+        tone={lock.tone}
+        placeholder={lock.placeholder}
+        onSubmit={lock.submit}
+        onCloseAutoFocus={lock.onCloseAutoFocus}
+      />
     </div>
   );
 }

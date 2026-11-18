@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { ApiClient } from "@/lib/api/client";
-import type { AdminUserListItem, Page } from "@/lib/api/types";
+import type { AdminUserListItem, Page, User, Uuid } from "@/lib/api/types";
 import { sameFilters, type UserFilters } from "../user-filter";
 import { adminUsersListKey } from "./admin-users-keys";
 
@@ -54,3 +54,18 @@ export const adminUsersListQuery = (api: ApiClient, params: AdminUsersParams) =>
         ? previous
         : undefined,
   });
+
+/**
+ * `POST /users/:id/lock` (`user:lock`, 6.10): the account becomes `locked` and every session of it
+ * ends at once. The body is only the reason (1 to 500 characters). The answer has six fields and
+ * no `lockedReason`, so the page reads the list again instead of patching a row.
+ */
+export const lockUser = (api: ApiClient, id: Uuid, reason: string) =>
+  api.post<User>(`/users/${id}/lock`, { reason });
+
+/**
+ * `POST /users/:id/unlock` (`user:lock`, 6.11): the account becomes `active`. The sessions that a
+ * lock ended do not come back. Same body and same answer as a lock.
+ */
+export const unlockUser = (api: ApiClient, id: Uuid, reason: string) =>
+  api.post<User>(`/users/${id}/unlock`, { reason });

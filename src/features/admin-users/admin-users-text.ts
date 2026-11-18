@@ -78,3 +78,63 @@ export const NO_MATCH_ACCENT =
 export const PAGE_EMPTY_TITLE = "Trang này không có người dùng";
 
 export const VIEW_LAST_PAGE = "Xem trang cuối";
+
+// The actions column. Every button name carries the email of its row, so a screen reader that
+// lists the buttons of the page can tell them apart.
+
+export const COLUMN_ACTIONS = "Thao tác";
+
+export const MY_ACCOUNT = "Tài khoản của bạn";
+
+export const LOCK_BUTTON = "Khóa";
+
+export const UNLOCK_BUTTON = "Mở khóa";
+
+export const lockButtonName = (email: string) => `Khóa tài khoản ${email}`;
+
+export const unlockButtonName = (email: string) => `Mở khóa tài khoản ${email}`;
+
+/** What an account is called in a toast: the name, or the email when there is no name. */
+export const userLabel = (user: { name: string | null; email: string }) =>
+  user.name?.trim() ? user.name.trim() : user.email;
+
+// The reason dialog of a lock and of an unlock. The sentence under the title says what the action
+// does, and for an account of an admin it adds who the account is, because a wrong click there
+// costs more.
+
+const ADMIN_ACCOUNT_NOTE = "Đây là tài khoản quản trị.";
+
+export const LOCK_TITLE = "Khóa tài khoản";
+
+export const LOCK_CONFIRM = "Khóa tài khoản";
+
+export const LOCK_PLACEHOLDER = "Ví dụ: Đăng tin giả mạo";
+
+export const lockDescription = (email: string, isAdmin: boolean) =>
+  `${email} sẽ mất mọi phiên đăng nhập ngay và không đăng nhập lại được cho đến khi mở khóa.${isAdmin ? ` ${ADMIN_ACCOUNT_NOTE}` : ""}`;
+
+export const UNLOCK_TITLE = "Mở khóa tài khoản";
+
+export const UNLOCK_CONFIRM = "Mở khóa tài khoản";
+
+export const UNLOCK_PLACEHOLDER = "Ví dụ: Đã xác minh lại";
+
+export const unlockDescription = (email: string, isAdmin: boolean) =>
+  `${email} sẽ đăng nhập lại được, nhưng các phiên cũ không được khôi phục.${isAdmin ? ` ${ADMIN_ACCOUNT_NOTE}` : ""}`;
+
+// The toasts after a write.
+
+export const lockedToast = (label: string) => `Đã khóa tài khoản ${label}`;
+
+export const unlockedToast = (label: string) => `Đã mở khóa tài khoản ${label}`;
+
+// Another admin was first, or the account is gone: the list was read again and these say why.
+
+export const ALREADY_LOCKED_TOAST =
+  "Tài khoản này đã bị khóa do một thay đổi ở nơi khác. Danh sách đã được tải lại.";
+
+export const ALREADY_ACTIVE_TOAST =
+  "Tài khoản này đang hoạt động do một thay đổi ở nơi khác. Danh sách đã được tải lại.";
+
+export const GONE_TOAST =
+  "Tài khoản này không còn tồn tại. Danh sách đã được tải lại.";

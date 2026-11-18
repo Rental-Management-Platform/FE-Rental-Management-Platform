@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ACCOUNT_TYPE_LABEL } from "@/features/account/access";
 import type { AdminUserListItem } from "@/lib/api/types";
@@ -16,7 +17,14 @@ import { UserStatus } from "./user-status";
  * zone and are told apart by a hairline, never by a card of their own, because a card never sits
  * inside another card. It shows the same values as the table.
  */
-export function UserCards({ rows }: { rows: readonly AdminUserListItem[] }) {
+export function UserCards({
+  rows,
+  actions,
+}: {
+  rows: readonly AdminUserListItem[];
+  /** The buttons of one row. Left out, the blocks have none. */
+  actions?: (user: AdminUserListItem) => ReactNode;
+}) {
   return (
     <ul className="flex flex-col">
       {rows.map((user) => (
@@ -40,6 +48,7 @@ export function UserCards({ rows }: { rows: readonly AdminUserListItem[] }) {
             <dt className="text-muted-foreground">{COLUMN_CREATED}</dt>
             <dd>{formatDateTime(user.createdAt)}</dd>
           </dl>
+          {actions && <div className="empty:hidden">{actions(user)}</div>}
         </li>
       ))}
     </ul>

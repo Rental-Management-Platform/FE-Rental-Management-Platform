@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -12,6 +13,7 @@ import { ACCOUNT_TYPE_LABEL } from "@/features/account/access";
 import type { AdminUserListItem } from "@/lib/api/types";
 import { formatDateTime, formatPhone } from "@/lib/format";
 import {
+  COLUMN_ACTIONS,
   COLUMN_CREATED,
   COLUMN_PHONE,
   COLUMN_STATUS,
@@ -27,7 +29,14 @@ import { UserStatus } from "./user-status";
  * The table of accounts from `md` up (scope #20). It runs edge to edge in its zone. Every value is
  * the account's own field, in the order the API gave: the front end sorts nothing.
  */
-export function UsersTable({ rows }: { rows: readonly AdminUserListItem[] }) {
+export function UsersTable({
+  rows,
+  actions,
+}: {
+  rows: readonly AdminUserListItem[];
+  /** The buttons of one row. Left out, the table has no action column. */
+  actions?: (user: AdminUserListItem) => ReactNode;
+}) {
   return (
     <Table>
       <TableCaption className="sr-only">{TABLE_CAPTION}</TableCaption>
@@ -38,6 +47,7 @@ export function UsersTable({ rows }: { rows: readonly AdminUserListItem[] }) {
           <TableHead>{COLUMN_TYPE}</TableHead>
           <TableHead>{COLUMN_CREATED}</TableHead>
           <TableHead>{COLUMN_STATUS}</TableHead>
+          {actions && <TableHead>{COLUMN_ACTIONS}</TableHead>}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -58,6 +68,7 @@ export function UsersTable({ rows }: { rows: readonly AdminUserListItem[] }) {
             <TableCell>
               <UserStatus user={user} />
             </TableCell>
+            {actions && <TableCell>{actions(user)}</TableCell>}
           </TableRow>
         ))}
       </TableBody>
