@@ -10,7 +10,7 @@ Khung khu admin và trang người dùng đầu tiên, nơi định ra mẫu b�
 - [x] Design it (spec): `/architect admin shell and users`
 - [ ] Build it: `/develop admin shell and users`
   - [x] M1 Sợi chỉ mỏng: địa chỉ `/admin/users`, đọc `GET /users` với tài khoản admin, tiêu đề đếm tổng, bảng và khối xếp với trạng thái kèm lý do khóa (chưa có nút), đang tải, lỗi kèm "Thử lại", 429, thiếu quyền, công cụ "Người dùng" thành `ready` (AC-1, AC-2, AC-11)
-  - [ ] M2 Bộ lọc, ô tìm và trang trong địa chỉ: hai ô chọn loại tài khoản và trạng thái, ô tìm chờ 400 ms rồi thay địa chỉ, giá trị lạ về mặc định, trang quá cuối về trang cuối, hai trạng thái rỗng kèm "Xóa bộ lọc" (AC-3, AC-4)
+  - [x] M2 Bộ lọc, ô tìm và trang trong địa chỉ: hai ô chọn loại tài khoản và trạng thái, ô tìm chờ 400 ms rồi thay địa chỉ, giá trị lạ về mặc định, trang quá cuối về trang cuối, hai trạng thái rỗng kèm "Xóa bộ lọc" (AC-3, AC-4)
   - [ ] M3 Hộp nhập lý do dùng chung, khóa và mở khóa: `ReasonDialog` và `reason-schema` trong `src/components/form/`, luật nút theo dòng, đọc lại danh sách trước khi đóng hộp, toast gọi tên tài khoản, xung đột giữa hai admin (`ACCOUNT_ALREADY_LOCKED`, `ACCOUNT_NOT_LOCKED`, `USER_NOT_FOUND`), lỗi nằm trong hộp (AC-5 đến AC-9)
   - [ ] M4 Thu hồi phiên và hoàn thiện: hộp xác nhận thu hồi, nút theo quyền `user:lock` và `user:revoke`, kiểm ở 320, 390, 768 và 1280 px chỉ bằng bàn phím, `npm run check` và `npm run build` (AC-5, AC-10 đến AC-12)
 - [ ] Verify it: `/check verify admin shell and users`

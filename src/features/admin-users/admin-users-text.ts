@@ -44,9 +44,37 @@ export const STATUS_LOCKED = "Đã khóa";
 
 export const lockedReasonLine = (reason: string) => `Lý do: ${reason}`;
 
+// The filter zone. The search box has a label and a placeholder and nothing under it.
+
+export const FILTERS_LABEL = "Tìm và lọc người dùng";
+
+export const SEARCH_LABEL = "Tìm kiếm";
+
+export const SEARCH_PLACEHOLDER = "Email, tên đúng dấu hoặc số điện thoại";
+
+export const TYPE_FILTER_LABEL = "Loại tài khoản";
+
+export const ALL_TYPES = "Mọi loại tài khoản";
+
+export const STATUS_FILTER_LABEL = "Trạng thái";
+
+export const ALL_STATUSES = "Mọi trạng thái";
+
+export const CLEAR_FILTERS = "Xóa bộ lọc";
+
 // The states.
 
 export const NO_USERS_TITLE = "Chưa có người dùng nào";
 
 export const NO_USERS_DESCRIPTION =
   "Khi có người đăng ký tài khoản, họ sẽ hiện ở đây.";
+
+export const NO_MATCH_TITLE = "Không có người dùng nào khớp";
+
+/** The one thing a search cannot do, said where it shows (the API is accent sensitive, 6.34). */
+export const NO_MATCH_ACCENT =
+  "Tên phải gõ đúng dấu: “nguyen” không tìm ra “Nguyễn”.";
+
+export const PAGE_EMPTY_TITLE = "Trang này không có người dùng";
+
+export const VIEW_LAST_PAGE = "Xem trang cuối";
