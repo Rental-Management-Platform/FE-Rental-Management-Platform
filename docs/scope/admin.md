@@ -21,7 +21,11 @@ code in `src/features/admin-users/` (`admin-users-path.ts`, `admin-users-text.ts
 ### 21. Listing moderation
 Bảng tin cho admin từ `GET /moderation/listings` (tìm, lọc theo trạng thái và chủ trọ), ẩn hoặc gỡ ẩn kèm lý do 1 đến 500 ký tự. Nhắc rằng gỡ ẩn không tự hiện tin, chủ trọ phải bấm Hiện.
 **Done when:** ẩn và gỡ ẩn thay dòng bằng kết quả mới, lý do bắt buộc, `LISTING_STATE_INVALID` thì tải lại dòng, lý do ẩn gần nhất hiện ở tin bị ẩn.
-- [ ] Build it: `/develop listing moderation`
+- [ ] Build it: `/develop listing moderation` (không cần spec riêng: theo `api-for-frontend.md` mục 6.29, dùng lại mẫu bảng, bộ lọc và phân trang của #20 và #25 và hộp nhập lý do `ReasonDialog` của #20 theo spec [0023](../specs/0023-admin-users-reason-dialog.md))
+  - [x] M1 Sợi chỉ mỏng: địa chỉ `/admin/listings`, đọc `GET /moderation/listings` với tài khoản admin, tiêu đề đếm tổng, bảng và khối xếp kèm nhãn trạng thái và lý do ẩn, đang tải, lỗi kèm "Thử lại", 429, thiếu quyền, công cụ "Kiểm duyệt tin" thành `ready`
+  - [ ] M2 Bộ lọc, ô tìm và trang trong địa chỉ: ô tìm (chờ 400 ms), ô chọn trạng thái, ô chọn chủ trọ, tên chủ trọ trong bảng làm bộ lọc, giá trị lạ về mặc định, trang quá cuối về trang cuối, hai trạng thái rỗng kèm "Xóa bộ lọc"
+  - [ ] M3 Ẩn và gỡ ẩn: nút theo trạng thái dòng, `ReasonDialog` dùng chung, thay dòng bằng kết quả trả về rồi đọc lại danh sách trước khi đóng hộp, toast gọi tên tin kèm lời nhắc chủ trọ phải bấm Hiện, `LISTING_STATE_INVALID` và `LISTING_NOT_FOUND` đóng hộp và tải lại, lỗi nằm trong hộp
+  - [ ] M4 Hoàn thiện: kiểm ở 320, 390, 768 và 1280 px chỉ bằng bàn phím, tiêu điểm sau khi hộp đóng, số trên thẻ dashboard làm mới, `npm run check` và `npm run build`
 
 ### 36. Review moderation
 Trang `/admin/reviews` từ `GET /moderation/reviews`, với bộ lọc `status`, `landlordId` và `authorId` nằm trong địa chỉ. Bảng có số sao, nhận xét, người viết, chủ trọ, ngày viết và nhãn trạng thái; dòng bị ẩn hiện thêm `hiddenReason`. Ẩn và Gỡ ẩn mở hộp nhập lý do bắt buộc (1 đến 500 ký tự), hộp dùng chung với #21 theo mẫu #20 định ra. Bấm tên người viết thì đặt bộ lọc `authorId`, bấm tên chủ trọ thì mở hồ sơ công khai `/chu-tro/[id]` (#15). Thêm mục `reviews` (quyền `review:moderate`) vào `ADMIN_TOOLS`. Cần #20 (khung admin và mẫu bảng) làm trước.
