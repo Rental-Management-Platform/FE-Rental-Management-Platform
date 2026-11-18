@@ -1,3 +1,5 @@
+import type { LandlordFilters } from "../review-filter";
+
 /**
  * The cache keys of the review moderation page (scope #36). The session clears the cache when it
  * changes, so no key needs a user id. Everything starts with `adminReviewsKey`, and each kind of
@@ -13,6 +15,6 @@ export const adminLandlordReviewsKey = [
 ] as const;
 
 /** One page of one set of filters. `list` is the fourth part, so it never meets another read. */
-export const adminLandlordReviewsListKey = <Params extends object>(
-  params: Params,
+export const adminLandlordReviewsListKey = (
+  params: LandlordFilters & { page: number; pageSize: number },
 ) => [...adminLandlordReviewsKey, "list", params] as const;

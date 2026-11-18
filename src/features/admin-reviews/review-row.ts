@@ -1,4 +1,6 @@
-import type { AdminReview } from "@/lib/api/types";
+import { authorName } from "@/features/reviews/text";
+import type { AdminReview, Uuid } from "@/lib/api/types";
+import { SELECTED_AUTHOR } from "./admin-reviews-text";
 
 /**
  * What a row of both lists holds in common, so one table and one set of blocks can draw either
@@ -15,3 +17,17 @@ export type ReviewRow = Pick<
   | "author"
   | "createdAt"
 >;
+
+/**
+ * The name of the writer a filter is set to. The rows hold it (the API gives only a name, no email),
+ * and when the filter leaves no row on the page, or the first read is still running, the page says
+ * only that a writer is chosen. A writer who never set a name reads "Người dùng", as on the public
+ * pages.
+ */
+export const filteredAuthorLabel = (
+  rows: readonly ReviewRow[] | undefined,
+  authorId: Uuid,
+): string => {
+  const row = rows?.find((candidate) => candidate.author.id === authorId);
+  return row === undefined ? SELECTED_AUTHOR : authorName(row.author.name);
+};

@@ -48,6 +48,40 @@ export const STATUS_HIDDEN_BY_ADMIN = "Admin đã ẩn";
 
 export const hiddenReasonLine = (reason: string) => `Lý do: ${reason}`;
 
+/** The name of a landlord in a row opens their public profile, which opens in a new tab. */
+export const openLandlordName = (name: string) =>
+  `${name} (mở hồ sơ công khai trong tab mới)`;
+
+/** The name of a writer in a row is a filter: the list of only their reviews. */
+export const onlyAuthorLabel = (name: string) => `Chỉ xem đánh giá của ${name}`;
+
+// The filter zone. There is no search box: the API has no text search for reviews, only the filters.
+// The selects have a label and nothing under them.
+
+export const FILTERS_LABEL = "Lọc đánh giá";
+
+export const STATUS_FILTER_LABEL = "Trạng thái";
+
+export const ALL_STATUSES = "Mọi trạng thái";
+
+export const LANDLORD_FILTER_LABEL = "Chủ trọ";
+
+export const ALL_LANDLORDS = "Mọi chủ trọ";
+
+/** An id in the address that the list of landlords does not hold (loading, or past the first 50). */
+export const SELECTED_LANDLORD = "Chủ trọ đã chọn";
+
+export const LANDLORDS_FAILED = "Không tải được danh sách chủ trọ.";
+
+/** The writer is set by pressing a name in the table, so the filter is a chip that takes it off. */
+export const AUTHOR_FILTER_LABEL = "Người viết";
+
+/** The writer in the address, when no row of the page says who it is (no review, or still loading). */
+export const SELECTED_AUTHOR = "Người viết đã chọn";
+
+export const removeAuthorFilterName = (name: string) =>
+  `Bỏ lọc người viết ${name}`;
+
 // The landlord reviews zone.
 
 export const LANDLORD_ZONE_TABLE_CAPTION =

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { ForbiddenState } from "@/components/states/forbidden-state";
 import { LoadingState } from "@/components/states/loading-state";
@@ -13,6 +14,7 @@ import {
   ADMIN_REVIEWS_FORBIDDEN_MESSAGE,
   ADMIN_REVIEWS_TITLE,
 } from "../admin-reviews-text";
+import { parseLandlordFilters } from "../review-filter";
 import { LandlordReviewsZone } from "./landlord-reviews-zone";
 
 /**
@@ -23,6 +25,10 @@ import { LandlordReviewsZone } from "./landlord-reviews-zone";
  */
 export function AdminReviewsPage() {
   const searchParams = useSearchParams();
+  const filters = useMemo(
+    () => parseLandlordFilters((name) => searchParams.get(name)),
+    [searchParams],
+  );
   const page = parsePageParam(searchParams.get("page"));
   const session = useSession();
 
@@ -37,7 +43,7 @@ export function AdminReviewsPage() {
         title={ADMIN_REVIEWS_TITLE}
         description={ADMIN_REVIEWS_DESCRIPTION}
       />
-      <LandlordReviewsZone page={page} />
+      <LandlordReviewsZone filters={filters} page={page} />
     </div>
   );
 }

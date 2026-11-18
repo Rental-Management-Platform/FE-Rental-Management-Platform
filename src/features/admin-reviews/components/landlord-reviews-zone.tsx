@@ -2,23 +2,31 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
-import type { AdminReview } from "@/lib/api/types";
-import { authorName } from "@/features/reviews/text";
+import type { AdminReview, Uuid } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
-import { ADMIN_REVIEWS_PATH } from "../admin-reviews-path";
 import {
   COLUMN_LANDLORD,
   LANDLORD_NO_REVIEWS_DESCRIPTION,
   LANDLORD_ZONE_FAILED_TITLE,
   LANDLORD_ZONE_TABLE_CAPTION,
-  NO_NAME,
   reviewsHeading,
 } from "../admin-reviews-text";
 import {
   ADMIN_REVIEWS_PAGE_SIZE,
   adminLandlordReviewsQuery,
 } from "../api/moderation";
+import {
+  adminReviewsHref,
+  clearFilters,
+  hasFilters,
+  type LandlordFilters,
+} from "../review-filter";
+import { filteredAuthorLabel } from "../review-row";
+import { AuthorCell } from "./author-cell";
+import { LandlordCell } from "./landlord-cell";
+import { LandlordSelect } from "./landlord-select";
 import { ReviewCards } from "./review-cards";
+import { ReviewFilterBar } from "./review-filter-bar";
 import { ReviewListZone, type ReviewListWords } from "./review-list-zone";
 import { ReviewTable } from "./review-table";
 
@@ -28,62 +36,70 @@ const WORDS: ReviewListWords = {
   noneDescription: LANDLORD_NO_REVIEWS_DESCRIPTION,
 };
 
-const pageHref = (page: number) =>
-  page > 1 ? `${ADMIN_REVIEWS_PATH}?page=${page}` : ADMIN_REVIEWS_PATH;
-
-const authorOf = (review: AdminReview) => (
-  <span className="block truncate" title={authorName(review.author.name)}>
-    {authorName(review.author.name)}
-  </span>
-);
-
-const landlordOf = (review: AdminReview) => {
-  const name = review.landlord.name?.trim()
-    ? review.landlord.name.trim()
-    : NO_NAME;
-  return (
-    <span className="block truncate" title={name}>
-      {name}
-    </span>
-  );
-};
-
 /**
  * The reviews of landlords (scope #36, `GET /moderation/reviews`): the first tab of the page. It
- * reads its own list, under its own keys, and draws it in the shared list zone.
+ * reads its own list, under its own keys, and draws it in the shared list zone, under its own
+ * filters (the status, the landlord and the writer).
  */
-export function LandlordReviewsZone({ page }: { page: number }) {
+export function LandlordReviewsZone({
+  filters,
+  page,
+}: {
+  filters: LandlordFilters;
+  page: number;
+}) {
   const api = useApi();
-  const query = useQuery(adminLandlordReviewsQuery(api, { page }));
+  const query = useQuery(adminLandlordReviewsQuery(api, { ...filters, page }));
+
+  const authorHref = (authorId: Uuid) =>
+    adminReviewsHref({ ...filters, authorId }, 1);
+  const authorOf = (review: AdminReview) => (
+    <AuthorCell name={review.author.name} href={authorHref(review.author.id)} />
+  );
+  const landlordOf = (review: AdminReview) => (
+    <LandlordCell landlord={review.landlord} />
+  );
 
   return (
-    <Card>
-      <ReviewListZone
-        query={query}
-        page={page}
-        pageSize={ADMIN_REVIEWS_PAGE_SIZE}
-        filtered={false}
-        clearHref={ADMIN_REVIEWS_PATH}
-        pageHref={pageHref}
-        words={WORDS}
-        renderTable={(rows) => (
-          <ReviewTable
-            rows={rows}
-            caption={LANDLORD_ZONE_TABLE_CAPTION}
-            subjectHeader={COLUMN_LANDLORD}
-            subject={landlordOf}
-            author={authorOf}
-          />
-        )}
-        renderCards={(rows) => (
-          <ReviewCards
-            rows={rows}
-            subjectHeader={COLUMN_LANDLORD}
-            subject={landlordOf}
-            author={authorOf}
-          />
-        )}
-      />
-    </Card>
+    <>
+      <ReviewFilterBar
+        filters={filters}
+        authorLabel={
+          filters.authorId === null
+            ? ""
+            : filteredAuthorLabel(query.data?.items, filters.authorId)
+        }
+      >
+        <LandlordSelect filters={filters} />
+      </ReviewFilterBar>
+      <Card>
+        <ReviewListZone
+          query={query}
+          page={page}
+          pageSize={ADMIN_REVIEWS_PAGE_SIZE}
+          filtered={hasFilters(filters)}
+          clearHref={adminReviewsHref(clearFilters(filters), 1)}
+          pageHref={(next) => adminReviewsHref(filters, next)}
+          words={WORDS}
+          renderTable={(rows) => (
+            <ReviewTable
+              rows={rows}
+              caption={LANDLORD_ZONE_TABLE_CAPTION}
+              subjectHeader={COLUMN_LANDLORD}
+              subject={landlordOf}
+              author={authorOf}
+            />
+          )}
+          renderCards={(rows) => (
+            <ReviewCards
+              rows={rows}
+              subjectHeader={COLUMN_LANDLORD}
+              subject={landlordOf}
+              author={authorOf}
+            />
+          )}
+        />
+      </Card>
+    </>
   );
 }
