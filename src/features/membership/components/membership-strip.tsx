@@ -63,13 +63,15 @@ function StripSkeleton() {
 }
 
 // A quiet status region: it is read as one sentence when its text changes, and it is words plus
-// an icon, never color alone. An unknown `state` draws nothing.
-function StripAlert({
+// an icon, never color alone. An unknown `state` draws nothing. It is a view of a `membership`
+// prop and makes no request, so the statistics screen (spec 0024, AC-11) draws it from its own
+// answer without a second read; `MembershipStrip` above reads the shared entry and uses it too.
+export function StripAlert({
   membership,
-  showAction,
+  showAction = true,
 }: {
   membership: Membership;
-  showAction: boolean;
+  showAction?: boolean;
 }) {
   const notice = describeMembership(membership);
   if (notice === null) return null;

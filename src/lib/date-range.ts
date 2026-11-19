@@ -103,6 +103,15 @@ export function parseRange(
 }
 
 /**
+ * The 30 days the API reads when nothing is sent: the days a custom range starts from when the
+ * address holds none.
+ */
+export const defaultRange = (today: DateOnly): DateRange => ({
+  from: addDays(today, -(DEFAULT_RANGE_DAYS - 1)),
+  to: today,
+});
+
+/**
  * The range a quick button writes: `days` days that end `today`. The 30 day button writes no
  * params, so it is `null` (the same as the address with nothing in it).
  */
