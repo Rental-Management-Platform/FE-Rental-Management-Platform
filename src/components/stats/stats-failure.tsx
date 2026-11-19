@@ -7,11 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { isApiError } from "@/lib/api/errors";
 import { useCountdown } from "@/lib/use-countdown";
-import {
-  FORBIDDEN_MESSAGE,
-  RESET_RANGE_LABEL,
-  RETRY_LABEL,
-} from "../landlord-stats-text";
+import { RESET_RANGE_LABEL, RETRY_LABEL } from "./stats-text";
 
 interface StatsFailureProps {
   /** What the read threw. */
@@ -21,20 +17,27 @@ interface StatsFailureProps {
   onReset: () => void;
   /** The address holds a range, so there is something to clear. */
   hasRange: boolean;
+  /** The title of the error state: "Không tải được thống kê". */
+  title: string;
+  /** What the forbidden state says when the read answers 403 `PERMISSION_DENIED`. */
+  forbiddenMessage: string;
 }
 
 /**
- * A read that failed, in place of the zones (spec 0024, AC-16), so no old numbers stay under a new
- * range. The range bar above it stays usable. A 429 shows the wait and keeps "Thử lại" off until it
- * ends, a 400 means the contract moved (the page checks the range first) and offers the 30 days, a
- * second 403 is the forbidden state, and anything else (a network error, a 5xx with its support
- * code) is the error state with "Thử lại".
+ * A read that failed, in place of the zones (spec 0024, AC-16, and spec 0025, AC-13), so no old
+ * numbers stay under a new range. The range bar above it stays usable. A 429 shows the wait and
+ * keeps "Thử lại" off until it ends, a 400 means the contract moved (the page checks the range
+ * first) and offers the 30 days, a 403 `PERMISSION_DENIED` is the forbidden state (a screen that
+ * renews its token and reads again only reaches this on the second 403), and anything else (a
+ * network error, a 5xx with its support code) is the error state with "Thử lại".
  */
 export function StatsFailure({
   error,
   onRetry,
   onReset,
   hasRange,
+  title,
+  forbiddenMessage,
 }: StatsFailureProps) {
   const secondsLeft = useCountdown(error);
 
@@ -55,11 +58,10 @@ export function StatsFailure({
         </div>
       );
     }
-    // The first 403 already asked for a new token and read once more, so this is the second.
     if (error.status === 403 && error.code === "PERMISSION_DENIED") {
       return (
         <Card>
-          <ForbiddenState message={FORBIDDEN_MESSAGE} level={2} />
+          <ForbiddenState message={forbiddenMessage} level={2} />
         </Card>
       );
     }
@@ -86,11 +88,7 @@ export function StatsFailure({
 
   return (
     <Card>
-      <ErrorState
-        error={error}
-        title="Không tải được thống kê"
-        onRetry={onRetry}
-      />
+      <ErrorState error={error} title={title} onRetry={onRetry} />
     </Card>
   );
 }

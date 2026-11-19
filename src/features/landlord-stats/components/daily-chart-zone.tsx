@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { SeriesTable } from "@/components/stats/series-table";
+import { tableCaption } from "@/components/stats/stats-text";
 import { StatsZone } from "@/components/stats/stats-zone";
 import { TrendChart } from "@/components/stats/trend-chart";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   type ChartMetric,
   type SeriesKey,
 } from "../chart-metrics";
-import { chartLabel, tableCaption } from "../landlord-stats-text";
+import { chartLabel } from "../landlord-stats-text";
 
 // The table lists all four columns whichever tab is chosen.
 const COLUMNS = CHART_METRICS.map((metric) => ({

@@ -2,8 +2,10 @@
 
 import { HousePlusIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import { RangeBar } from "@/components/stats/range-bar";
+import { StatsFailure } from "@/components/stats/stats-failure";
+import { UPDATING_TEXT } from "@/components/stats/stats-text";
+import { useShownAnswer } from "@/components/stats/use-shown-answer";
 import { EmptyState } from "@/components/states/empty-state";
 import { ForbiddenState } from "@/components/states/forbidden-state";
 import { Button } from "@/components/ui/button";
@@ -11,7 +13,6 @@ import { NEW_LISTING_PATH } from "@/features/listing/listing-filter";
 import { StripAlert } from "@/features/membership/components/membership-strip";
 import { NEW_PROPERTY_PATH } from "@/features/property/property-list";
 import type { Statistics } from "@/lib/api/types";
-import { rangeHref, type DateRange } from "@/lib/date-range";
 import { useSession } from "@/lib/session/auth-provider";
 import { useLandlordStats } from "../hooks/use-landlord-stats";
 import {
@@ -20,7 +21,6 @@ import {
   EMPTY_TITLE,
   FORBIDDEN_MESSAGE,
   POST_LISTING_LABEL,
-  UPDATING_TEXT,
 } from "../landlord-stats-text";
 import { ChatZone } from "./chat-zone";
 import { DailyChartZone } from "./daily-chart-zone";
@@ -29,7 +29,6 @@ import { PeriodCards } from "./period-cards";
 import { RatingsZone } from "./ratings-zone";
 import { SpendingZone } from "./spending-zone";
 import { LandlordStatsSkeleton, StatsBlocksSkeleton } from "./stats-skeleton";
-import { StatsFailure } from "./stats-failure";
 import { TopListingsZone } from "./top-listings-zone";
 
 /**
@@ -41,9 +40,11 @@ import { TopListingsZone } from "./top-listings-zone";
  */
 export function LandlordStatsScreen() {
   const session = useSession();
-  const router = useRouter();
-  const pathname = usePathname();
-  const { range, query, allowed } = useLandlordStats();
+  const { range, setRange, query, allowed } = useLandlordStats();
+  // The answer of the range before stays on screen while a new range loads, and is not drawn again
+  // once that range has failed (spec 0024). A new range replaces the address, so the screen reads
+  // again.
+  const { data, placeholder } = useShownAnswer(query);
 
   // The route gate only shows its children to a signed in person, so this is a safety net.
   if (session.status !== "user") return <LandlordStatsSkeleton />;
@@ -51,28 +52,19 @@ export function LandlordStatsScreen() {
     return <ForbiddenState message={FORBIDDEN_MESSAGE} level={2} />;
   }
 
-  // A new range replaces the address and stays where the page is, so the screen reads again.
-  const go = (next: DateRange | null) =>
-    router.replace(rangeHref(pathname, next), { scroll: false });
-
-  // The answer of the range before stays on screen while a new range loads. But once a range has
-  // failed, "Thử lại" starts from the loading state (error to loading, spec 0024), so old numbers
-  // never come back under the range that failed.
-  const showAnswer =
-    query.data !== undefined &&
-    !(query.isPlaceholderData && query.errorUpdatedAt > 0);
-
   return (
     <div className="flex flex-col gap-6">
-      <RangeBar range={range} onChange={go} />
-      {showAnswer && query.data !== undefined ? (
-        <StatsBody statistics={query.data} busy={query.isPlaceholderData} />
+      <RangeBar range={range} onChange={setRange} />
+      {data !== undefined ? (
+        <StatsBody statistics={data} busy={placeholder} />
       ) : query.isError ? (
         <StatsFailure
           error={query.error}
           onRetry={() => void query.refetch()}
-          onReset={() => go(null)}
+          onReset={() => setRange(null)}
           hasRange={range !== null}
+          title="Không tải được thống kê"
+          forbiddenMessage={FORBIDDEN_MESSAGE}
         />
       ) : (
         <StatsBlocksSkeleton />

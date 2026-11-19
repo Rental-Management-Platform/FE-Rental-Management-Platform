@@ -667,3 +667,87 @@ export interface Statistics {
   // Exactly `period.days` items, oldest day first.
   series: StatisticsDay[];
 }
+
+// ---------- Admin overview statistics (6.43, spec 0025) ----------
+// Percent fields are percent, like the landlord's: 33.3 means 33.3%. These numbers count EVERY
+// existing row (a hidden review, the follow of a locked account, a listing deleted later), unlike
+// `Statistics` of a landlord, which counts only what is public. The two never add up, and the page
+// never sets one beside the other as a single figure.
+
+/** Accounts of one kind at the moment of the read. `total` is `active + locked`. */
+export interface AccountCounts {
+  total: number;
+  active: number;
+  locked: number;
+}
+/** One day of the overview series: every column is 0 on a day with nothing. */
+export interface AdminOverviewDay {
+  date: DateOnly;
+  newLandlords: number;
+  newTenants: number;
+  newListings: number;
+  views: number;
+  newConversations: number;
+  newMessages: number;
+  newLandlordReviews: number;
+  newRoomReviews: number;
+  newFollows: number;
+  newFavorites: number;
+}
+/** One ward in `listings.createdByWard`: the new listings of the range that sit in it. */
+export interface AdminOverviewWard {
+  wardCode: string;
+  /** The current name of the ward. */
+  wardName: string;
+  count: number;
+}
+// GET /statistics/overview. Numbers of the moment (accounts except `registered`, `landlords`, the
+// listing states, `createdByWard` and all of `toHandle`) have no period before and no arrow.
+export interface AdminOverview {
+  period: StatisticsPeriod;
+  accounts: AccountCounts & {
+    byType: {
+      admin: AccountCounts;
+      landlord: AccountCounts;
+      tenant: AccountCounts;
+    };
+    registered: { total: Metric; landlords: Metric; tenants: Metric };
+  };
+  /** The three add up to `total`, locked landlords included. */
+  landlords: {
+    total: number;
+    onPlan: number;
+    onTrial: number;
+    trialExpired: number;
+  };
+  listings: {
+    total: number;
+    visible: number;
+    hiddenByOwner: number;
+    hiddenByAdmin: number;
+    public: number;
+    /** `visible - public`: the landlord is locked, out of trial and plan, or over the quota. */
+    visibleButNotPublic: number;
+    created: Metric;
+    /** This period only, count falling then code rising, never cut. `[]` with no new listing. */
+    createdByWard: AdminOverviewWard[];
+  };
+  engagement: {
+    views: Metric;
+    conversations: Metric;
+    messages: Metric;
+    // Two different things (a review of a landlord, a review of a room): never added.
+    landlordReviews: Metric;
+    roomReviews: Metric;
+    follows: Metric;
+    favorites: Metric;
+  };
+  /** What admins hid and may want to look at again. Not tied to the range. */
+  toHandle: {
+    hiddenListings: number;
+    hiddenLandlordReviews: number;
+    hiddenRoomReviews: number;
+  };
+  // Exactly `period.days` items, oldest day first.
+  series: AdminOverviewDay[];
+}

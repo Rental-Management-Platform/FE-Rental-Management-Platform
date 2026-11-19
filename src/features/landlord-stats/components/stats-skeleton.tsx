@@ -1,5 +1,5 @@
+import { LOADING_TEXT } from "@/components/stats/stats-text";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LOADING_TEXT } from "../landlord-stats-text";
 
 const CARDS = [0, 1, 2, 3];
 

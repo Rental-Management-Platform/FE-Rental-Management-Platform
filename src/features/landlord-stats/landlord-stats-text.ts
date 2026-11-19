@@ -1,11 +1,12 @@
 // The words of the landlord statistics screen (spec 0024). Pure: no React and no network. Nothing is
 // worked out here beyond joining text and formatting: every number is a field of the answer.
+import { rangeText } from "@/components/stats/stats-text";
 import type {
   MembershipState,
   StatisticsPeriod,
   StatisticsTopListing,
 } from "@/lib/api/types";
-import { formatCount, formatDateOnly } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import type { ChartMetric } from "./chart-metrics";
 
 export const STATS_TITLE = "Tổng quan";
@@ -102,33 +103,17 @@ export const EMPTY_DESCRIPTION =
 export const ADD_PROPERTY_LABEL = "Thêm nhà trọ";
 export const POST_LISTING_LABEL = "Đăng tin";
 
-export const RETRY_LABEL = "Thử lại";
-export const RESET_RANGE_LABEL = "Dùng 30 ngày gần nhất";
-
 export const TOP_LISTINGS_TITLE = "Tin xem nhiều nhất";
 export const TOP_LISTINGS_EMPTY =
   "Chưa có tin nào có lượt xem trong khoảng này";
 
-export const LOADING_TEXT = "Đang tải thống kê";
-export const UPDATING_TEXT = "Đang cập nhật số liệu";
-
-const range = (from: string, to: string) =>
-  `${formatDateOnly(from)} đến ${formatDateOnly(to)}`;
-
-/** "Kỳ trước: 96" under a number of a period. */
-export const previousLine = (previous: string) => `Kỳ trước: ${previous}`;
-
 /** "Tổng từ trước đến nay: 1.450", with no arrow, under a number of a period. */
 export const totalLine = (total: string) => `Tổng từ trước đến nay: ${total}`;
-
-/** The caption of the text table, naming the range. */
-export const tableCaption = ({ from, to }: StatisticsPeriod) =>
-  `Số liệu theo ngày từ ${range(from, to)}`;
 
 /** What a screen reader hears for the chart: what it shows, the range, and the total of the Metric. */
 export const chartLabel = (
   metric: ChartMetric,
-  { from, to }: StatisticsPeriod,
+  period: StatisticsPeriod,
   total: number,
 ) =>
-  `${metric.tabLabel} theo ngày từ ${range(from, to)}, tổng ${formatCount(total)} ${metric.unit}`;
+  `${metric.tabLabel} theo ngày từ ${rangeText(period)}, tổng ${formatCount(total)} ${metric.unit}`;

@@ -1,13 +1,10 @@
 import { useId, type ReactNode } from "react";
 import { describeChange } from "@/components/stats/describe-change";
 import { MetricCard } from "@/components/stats/metric-card";
+import { previousLine } from "@/components/stats/stats-text";
 import type { Metric, Statistics } from "@/lib/api/types";
 import { formatCount } from "@/lib/format";
-import {
-  previousLine,
-  totalLine,
-  VIEWS_SINCE_NOTE,
-} from "../landlord-stats-text";
+import { totalLine, VIEWS_SINCE_NOTE } from "../landlord-stats-text";
 
 interface Card {
   label: string;
