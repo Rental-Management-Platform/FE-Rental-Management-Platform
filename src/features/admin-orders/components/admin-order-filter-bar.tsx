@@ -32,15 +32,14 @@ import {
   FILTERS_LABEL,
   FROM_LABEL,
   LANDLORD_LABEL,
-  LANDLORDS_FAILED,
   PLAN_LABEL,
   PLAN_OFF,
   PLANS_FAILED,
-  SELECTED_LANDLORD,
   SELECTED_PLAN,
   TO_LABEL,
 } from "../admin-orders-text";
-import { landlordOptionsQuery, planOptionsQuery } from "../api/filter-options";
+import { planOptionsQuery } from "../api/filter-options";
+import { LandlordPicker } from "./landlord-picker";
 
 // Radix does not take an empty value on an item, so "no filter" has a word of its own. An id is a
 // UUID and never reads "all".
@@ -54,9 +53,11 @@ interface Option {
 /**
  * The filter zone above the list (scope #25): plan, landlord, and the first and last day an order
  * was created. The status is the tab row of the list zone. Each change goes to the address and to
- * page 1, so the filters are shared by sharing the link, and the back button undoes them. The two
- * selects read their lists with the permission each needs (`plan:read`, `user:read`) and a person
- * without it simply has no select. A list that fails to load never blocks the orders.
+ * page 1, so the filters are shared by sharing the link, and the back button undoes them. The plan
+ * select and the landlord picker read their lists with the permission each needs (`plan:read`,
+ * `user:read`) and a person without it simply has no field. The plans are a short list a person
+ * curates, so they stay a select; the landlords grow without end, so they are a picker with a
+ * search row. A list that fails to load never blocks the orders.
  */
 export function AdminOrderFilterBar({
   filters,
@@ -72,13 +73,8 @@ export function AdminOrderFilterBar({
   const mayPlans = can(session, "plan:read");
   const mayLandlords = can(session, "user:read");
   const plans = useQuery({ ...planOptionsQuery(api), enabled: mayPlans });
-  const landlords = useQuery({
-    ...landlordOptionsQuery(api),
-    enabled: mayLandlords,
-  });
 
   const planId = useId();
-  const landlordId = useId();
   const fromId = useId();
   const toId = useId();
   const toErrorId = useId();
@@ -107,20 +103,10 @@ export function AdminOrderFilterBar({
             />
           )}
           {mayLandlords && (
-            <OptionField
-              id={landlordId}
+            <LandlordPicker
               label={LANDLORD_LABEL}
               allLabel={ALL_LANDLORDS}
-              selectedLabel={SELECTED_LANDLORD}
-              failedText={LANDLORDS_FAILED}
-              failed={landlords.isError}
               value={filters.landlordId}
-              options={landlords.data?.map((landlord) => ({
-                value: landlord.id,
-                label: landlord.name?.trim()
-                  ? `${landlord.name.trim()} · ${landlord.email}`
-                  : landlord.email,
-              }))}
               onChange={(next) => go({ ...filters, landlordId: next })}
             />
           )}

@@ -1,7 +1,7 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import type { ApiClient } from "@/lib/api/client";
 import type { AdminPlan, AdminUserListItem, Page, Uuid } from "@/lib/api/types";
-import { landlordOptionsKey, planOptionsKey } from "./admin-orders-keys";
+import { landlordSearchKey, planOptionsKey } from "./admin-orders-keys";
 
 /** The most one page can hold (api-for-frontend.md, section 2). */
 const OPTIONS_PAGE_SIZE = 50;
@@ -41,25 +41,39 @@ export const planOptionsQuery = (api: ApiClient) =>
     staleTime: 60_000,
   });
 
+/** The landlords one read returned, and how many there are in all for that search. */
+export interface LandlordOptions {
+  items: LandlordOption[];
+  total: number;
+}
+
 /**
- * `GET /users?accountType=landlord` (`user:read`): the first 50 landlords, newest first, locked ones
- * included because their orders stay in the list. The answer is cut down to the id, the name and
- * the email, so the cache never holds a phone number. With more than 50 landlords the rest are not
- * in the filter, and the name of a landlord in the table is the way to filter by them.
+ * `GET /users?accountType=landlord` (`user:read`): the first 50 landlords that match `text`, newest
+ * first, locked ones included because their orders stay in the list. `text` goes to the API as `q`
+ * (email, name or phone, and a name must be typed with its accents, 6.34); an empty text is the
+ * first 50 with no search. With more than 50 landlords the rest are reached by typing, so the
+ * answer carries `total` and the filter can say how many are not shown. The answer is cut down to
+ * the id, the name and the email, so the cache never holds a phone number. The rows of the
+ * previous text stay on screen while the next one loads.
  */
-export const landlordOptionsQuery = (api: ApiClient) =>
+export const landlordOptionsQuery = (api: ApiClient, text = "") =>
   queryOptions({
-    queryKey: landlordOptionsKey,
-    queryFn: async ({ signal }): Promise<LandlordOption[]> => {
+    queryKey: landlordSearchKey(text),
+    queryFn: async ({ signal }): Promise<LandlordOptions> => {
       const page = await api.get<Page<AdminUserListItem>>("/users", {
         query: {
           accountType: "landlord",
+          q: text,
           page: 1,
           pageSize: OPTIONS_PAGE_SIZE,
         },
         signal,
       });
-      return page.items.map(({ id, name, email }) => ({ id, name, email }));
+      return {
+        items: page.items.map(({ id, name, email }) => ({ id, name, email })),
+        total: page.total,
+      };
     },
+    placeholderData: keepPreviousData,
     staleTime: 60_000,
   });

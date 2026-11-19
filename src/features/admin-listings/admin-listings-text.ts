@@ -68,11 +68,6 @@ export const LANDLORD_FILTER_LABEL = "Chủ trọ";
 
 export const ALL_LANDLORDS = "Mọi chủ trọ";
 
-/** An id in the address that the list of landlords does not hold (loading, or past the first 50). */
-export const SELECTED_LANDLORD = "Chủ trọ đã chọn";
-
-export const LANDLORDS_FAILED = "Không tải được danh sách chủ trọ.";
-
 export const CLEAR_FILTERS = "Xóa bộ lọc";
 
 /** The name of a landlord in the table links to the list of only their listings. */

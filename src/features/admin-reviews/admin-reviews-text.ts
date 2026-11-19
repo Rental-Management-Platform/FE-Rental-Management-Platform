@@ -155,11 +155,6 @@ export const LANDLORD_FILTER_LABEL = "Chủ trọ";
 
 export const ALL_LANDLORDS = "Mọi chủ trọ";
 
-/** An id in the address that the list of landlords does not hold (loading, or past the first 50). */
-export const SELECTED_LANDLORD = "Chủ trọ đã chọn";
-
-export const LANDLORDS_FAILED = "Không tải được danh sách chủ trọ.";
-
 /** The writer is set by pressing a name in the table, so the filter is a chip that takes it off. */
 export const AUTHOR_FILTER_LABEL = "Người viết";
 

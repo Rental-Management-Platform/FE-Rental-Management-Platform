@@ -33,13 +33,9 @@ export const ALL_LANDLORDS = "Tất cả chủ trọ";
 /** An id in the address that the loaded lists do not hold (a list longer than one page of 50). */
 export const SELECTED_PLAN = "Gói đã chọn";
 
-export const SELECTED_LANDLORD = "Chủ trọ đã chọn";
-
 export const PLAN_OFF = "đã tắt";
 
 export const PLANS_FAILED = "Không tải được danh sách gói.";
-
-export const LANDLORDS_FAILED = "Không tải được danh sách chủ trọ.";
 
 export const BACKWARDS_FIELD_ERROR =
   "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.";

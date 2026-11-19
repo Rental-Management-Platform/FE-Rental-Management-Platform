@@ -20,3 +20,7 @@ export const landlordOptionsKey = [
   ...adminOrdersKey,
   "landlord-options",
 ] as const;
+
+/** One search text of the landlord filter. `""` is the first page with no search. */
+export const landlordSearchKey = (text: string) =>
+  [...landlordOptionsKey, text] as const;

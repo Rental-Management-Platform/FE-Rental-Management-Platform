@@ -9,6 +9,7 @@ import {
   type ComponentProps,
   type KeyboardEvent,
 } from "react";
+import { PICKER_TRIGGER_CLASS } from "@/components/form/picker-trigger-class";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,10 +35,6 @@ type PickerSize = "default" | "lg";
 
 // The value of the "all" row. A ward code is five digits, so it can never be this.
 const ALL_VALUE = "__all__";
-
-// The look of the Input and the Select trigger, 40 px high, or 44 px at `lg` (public pages).
-const TRIGGER_CLASS =
-  "flex w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-left text-(length:--text-input) leading-(--text-input--line-height) transition-[color,box-shadow,border-color] focus-visible:border-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:focus-visible:border-destructive data-[size=default]:h-10 data-[size=lg]:h-11 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5";
 
 export interface WardPanelProps {
   wards: readonly Ward[];
@@ -281,7 +278,7 @@ export function WardPickerView({
             aria-describedby={[valueId, describedBy].filter(Boolean).join(" ")}
             data-size={size}
             disabled={disabled || !wards}
-            className={cn(FOCUS_RING, TRIGGER_CLASS, className)}
+            className={cn(FOCUS_RING, PICKER_TRIGGER_CLASS, className)}
             onKeyDown={(event) => {
               onKeyDown?.(event);
               // Enter and Space open it as a click; the arrow down opens it too, like a select.
