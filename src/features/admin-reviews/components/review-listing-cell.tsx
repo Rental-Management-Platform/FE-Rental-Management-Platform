@@ -36,13 +36,15 @@ export function ReviewListingCell({
         title={listing.title}
         className={cn(
           FOCUS_RING,
-          "inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm font-medium hover:underline",
+          "inline-flex max-w-full min-w-0 items-start gap-1 rounded-sm font-medium hover:underline",
         )}
       >
-        <span className="truncate">{listing.title}</span>
+        <span className="line-clamp-2 break-words whitespace-normal">
+          {listing.title}
+        </span>
         <ExternalLinkIcon
           aria-hidden="true"
-          className="size-3.5 shrink-0 text-muted-foreground"
+          className="mt-1 size-3.5 shrink-0 text-muted-foreground"
         />
       </Link>
       {filterHref !== null && (
