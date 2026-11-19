@@ -1,6 +1,6 @@
 // The words of the landlord statistics screen (spec 0024). Pure: no React and no network. Nothing is
 // worked out here beyond joining text and formatting: every number is a field of the answer.
-import type { StatisticsPeriod } from "@/lib/api/types";
+import type { StatisticsPeriod, StatisticsTopListing } from "@/lib/api/types";
 import { formatCount, formatDateOnly } from "@/lib/format";
 import type { ChartMetric } from "./chart-metrics";
 
@@ -17,6 +17,26 @@ export const PARTIAL_DAY_NOTE =
 
 /** Views by day only exist since the day the backend began to write them (api-for-frontend.md, 6.42). */
 export const VIEWS_SINCE_NOTE = "Lượt xem theo ngày tính từ 16/11/2026.";
+
+/** The badge of a top listing that guests cannot see, from its `status`; `null` when it is public. */
+export function topListingBadge({
+  status,
+  isPublic,
+}: Pick<StatisticsTopListing, "status" | "isPublic">): string | null {
+  if (isPublic) return null;
+  switch (status) {
+    case "hidden_by_owner":
+      return "Bạn đang ẩn";
+    case "hidden_by_admin":
+      return "Quản trị viên ẩn";
+    case "visible":
+      return "Chưa hiện công khai";
+  }
+}
+
+export const TOP_LISTINGS_TITLE = "Tin xem nhiều nhất";
+export const TOP_LISTINGS_EMPTY =
+  "Chưa có tin nào có lượt xem trong khoảng này";
 
 export const LOADING_TEXT = "Đang tải thống kê";
 export const UPDATING_TEXT = "Đang cập nhật số liệu";

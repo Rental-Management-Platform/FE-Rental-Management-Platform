@@ -16,6 +16,7 @@ import {
 } from "../landlord-stats-text";
 import { DailyChartZone } from "./daily-chart-zone";
 import { PeriodCards } from "./period-cards";
+import { TopListingsZone } from "./top-listings-zone";
 import { LandlordStatsSkeleton } from "./stats-skeleton";
 
 /**
@@ -82,6 +83,7 @@ function StatsBody({
       </div>
       <PeriodCards statistics={statistics} />
       <DailyChartZone statistics={statistics} />
+      <TopListingsZone top={statistics.views.top} />
     </div>
   );
 }

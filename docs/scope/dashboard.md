@@ -25,7 +25,7 @@ spec [0008](../specs/0008-landlord-and-admin-dashboards/index.md) · Chọn: m�
 - [x] Design it (spec): `/architect landlord statistics`
 - [ ] Build it: `/develop landlord statistics`
   - [x] M1 Sợi chỉ mỏng: `refreshToken` trong phiên, kiểu `Statistics`, `src/lib/date-range.ts`, truy vấn `["landlord-stats", {from, to}]` có đọc lại một lần khi gặp 403, thân `/landlord` mới với ô kiểm quyền, khung chờ, thanh khoảng ngày có bốn nút nhanh, dòng mô tả kỳ, thẻ "Lượt xem" với ghi chú thay đổi, biểu đồ lượt xem và bảng chữ, kiểm trên trang thật với backend demo (AC-1 đến AC-9, AC-17)
-  - [ ] M2 Đủ số theo kỳ: ba thẻ số còn lại, ô chọn bốn chuỗi cho biểu đồ, bảng đủ bốn cột, ghi chú lượt xem theo ngày từ 16/11/2026, khối "Tin xem nhiều nhất" (AC-6, AC-8 đến AC-10)
+  - [x] M2 Đủ số theo kỳ: ba thẻ số còn lại, ô chọn bốn chuỗi cho biểu đồ, bảng đủ bốn cột, ghi chú lượt xem theo ngày từ 16/11/2026, khối "Tin xem nhiều nhất" (AC-6, AC-8 đến AC-10)
   - [ ] M3 Các khối trạng thái: tin đăng và gói, đánh giá (hai điểm tách bạch), tin nhắn, chi tiêu thanh toán thử, khoảng ngày tùy chọn, trạng thái trống, lỗi (429, 5xx, 400, 403) và "Đang cập nhật số liệu" (AC-2, AC-3, AC-11 đến AC-16)
   - [ ] M4 Dọn và hoàn thiện: xóa mã thẻ liên kết của chủ trọ, đánh dấu số cũ sau khi ghi tin và sau khi trả tiền, kiểm ở 320, 390, 768 và 1280 px, cặp tương phản, ghi chú vào spec 0002, 0003, 0012 và 0020, `npm run check` và `npm run build` (AC-18 đến AC-21)
 - [ ] Verify it: `/check verify landlord statistics`

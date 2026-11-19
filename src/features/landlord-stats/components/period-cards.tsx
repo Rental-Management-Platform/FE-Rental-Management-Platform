@@ -1,7 +1,7 @@
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { describeChange } from "@/components/stats/describe-change";
 import { MetricCard } from "@/components/stats/metric-card";
-import type { Statistics } from "@/lib/api/types";
+import type { Metric, Statistics } from "@/lib/api/types";
 import { formatCount } from "@/lib/format";
 import {
   previousLine,
@@ -9,14 +9,47 @@ import {
   VIEWS_SINCE_NOTE,
 } from "../landlord-stats-text";
 
+interface Card {
+  label: string;
+  metric: Metric;
+  /** The number since the start, which has no period before and so no arrow. */
+  total: number;
+  /** One more quiet line, when the number needs a warning. */
+  note?: ReactNode;
+}
+
+// The four number cards in screen order (spec 0024, AC-6). Every number is a field of the answer.
+const cardsOf = ({ views, interest, chat }: Statistics): Card[] => [
+  {
+    label: "Lượt xem",
+    metric: views.inRange,
+    total: views.allTime,
+    note: VIEWS_SINCE_NOTE,
+  },
+  {
+    label: "Lượt lưu mới",
+    metric: interest.newFavorites,
+    total: interest.totalFavorites,
+  },
+  {
+    label: "Người theo dõi mới",
+    metric: interest.newFollowers,
+    total: interest.totalFollowers,
+  },
+  {
+    label: "Cuộc trò chuyện mới",
+    metric: chat.conversationsOpened,
+    total: chat.totalConversations,
+  },
+];
+
 /**
  * The number cards right under the range bar (spec 0024, AC-6): each period number with how it
- * changed, the period before, and a quiet total since the start with no arrow. Every number is a
- * field of the answer and the change is the percent the API worked out.
+ * changed, the period before, and a quiet total since the start with no arrow. The change is the
+ * percent the API worked out and nothing is divided here.
  */
 export function PeriodCards({ statistics }: { statistics: Statistics }) {
   const headingId = useId();
-  const { views } = statistics;
 
   return (
     <section aria-labelledby={headingId}>
@@ -24,18 +57,20 @@ export function PeriodCards({ statistics }: { statistics: Statistics }) {
         Số liệu trong khoảng đã chọn
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <li className="min-w-0">
-          <MetricCard
-            label="Lượt xem"
-            value={formatCount(views.inRange.value)}
-            change={describeChange(views.inRange)}
-            lines={[
-              previousLine(formatCount(views.inRange.previous)),
-              totalLine(formatCount(views.allTime)),
-              VIEWS_SINCE_NOTE,
-            ]}
-          />
-        </li>
+        {cardsOf(statistics).map(({ label, metric, total, note }) => (
+          <li key={label} className="min-w-0">
+            <MetricCard
+              label={label}
+              value={formatCount(metric.value)}
+              change={describeChange(metric)}
+              lines={[
+                previousLine(formatCount(metric.previous)),
+                totalLine(formatCount(total)),
+                ...(note === undefined ? [] : [note]),
+              ]}
+            />
+          </li>
+        ))}
       </ul>
     </section>
   );
