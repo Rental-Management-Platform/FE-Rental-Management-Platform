@@ -50,7 +50,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 19 | Checkout and order history | Slice 4 | done |
 | 20 | Admin shell and users | Slice 5 | done |
 | 21 | Listing moderation | Slice 5 | in-progress |
-| 36 | Review moderation | Slice 5 | in-progress |
+| 36 | Review moderation | Slice 5 | done |
 | 22 | Plans and trial settings | Slice 5 | in-progress |
 | 23 | Wards and amenities catalog | Slice 5 | in-progress |
 | 24 | Permissions by account type | Slice 5 | in-progress |
@@ -69,7 +69,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 3 done.
 * [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 10 done, 1 dropped (#16).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33, #38). 10 done.
-* [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 8 planned.
+* [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 2 done, 5 in-progress, 1 planned.
 * [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 done.
 
 ## Các giai đoạn
