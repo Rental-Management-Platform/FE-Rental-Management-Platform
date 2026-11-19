@@ -9,10 +9,10 @@ _Steps derived from spec 0024 acceptance criteria and its value sourcing table. 
 - [ ] Sign in as a landlord, open `/landlord` → h1 "Tổng quan", tab title "Tổng quan khu chủ trọ", no tool cards, the side menu lists every ready tool → AC-1, AC-19
 - [ ] As a tenant and as an admin open `/landlord` → the existing forbidden state of the gate, no `GET /me/statistics` → AC-1
 - [ ] As a landlord whose session lacks `statistic:read` and `statistic:manage` (an admin removed it) → the forbidden state "Tài khoản của bạn chưa có quyền xem thống kê…", no request is made → AC-1
-- [ ] Open `/landlord` with no params → "30 ngày" pressed, the request has no `from` and no `to`, the caption reads the days of `period` → AC-2, AC-3, AC-5
+- [ ] Open `/landlord` with no params → "30 ngày" pressed, the request has no `from` and no `to` → AC-2, AC-3
 - [ ] Open `/landlord?from=2026-02-30&to=2026-03-01`, `?from=2026-11-10&to=2026-11-01`, `?from=2025-01-01&to=2026-11-20` (too long) and `?from=2026-11-01` (one day only) → each acts as the default, "30 ngày" pressed, only the default request is sent → AC-2
 - [ ] Open the pair that equals the 30 day default for today → "30 ngày" pressed, no params sent → AC-2
-- [ ] Press 7, 90 and 365 days, then 30 → the address, caption, numbers and chart follow; "30 ngày" leaves a clean `/landlord`; no scroll to the top → AC-3
+- [ ] Press 7, 90 and 365 days, then 30 → the address, numbers and chart follow; "30 ngày" leaves a clean `/landlord`; no scroll to the top → AC-3
 - [ ] Press "Tùy chọn" → two date fields seeded from the current range (the default pair when the address is clean), "Tùy chọn" pressed while open, the quick buttons not pressed → AC-3
 - [ ] In the panel clear both days and press "Áp dụng" → "Chọn ngày bắt đầu" and "Chọn ngày kết thúc", no request → AC-3
 - [ ] Pick a "Đến ngày" before "Từ ngày" → "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc", no request → AC-3
@@ -25,7 +25,6 @@ _Steps derived from spec 0024 acceptance criteria and its value sourcing table. 
 - [ ] First load → one skeleton per block with a fixed height and the hidden text "Đang tải thống kê", no layout jump when the answer arrives → AC-4
 - [ ] Change the range with a slow answer → the old content stays, the region has `aria-busy="true"`, "Đang cập nhật số liệu" is visible and spoken; a focus refetch is silent; a focus within 60 seconds makes no request → AC-4
 - [ ] Count `GET /me/statistics` per range (resource timing) → one request per range, key per range, an abort on a range change cancels the one in flight → AC-4
-- [ ] The caption ends today → the muted sentence "Hôm nay mới qua một phần…" shows; a range that ends earlier → it does not → AC-5
 
 **Numbers, changes, chart and table**
 
@@ -51,7 +50,7 @@ _Steps derived from spec 0024 acceptance criteria and its value sourcing table. 
 
 **Empty and failures**
 
-- [ ] A landlord with no listing → the zones are replaced by "Bạn chưa có tin nào" with "Thêm nhà trọ" and "Đăng tin"; the range bar, the caption and the plan strip stay → AC-15
+- [ ] A landlord with no listing → the zones are replaced by "Bạn chưa có tin nào" with "Thêm nhà trọ" and "Đăng tin"; the range bar and the plan strip stay → AC-15
 - [ ] A landlord with a listing and a quiet range → not empty: zeros, dashes and "Mới" in the zones, the chart and table show zeros → AC-15
 - [ ] Network error (abort the request) and a 500 → the error state in place of the zones with "Thử lại" (a 500 adds the support code), no old numbers, the range bar still works; "Thử lại" goes to the loading skeleton and recovers → AC-16, AC-4
 - [ ] A 429 with `Retry-After` → the countdown notice, "Thử lại" disabled until it ends → AC-16
@@ -71,8 +70,8 @@ _Steps derived from spec 0024 acceptance criteria and its value sourcing table. 
 **One step per row of the value sourcing table**
 
 - [ ] The range sent: vary the address (valid, invalid, default) → what is sent is the address through `parseRange`, none means no params → AC-2
-- [ ] "Today" for presets, the active preset and the partial day line: set the device time zone away from Vietnam (or the clock past midnight in Vietnam) → the preset dates and the "Hôm nay mới qua một phần" line follow `Asia/Ho_Chi_Minh` → AC-3, AC-5
-- [ ] Range and previous range text: compare with `period.from`, `to`, `days`, `previousFrom`, `previousTo` → AC-5
+- [ ] "Today" for presets and the active preset: set the device time zone away from Vietnam (or the clock past midnight in Vietnam) → the preset dates follow `Asia/Ho_Chi_Minh` → AC-3
+- [ ] Range text: the chart name and the table caption show `period.from` and `to`; there is no caption under the range bar → AC-8, AC-9
 - [ ] Period numbers: compare views, saves, followers, conversations, replied, new reviews, spent and paid orders with the `value` and `previous` of each Metric → AC-6, AC-12, AC-13, AC-14
 - [ ] Percent changes: compare each with `changePercent` and confirm no division in the browser (a mocked answer with `changePercent` 12.3 and different values still shows 12,3%) → AC-7
 - [ ] Reply rate and its change: compare with `chat.replyRate.value`, `previous`, `changePoints` → AC-7, AC-13
@@ -99,4 +98,4 @@ _Steps derived from spec 0024 acceptance criteria and its value sourcing table. 
 
 ## Acceptance-criteria coverage
 
-- AC-1 … Page, gate and what goes · AC-2 … the range in the address · AC-3 … the range control · AC-4 … one request and loading · AC-5 … the period caption · AC-6 … number cards · AC-7 … change notes · AC-8 … chart · AC-9 … text table · AC-10 … top listings · AC-11 … listings and plan · AC-12 … ratings · AC-13 … chat · AC-14 … money · AC-15 … empty state · AC-16 … failures · AC-17 … forced token refresh · AC-18 … layout and accessibility · AC-19 … landlord card code removed · AC-20 … a write refreshes the statistics · AC-21 … reference and clean build. Each is covered by at least one step above.
+- AC-1 … Page, gate and what goes · AC-2 … the range in the address · AC-3 … the range control · AC-4 … one request and loading · AC-5 … removed on 2026-11-20 (no caption) · AC-6 … number cards · AC-7 … change notes · AC-8 … chart · AC-9 … text table · AC-10 … top listings · AC-11 … listings and plan · AC-12 … ratings · AC-13 … chat · AC-14 … money · AC-15 … empty state · AC-16 … failures · AC-17 … forced token refresh · AC-18 … layout and accessibility · AC-19 … landlord card code removed · AC-20 … a write refreshes the statistics · AC-21 … reference and clean build. Each is covered by at least one step above, except AC-5, which was removed.

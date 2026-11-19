@@ -11,7 +11,7 @@ import { NEW_LISTING_PATH } from "@/features/listing/listing-filter";
 import { StripAlert } from "@/features/membership/components/membership-strip";
 import { NEW_PROPERTY_PATH } from "@/features/property/property-list";
 import type { Statistics } from "@/lib/api/types";
-import { rangeHref, todayInVietnam, type DateRange } from "@/lib/date-range";
+import { rangeHref, type DateRange } from "@/lib/date-range";
 import { useSession } from "@/lib/session/auth-provider";
 import { useLandlordStats } from "../hooks/use-landlord-stats";
 import {
@@ -19,8 +19,6 @@ import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
   FORBIDDEN_MESSAGE,
-  PARTIAL_DAY_NOTE,
-  periodCaption,
   POST_LISTING_LABEL,
   UPDATING_TEXT,
 } from "../landlord-stats-text";
@@ -93,26 +91,18 @@ function StatsBody({
   statistics: Statistics;
   busy: boolean;
 }) {
-  const { period } = statistics;
-  const endsToday = period.to === todayInVietnam(new Date());
   // A landlord with no listing is told what to do first, not shown a wall of zeros. A landlord
   // with a listing and a quiet range is not empty: the zones show their zeros.
   const empty = statistics.listings.total === 0;
 
   return (
     <div aria-busy={busy} className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <p className="text-sm text-muted-foreground">{periodCaption(period)}</p>
-        {endsToday && (
-          <p className="text-sm text-muted-foreground">{PARTIAL_DAY_NOTE}</p>
-        )}
-        <p
-          role="status"
-          className={busy ? "text-sm text-muted-foreground" : "sr-only"}
-        >
-          {busy ? UPDATING_TEXT : null}
-        </p>
-      </div>
+      <p
+        role="status"
+        className={busy ? "text-sm text-muted-foreground" : "sr-only"}
+      >
+        {busy ? UPDATING_TEXT : null}
+      </p>
       {empty ? (
         <>
           {/* The strip is drawn on its own: its usual place is a zone the empty state replaces. */}

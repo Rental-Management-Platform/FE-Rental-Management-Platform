@@ -15,10 +15,6 @@ export const STATS_DESCRIPTION =
 export const FORBIDDEN_MESSAGE =
   "Tài khoản của bạn chưa có quyền xem thống kê. Hãy liên hệ quản trị viên.";
 
-/** Said once an answer is on screen and the range ends today, because today is only part done. */
-export const PARTIAL_DAY_NOTE =
-  "Hôm nay mới qua một phần nên kỳ này có thể thấp hơn kỳ trước.";
-
 /** Views by day only exist since the day the backend began to write them (api-for-frontend.md, 6.42). */
 export const VIEWS_SINCE_NOTE = "Lượt xem theo ngày tính từ 16/11/2026.";
 
@@ -118,16 +114,6 @@ export const UPDATING_TEXT = "Đang cập nhật số liệu";
 
 const range = (from: string, to: string) =>
   `${formatDateOnly(from)} đến ${formatDateOnly(to)}`;
-
-/** "21/10/2026 đến 19/11/2026 (30 ngày), so với 21/09/2026 đến 20/10/2026". */
-export const periodCaption = ({
-  from,
-  to,
-  days,
-  previousFrom,
-  previousTo,
-}: StatisticsPeriod) =>
-  `${range(from, to)} (${formatCount(days)} ngày), so với ${range(previousFrom, previousTo)}`;
 
 /** "Kỳ trước: 96" under a number of a period. */
 export const previousLine = (previous: string) => `Kỳ trước: ${previous}`;
