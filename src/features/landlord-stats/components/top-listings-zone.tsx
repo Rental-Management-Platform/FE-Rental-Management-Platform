@@ -46,7 +46,7 @@ export function TopListingsZone({ top }: { top: StatisticsTopListing[] }) {
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={editListingHref(listing.id)}
-                        className={`${FOCUS_RING} min-w-0 rounded-sm font-medium break-words text-primary underline-offset-4 hover:underline`}
+                        className={`${FOCUS_RING} inline-block min-w-0 rounded-sm py-1 font-medium break-words text-primary underline-offset-4 hover:underline`}
                       >
                         {listing.title}
                       </Link>

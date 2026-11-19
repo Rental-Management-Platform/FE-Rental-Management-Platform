@@ -23,8 +23,6 @@ export type StatState =
 
 export interface Stat {
   state: StatState;
-  /** What the sources gave, for a card that reacts to a value (the first steps badge). */
-  values: readonly SourceValue[];
   /** Fetches the failed sources again. */
   retry: () => void;
 }
@@ -98,10 +96,6 @@ export function useStat(stat: StatKey | undefined): Stat {
 
   return {
     state: stat === undefined ? { kind: "none" } : settleStat(stat, snapshots),
-    // Only what loaded: a count that failed on its last fetch must not keep a highlight alive.
-    values: snapshots.flatMap(({ status, data }) =>
-      status === "success" && data ? [data] : [],
-    ),
     retry: () => {
       results.forEach((result, index) => {
         if (snapshots[index].status === "error" && !isDenied(snapshots[index]))

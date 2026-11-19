@@ -7,6 +7,8 @@
 
 Tính năng này cho người tìm trọ nhắn cho chủ trọ từ trang chi tiết tin, và cho chủ trọ trả lời từ hộp thư. Backend chưa có kênh đẩy, nên giao diện tự hỏi lại vài giây một lần (polling) và nối tin mới vào danh sách theo số thứ tự `seq`. Mỗi bên có đường dẫn riêng: người tìm trọ vào `/tin-nhan` trong khung công khai, chủ trọ vào `/landlord/tin-nhan` trong khu chủ trọ, nhưng cả hai dùng chung một bộ màn hình. Không thêm thư viện, bảng dữ liệu hay biến môi trường nào.
 
+> **Amended 2026-11-20 by [0024](../0024-landlord-statistics/index.md)**: AC-19 (the number on the "Tin nhắn" dashboard card) is gone with the landlord tool cards. The page header indicator keeps reading the same unread cache entry; the unread state of the landlord is also part of the statistics screen (`chat.unreadConversations`, `chat.unreadMessages`).
+
 ## Requirements
 
 Lấy từ mục #34 của scope và chốt cùng người làm dự án. Hợp đồng với backend: `api-for-frontend.md` mục 3 (giới hạn tần suất), 6.39 (bảy API chat), 7 ("Chat với chủ trọ và hộp thư"), A.9 và Phụ lục B. Mẫu cần theo: spec 0002 (client, phiên, xóa bộ nhớ khi phiên đổi), 0003 và 0004 (thành phần, vùng thẻ, chữ), 0005 (lớp chặn đăng nhập `RequireSession`, `authHref`), 0007 (`mediaUrl`), 0008 (khung làm việc, công cụ và thẻ dashboard), 0009 (`ListPagination`, `robots.ts`), 0010 (thẻ liên hệ ở trang chi tiết tin).

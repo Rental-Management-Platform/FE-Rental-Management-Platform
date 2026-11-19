@@ -15,6 +15,8 @@ Today none of that exists. A refused "Hiện" shows the backend sentence as a li
 
 Two facts shape the design. The membership answer is already read by the dashboard cards (spec 0008) under its own key `["dashboard","membership"]`, so a second reader would mean two requests and two cache entries for one answer. And the pricing page (#18) does not exist and has no route yet; spec 0001 names `/pricing`, but its route table is already out of date elsewhere (the landlord profile is `/chu-tro/[id]`, not `/landlords/[id]`). The scope's "Done when" for #17 still asks for a "Mua gói" button.
 
+> **Amended 2026-11-20 by [0024](../0024-landlord-statistics/index.md)**: AC-6 no longer includes the dashboard cards, which are gone. The status strip and the reason line still read the shared `["membership"]` entry. The statistics screen reads `membership` from its own answer and draws it with the exported `StripAlert` view, with no second request.
+
 ## Requirements
 
 Seeded from scope item #17 and refined with the engineer. Contract with the backend: `api-for-frontend.md` section 6.25 (`GET /me/membership`), section 7 "Đăng và quản lý tin" steps 0 and 6, and the error table (`MEMBERSHIP_REQUIRED`, `LISTING_QUOTA_REACHED`). Patterns to follow: spec 0019 (rows, `refreshAfterListingWrite`, `RowNotice`), spec 0006 (the post form and `ListingStatusBadge`), spec 0008 (the dashboard membership source), spec 0005 (`Can` only hides), and `design.md` (a notice the person must act on is an `Alert` that stays on the page).

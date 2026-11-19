@@ -7,6 +7,8 @@
 
 Every call from the browser to your backend goes through one small client, and one session object decides who is logged in. The access token (the short lived key to the API) lives only in memory, inside a closure (a private variable that no other file can touch), and each page render on the server gets its own copy, so a token can never leak between visitors. The session restores itself on page load, refreshes the token once even when many requests fail together, ignores answers that arrive after the person has signed out, and turns every failure into one typed error shape, with field errors for forms and a wait time for rate limits. A temporary page, `/dev/session`, proves all of this by hand until the real login screen arrives in item #5.
 
+> **Amended 2026-11-20 by [0024](../0024-landlord-statistics/index.md)**: `SessionActions` gains `refreshToken(): Promise<void>` (AC-17 of 0024). It starts a `POST /auth/refresh` or joins the one already running, resolves when the new token is held, and resolves at once for a guest. A failure rejects with the `ApiError` and ends the session only for the answers that already end it; a network error, a 5xx or a 429 never does. The landlord statistics query is its only caller, after a first 403 `PERMISSION_DENIED`.
+
 ## Requirements
 
 Seeded from the scope row for #3 and the contract `api-for-frontend.md` (sections 2, 3, 4, 4.1, 5). Refined after an independent cross check of the first draft.

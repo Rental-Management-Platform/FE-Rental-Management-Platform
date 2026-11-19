@@ -72,7 +72,9 @@ export function DailyChartZone({ statistics }: { statistics: Statistics }) {
           ))}
         </TabsList>
         {CHART_METRICS.map((metric) => (
-          <TabsContent key={metric.key} value={metric.key}>
+          // The chart inside is the one stop (arrow keys move over the days), so the panel itself
+          // is not a second tab stop in front of it.
+          <TabsContent key={metric.key} value={metric.key} tabIndex={-1}>
             <MetricChart metric={metric} statistics={statistics} />
           </TabsContent>
         ))}

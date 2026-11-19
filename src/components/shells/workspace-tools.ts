@@ -33,19 +33,9 @@ import type { NavItem } from "./nav-config";
 import { visibleNavItems } from "./visible-nav-items";
 
 // The number a card may show under its description. It is only a name here: the dashboard
-// feature reads and words the number (spec 0008, "Value sourcing").
-export type StatKey =
-  // landlord
-  | "propertyCount"
-  | "quota"
-  | "myListings"
-  | "plan"
-  | "unreadChat"
-  // admin
-  | "hiddenListings"
-  | "users"
-  | "paidOrders"
-  | "revenue";
+// feature reads and words the number (spec 0008, "Value sourcing"). Only the admin cards have
+// one: the landlord overview is the statistics screen of spec 0024 and shows no tool cards.
+export type StatKey = "hiddenListings" | "users" | "paidOrders" | "revenue";
 
 // One tool of a work area. The same entry draws a dashboard card and, once it is ready, a side
 // menu item, so the two cannot disagree (spec 0008, AC-5). A `ready` tool always has an address
@@ -85,7 +75,6 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     description: "Nhập tên, địa chỉ và phường hoặc xã của nhà trọ.",
     icon: HousePlus,
     permission: "property:create",
-    stat: "propertyCount",
     status: "ready",
     href: "/landlord/properties/new",
   },
@@ -96,7 +85,6 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     description: "Xem, sửa và xóa các nhà trọ bạn đã tạo.",
     icon: House,
     permission: "property:read",
-    stat: "propertyCount",
     status: "ready",
     href: MY_PROPERTIES_PATH,
   },
@@ -107,7 +95,6 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     description: "Đăng tin kèm 1 đến 5 ảnh. Tin hiện ngay, không cần duyệt.",
     icon: FilePlusCorner,
     permission: "listing:create",
-    stat: "quota",
     status: "ready",
     href: "/landlord/listings/new",
   },
@@ -118,20 +105,16 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
     description: "Ẩn, hiện, sửa tin và quản lý ảnh của từng tin.",
     icon: ListChecks,
     permission: "listing:read",
-    stat: "myListings",
     status: "ready",
     href: MY_LISTINGS_PATH,
   },
   {
-    // Spec 0012, AC-19. The number on the card is the unread count the page header indicator
-    // already reads, through the same cache entry.
     id: "chat.inbox",
     group: "Tin nhắn",
     label: "Tin nhắn",
     description: "Trả lời những người tìm trọ đã nhắn cho bạn.",
     icon: MessagesSquare,
     permission: "conversation:read",
-    stat: "unreadChat",
     status: "ready",
     href: LANDLORD_CHAT_BASE,
   },
@@ -143,7 +126,6 @@ export const LANDLORD_TOOLS: readonly Tool[] = [
       "Xem gói đang dùng, mua gói và xem lịch sử đơn. Thanh toán là thanh toán thử.",
     icon: ReceiptText,
     permission: "order:read",
-    stat: "plan",
     status: "ready",
     href: ORDERS_PATH,
   },

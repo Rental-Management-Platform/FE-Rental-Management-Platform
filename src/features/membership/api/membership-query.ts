@@ -3,10 +3,10 @@ import type { ApiClient } from "@/lib/api/client";
 import type { Membership } from "@/lib/api/types";
 
 /**
- * The one cache entry for `GET /me/membership` (spec 0020, AC-6). The status strip, the reason
- * line of a listing that guests cannot see, and the landlord dashboard cards all read it, so one
- * request and one entry serve them and they cannot disagree. It holds the plain `Membership`
- * answer, and the dashboard turns it into its own shape with `select`. The session clears the
+ * The one cache entry for `GET /me/membership` (spec 0020, AC-6). The status strip and the reason
+ * line of a listing that guests cannot see read it, so one request and one entry serve them and
+ * they cannot disagree (the landlord dashboard cards that read it are gone, spec 0024). The
+ * statistics screen reads `membership` from its own answer instead. The session clears the
  * cache when it changes, so the key needs no user id.
  */
 export const membershipKey = ["membership"] as const;

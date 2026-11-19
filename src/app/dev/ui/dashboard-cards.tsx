@@ -73,13 +73,6 @@ export function DashboardCardsSection() {
         <Labeled label="ready">
           <ToolCardView tool={READY} stat={NONE} />
         </Labeled>
-        <Labeled label="ready · bắt đầu từ đây">
-          <ToolCardView
-            tool={READY}
-            stat={{ kind: "lines", lines: ["Chưa có nhà trọ nào"] }}
-            firstStep
-          />
-        </Labeled>
         <Labeled label="soon">
           <ToolCardView tool={SOON} stat={NONE} />
         </Labeled>
