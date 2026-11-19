@@ -87,8 +87,9 @@ export const PAIRS = [
     "canvas",
     DESTRUCTIVE_TINT,
   ]),
-  // Alert titles, icons and toast icons.
-  ...textOn("success", ["background", "popover"]),
+  // Alert titles, icons and toast icons. On `card` too: a rise on a number card of the statistics
+  // screens is green text there (spec 0024, AC-7), and a fall is `destructive` on `card` above.
+  ...textOn("success", ["background", "popover", "card"]),
   ...textOn("info", ["background", "popover"]),
   text("warning-foreground", "popover"),
 
@@ -115,6 +116,10 @@ export const PAIRS = [
     "warning",
     DESTRUCTIVE_TINT,
   ]),
+  // The line and the dots of the daily chart are `primary` on `card` (spec 0024, AC-18). A graphic
+  // needs 3:1, and `primary` on `card` already holds 4.5:1 as text above; the pair is listed
+  // so the chart cannot lose its contrast without the check saying so.
+  ...controlOn("primary", ["card"]),
   // The warning pin of the location map (a saved point out of place, spec 0011) is
   // `warning-foreground` with a `card` outline. The normal pin is `primary` on `card`, which the
   // `textOn("primary")` pairs above already hold to 4.5:1.

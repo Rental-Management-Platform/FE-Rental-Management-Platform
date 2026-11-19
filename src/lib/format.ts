@@ -20,6 +20,13 @@ const RATING = new Intl.NumberFormat("vi-VN", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
+// A percent or a number of points the API already rounded to one decimal, so at most one decimal
+// is shown and a value that reads 0 is a real 0.
+const PERCENT = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 });
+const SIGNED_PERCENT = new Intl.NumberFormat("vi-VN", {
+  maximumFractionDigits: 1,
+  signDisplay: "exceptZero",
+});
 const DAY = new Intl.DateTimeFormat("vi-VN", {
   timeZone: TIME_ZONE,
   day: "2-digit",
@@ -36,6 +43,16 @@ export const formatCount = (count: number) => COUNT.format(count);
 /** A star average with one decimal, the Vietnamese way: 4.25 becomes "4,3" and 4 becomes "4,0". */
 export const formatRating = (average: number) => RATING.format(average);
 
+/** A percent of at most one decimal, no sign and no "%": 33.3 becomes "33,3", 75 becomes "75". */
+export const formatPercent = (percent: number) => PERCENT.format(percent);
+
+/** A change in percent with its sign and "%": 33.3 becomes "+33,3%", -40 becomes "-40%", 0 becomes "0%". */
+export const formatSignedPercent = (percent: number) =>
+  `${SIGNED_PERCENT.format(percent)}%`;
+
+/** A number of percentage points, at most one decimal: 5 becomes "5", 2.5 becomes "2,5". */
+export const formatPoints = (points: number) => PERCENT.format(points);
+
 /** 22.5 becomes "22,5 m²". */
 export const formatArea = (m2: number) => `${AREA.format(m2)} m²`;
 
@@ -48,6 +65,10 @@ export const formatDateTime = (iso: IsoDateTime) => DAY.format(new Date(iso));
  */
 export const formatDateOnly = (date: DateOnly) =>
   DAY.format(new Date(`${date}T00:00:00+07:00`));
+
+/** The day and month of a date without a time: "2026-11-16" becomes "16/11". */
+export const formatDayMonth = (date: DateOnly) =>
+  `${date.slice(8, 10)}/${date.slice(5, 7)}`;
 
 /** "0901234567" becomes "0901 234 567". Any other shape is shown as it came. */
 export const formatPhone = (phone: string) =>

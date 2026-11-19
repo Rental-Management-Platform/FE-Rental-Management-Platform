@@ -586,3 +586,84 @@ export interface AdminListingReview {
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
 }
+
+// ---------- Landlord statistics (6.42, spec 0024) ----------
+// Every percent in these types is a percent, so 33.3 means 33.3% and `changePoints` -5 means five
+// percentage points down. The API rounds them to one decimal and the page never divides.
+
+/** A number of a period with the period before it. `changePercent` is `null` when `previous` is 0. */
+export interface Metric {
+  value: number;
+  previous: number;
+  changePercent: number | null;
+}
+/** A rate such as the reply rate. It changes by points, not by percent, and is `null` with no sample. */
+export interface RateMetric {
+  value: number | null;
+  previous: number | null;
+  changePoints: number | null;
+}
+/** A score from the reviews: `average` is `null` when `count` is 0. */
+export interface RatingBlock {
+  average: number | null;
+  count: number;
+  newInRange: Metric;
+}
+export interface StatisticsTopListing {
+  id: Uuid;
+  code: string;
+  title: string;
+  status: ListingStatus;
+  isPublic: boolean;
+  viewsInRange: number;
+  viewsAllTime: number;
+}
+export interface StatisticsPeriod {
+  from: DateOnly;
+  to: DateOnly;
+  days: number;
+  previousFrom: DateOnly;
+  previousTo: DateOnly;
+  timeZone: "Asia/Ho_Chi_Minh";
+}
+/** One day of the series: every column is 0 on a day with nothing. */
+export interface StatisticsDay {
+  date: DateOnly;
+  views: number;
+  newFavorites: number;
+  newFollowers: number;
+  newConversations: number;
+}
+// GET /me/statistics. `ratings.landlord` and `ratings.rooms` are two different scores and are never
+// added or averaged.
+export interface Statistics {
+  period: StatisticsPeriod;
+  listings: {
+    total: number;
+    public: number;
+    hiddenByQuota: number;
+    hiddenByOwner: number;
+    hiddenByAdmin: number;
+  };
+  membership: Membership;
+  views: { inRange: Metric; allTime: number; top: StatisticsTopListing[] };
+  interest: {
+    newFavorites: Metric;
+    newFollowers: Metric;
+    totalFavorites: number;
+    totalFollowers: number;
+  };
+  ratings: { landlord: RatingBlock; rooms: RatingBlock };
+  chat: {
+    conversationsOpened: Metric;
+    repliedConversations: Metric;
+    replyRate: RateMetric;
+    totalConversations: number;
+    unreadConversations: number;
+    unreadMessages: number;
+  };
+  // Dong, paid orders only, and a test payment.
+  spending: { spent: Metric; paidOrders: Metric; spentAllTime: number };
+  // Exactly `period.days` items, oldest day first.
+  series: StatisticsDay[];
+}

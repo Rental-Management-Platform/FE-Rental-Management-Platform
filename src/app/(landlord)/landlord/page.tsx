@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
-import { LandlordDashboard } from "@/features/dashboard/components/landlord-dashboard";
+import { LandlordStatsScreen } from "@/features/landlord-stats/components/landlord-stats-screen";
+import { LandlordStatsSkeleton } from "@/features/landlord-stats/components/stats-skeleton";
+import {
+  STATS_DESCRIPTION,
+  STATS_TITLE,
+} from "@/features/landlord-stats/landlord-stats-text";
 
 // The route gate draws a loading state until the session is known, so the validator of instant
 // navigation never sees this page and warns that the segment was dropped. A page behind a
@@ -15,11 +21,11 @@ export const metadata: Metadata = {
 export default function LandlordDashboardPage() {
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Tổng quan"
-        description="Mọi công cụ quản lý nhà trọ và tin đăng của bạn ở một chỗ."
-      />
-      <LandlordDashboard />
+      <PageHeader title={STATS_TITLE} description={STATS_DESCRIPTION} />
+      {/* The screen reads the range with `useSearchParams`, which needs a boundary. */}
+      <Suspense fallback={<LandlordStatsSkeleton />}>
+        <LandlordStatsScreen />
+      </Suspense>
     </div>
   );
 }

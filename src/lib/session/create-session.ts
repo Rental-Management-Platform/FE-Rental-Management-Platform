@@ -58,6 +58,15 @@ export interface SessionActions {
   /** Replaces `user` and `permissions` from `GET /auth/me`. Does nothing unless `user`. */
   reload(): Promise<void>;
   /**
+   * Gets a new access token now, so the permissions the token carries are current (a token
+   * issued before a permission was granted answers 403 until it is renewed). Starts a
+   * `POST /auth/refresh`, or joins the one already running, and resolves when the new token is
+   * held. A guest has nothing to renew: it resolves at once. A failure rejects with the
+   * `ApiError` and ends the session only for the answers that already end it
+   * (`end-reasons.ts`); a network error, a 5xx or a 429 never does.
+   */
+  refreshToken(): Promise<void>;
+  /**
    * Finds out who is looking from the hint cookie. Runs only while the state is `loading`
    * or `guest('unavailable')`, and joins the restore that is already running. Never rejects.
    */
@@ -493,6 +502,15 @@ export function createSession(config: SessionConfig): Session {
     setState({ status: "user", user: me.user, permissions: me.permissions });
   }
 
+  // The same shared refresh the client uses for an expired token, so a caller never starts a
+  // second one while another runs, and a 429 block is honoured. A restore on page load decides
+  // whether there is a token at all, so it is waited for first.
+  async function refreshToken(): Promise<void> {
+    if (restoring !== null) await restoring;
+    if (token === null) return;
+    await waitForRefresh();
+  }
+
   return {
     api: client,
     actions: {
@@ -501,6 +519,7 @@ export function createSession(config: SessionConfig): Session {
       signOut,
       signOutAll,
       reload,
+      refreshToken,
       restore,
     },
     getState: () => state,

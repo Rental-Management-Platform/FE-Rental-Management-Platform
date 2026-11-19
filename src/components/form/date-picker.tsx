@@ -11,25 +11,17 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { DateOnly } from "@/lib/api/types";
+import { todayInVietnam } from "@/lib/date-range";
 import { FOCUS_RING } from "@/lib/focus-ring";
-import { formatDateOnly, TIME_ZONE } from "@/lib/format";
+import { formatDateOnly } from "@/lib/format";
 import { cn } from "@/lib/utils";
-
-const DAY_PARTS = new Intl.DateTimeFormat("en-US", {
-  timeZone: TIME_ZONE,
-  year: "numeric",
-  month: "numeric",
-  day: "numeric",
-});
 
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /** The day it is now in Vietnam, as a `Date` at local midnight (what the calendar compares). */
-const todayInVietnam = (now: Date): Date => {
-  const parts = DAY_PARTS.formatToParts(now);
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    Number(parts.find((p) => p.type === type)?.value);
-  return new Date(part("year"), part("month") - 1, part("day"));
+const todayAsLocalDate = (now: Date): Date => {
+  const [year, month, day] = todayInVietnam(now).split("-").map(Number);
+  return new Date(year, month - 1, day);
 };
 
 /** `YYYY-MM-DD` from the local year, month and day of the picked day. Never through UTC. */
@@ -74,7 +66,7 @@ interface DatePanelProps {
 // offer are read at that moment. The years run from January 1 of last year to December 31 three
 // years ahead, set with `startMonth` and `endMonth` (not a `disabled` matcher), in Vietnam's year.
 function DatePanel({ value, onPick, onClear }: DatePanelProps) {
-  const [today] = useState(() => todayInVietnam(new Date()));
+  const [today] = useState(() => todayAsLocalDate(new Date()));
   const startMonth = new Date(today.getFullYear() - 1, 0, 1);
   const endMonth = new Date(today.getFullYear() + 3, 11, 1);
   const selected = fromDateOnly(value);
