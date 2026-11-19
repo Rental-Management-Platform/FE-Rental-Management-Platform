@@ -30,6 +30,9 @@ const apiUrl = isProxyMode ? null : new URL(publicApiAddress);
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    agentUpgrade: "security",
+  },
   turbopack: {
     rules: {
       "*.css": {
