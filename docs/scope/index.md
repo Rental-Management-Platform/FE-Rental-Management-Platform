@@ -15,7 +15,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 * Ngôn ngữ: chỉ tiếng Việt, không làm đa ngôn ngữ.
 * Trang công khai (trang chủ, danh sách tin, chi tiết tin, hồ sơ chủ trọ) cần SEO. Mục tiêu trợ năng mặc định là WCAG AA, đổi được.
 * Thiết kế: Figma (qua MCP) chỉ dùng đến hết mốc M2 của tính năng 4, cho màu, chữ, nút, đầu trang công khai, ô nhập và các trạng thái. Từ mốc M3, viết mã thẳng trên hệ thiết kế đó, không vẽ thêm Figma. Giao diện vẫn làm đủ, chỉ đổi cách làm. Bố cục từng màn do `/develop` tự quyết dựa trên hệ thiết kế đã có, không cần bạn duyệt từng màn.
-* Phạm vi giao diện bám đúng `api-for-frontend.md`: mọi tính năng hợp đồng mô tả đều có dòng riêng, cái gì hợp đồng không mô tả thì không làm (đã đối chiếu 69 API ngày 2026-10-24; chat với 7 API và đánh giá chủ trọ với 8 API được đối chiếu ngày 2026-11-07 và nay có dòng riêng là #34, #35 và #36; đánh giá từng phòng với 8 API, mục 6.41, được đối chiếu ngày 2026-11-10: phần người tìm trọ là #37, phần admin ẩn và gỡ ẩn nằm trong #36 thành một tab riêng). Biểu đồ doanh thu cho admin nằm trong hợp đồng nên giữ. Trang chủ giới thiệu và bản đồ một điểm không có trong hợp đồng nên đã bỏ. Chế độ tối để sau.
+* Phạm vi giao diện bám đúng `api-for-frontend.md`: mọi tính năng hợp đồng mô tả đều có dòng riêng, cái gì hợp đồng không mô tả thì không làm (đã đối chiếu 69 API ngày 2026-10-24; chat với 7 API và đánh giá chủ trọ với 8 API được đối chiếu ngày 2026-11-07 và nay có dòng riêng là #34, #35 và #36; đánh giá từng phòng với 8 API, mục 6.41, được đối chiếu ngày 2026-11-10: phần người tìm trọ là #37, phần admin ẩn và gỡ ẩn nằm trong #36 thành một tab riêng). Biểu đồ doanh thu cho admin nằm trong hợp đồng nên giữ. Trang chủ giới thiệu và bản đồ một điểm không có trong hợp đồng nên đã bỏ. Thống kê cho chủ trọ (6.42) và tổng quan cho admin (6.43) được đối chiếu ngày 2026-11-20 và có dòng riêng là #39 và #40 (Slice 7), dùng chung cách vẽ biểu đồ với #26. Chế độ tối để sau.
 * Chat, hồ sơ chủ trọ và đánh giá làm theo mạch người tìm trọ nhắn, chủ trọ trả lời, rồi người tìm trọ đánh giá (vì chỉ người đã được chủ trọ trả lời mới đánh giá được): chat (#34) trước, rồi hồ sơ chủ trọ (#15), rồi đánh giá (#35), và kiểm duyệt đánh giá (#36) ở khu admin sau cùng. Đánh giá từng phòng (#37) xây sau #35 vì dùng lại nhiều phần của khu đánh giá chủ trọ; điều kiện viết cũng là chủ trọ đã trả lời trong chat, nhưng về chính tin đó, không phải về bất kỳ tin nào của họ; tab kiểm duyệt của nó nằm trong #36. Hồ sơ chủ trọ nằm ở `/chu-tro/[id]`, hộp thư và cuộc trò chuyện nằm ở `/tin-nhan` và `/tin-nhan/[id]`, dùng chung cho người tìm trọ và chủ trọ.
 
 ## At a glance
@@ -55,11 +55,13 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 23 | Wards and amenities catalog | Slice 5 | in-progress |
 | 24 | Permissions by account type | Slice 5 | in-progress |
 | 25 | Orders of all landlords | Slice 5 | in-progress |
-| 26 | Revenue statistics | Slice 5 | planned |
 | 27 | Password recovery | Slice 6 | done |
 | 28 | My profile and change password | Slice 6 | done |
 | 29 | Location pin on listing detail | Slice 6 | done |
 | 38 | My landlord numbers on the account page | Slice 6 | done |
+| 39 | Landlord statistics | Slice 7 | in-progress |
+| 40 | Admin overview statistics | Slice 7 | planned |
+| 26 | Revenue statistics | Slice 7 | planned |
 
 ## Các nhóm
 
@@ -70,7 +72,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 10 done, 1 dropped (#16).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33, #38). 10 done.
 * [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 2 done, 5 in-progress, 1 planned.
-* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31). 1 done.
+* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31, #39 và #40). 1 done, 1 in-progress, 1 planned.
 
 ## Các giai đoạn
 
@@ -79,8 +81,9 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * **Slice 2, tin phong phú hơn**: ảnh, phí, tiện ích, vị trí trên bản đồ, và khu quản lý tin của chủ trọ.
 * **Slice 3, tìm và gắn bó**: yêu thích, nhắn tin với chủ trọ, hồ sơ chủ trọ, đánh giá chủ trọ, đánh giá từng phòng (bộ lọc đã chuyển lên Slice 1, trang chủ đã bỏ).
 * **Slice 4, gói và thanh toán thử**: trạng thái dùng thử, bảng giá, mua gói.
-* **Slice 5, khu admin**: người dùng, kiểm duyệt tin và đánh giá, gói, danh mục, quyền, đơn, doanh thu.
+* **Slice 5, khu admin**: người dùng, kiểm duyệt tin và đánh giá, gói, danh mục, quyền, đơn.
 * **Slice 6, tài khoản và hoàn thiện**: khôi phục mật khẩu, hồ sơ cá nhân (bản đồ đã bỏ).
+* **Slice 7, thống kê**: thống kê của chủ trọ, tổng quan của admin và doanh thu, dùng chung một cách vẽ biểu đồ và một ô chọn khoảng ngày.
 
 Hết giờ giữa chừng thì dừng ở bất kỳ giai đoạn nào cũng còn một bản demo chạy được.
 
@@ -96,7 +99,7 @@ Ngoài phạm vi lần này, giữ lại để kế hoạch còn trung thực.
 * **Liên kết về dashboard từ trang "không có quyền"**: người của loại tài khoản khác mở nhầm `/landlord` hay `/admin` thấy trang báo không có quyền, nên có thêm nút về dashboard của chính họ; sinh ra từ spec 0008 · needs a decision
 * **Ảnh chia sẻ mặc định cho trang tìm tin**: trang `/` chưa có ảnh trong thẻ chia sẻ (Open Graph chỉ có chữ); #9 (spec 0010) làm thẻ chia sẻ cho từng tin bằng ảnh đầu của tin, nên tin chưa có ảnh vẫn chỉ có chữ; một ảnh mặc định cho trang này và cho các tin đó cần một ảnh đã được thiết kế sẵn; sinh ra từ spec 0009 và 0010 · needs a decision
 * **Đổi nhà cung cấp bản đồ trước khi có người dùng thật**: bản đồ và tìm địa chỉ của #33 dùng hình bản đồ OpenStreetMap và Nominatim công cộng (không khóa, không đảm bảo, một yêu cầu mỗi giây cho cả trang), hợp với bản demo nhưng không hợp với lượng truy cập thật; khi cần thì chọn nhà cung cấp có điều khoản cho phép (MapTiler và Goong đã được cân nhắc, xem rationale của spec 0011); chỉ phải đổi `config.ts` và `api/nominatim.ts`; sinh ra từ spec 0011 · needs a decision
-* **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, lọc "Tin của tôi" theo nhà trọ và số đếm tin theo từng trạng thái (sinh ra từ spec 0019), danh sách đang theo dõi, thông báo, thống kê cho chủ trọ (kể cả lượt lưu tin), đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ, lọc tin công khai theo diện tích, tiện ích, tiền cọc hay ngày vào ở (hợp đồng mục 6.19 chỉ có từ khóa, phường, khoảng giá và sắp xếp). Với đánh giá chủ trọ (mục 6.40): báo cáo một đánh giá, chủ trọ trả lời đánh giá, phân bố số sao, lọc hoặc sắp xếp theo số sao, ảnh trong đánh giá, bình chọn "hữu ích", tìm theo chữ trong nhận xét, lịch sử kiểm duyệt đánh giá, đánh giá ẩn danh. Với đánh giá phòng (mục 6.41): các mục vừa kể cũng chưa có ở đây, và thêm sao trên thẻ tin (bốn danh sách thẻ tin là trang tìm tin, tin đã lưu, tin dưới hồ sơ chủ trọ và tin của chủ trọ chưa có `reviewCount` và `ratingAverage`, nên thẻ chưa hiện được sao). Với chat (mục 6.39): sửa hoặc xóa tin nhắn, chặn một người, ảnh hoặc tệp trong tin nhắn, thông báo qua email hoặc đẩy, dấu "đã xem" cho bên kia, màn hình chat cho admin.
+* **Chờ backend, chưa có API nên đừng dựng màn hình**: lịch sử kiểm duyệt, kháng nghị khi bị ẩn tin, lọc "Tin của tôi" theo nhà trọ và số đếm tin theo từng trạng thái (sinh ra từ spec 0019), danh sách đang theo dõi, thông báo, đổi email, ảnh đại diện, xóa tài khoản, đổi thứ tự ảnh, chi tiết một tài khoản và sắp xếp ở danh sách người dùng, tìm đơn theo mã hoặc email chủ trọ, xuất file, doanh thu theo từng chủ trọ, hoàn tiền, đổi gói giữa kỳ, lọc tin công khai theo diện tích, tiện ích, tiền cọc hay ngày vào ở (hợp đồng mục 6.19 chỉ có từ khóa, phường, khoảng giá và sắp xếp). Với đánh giá chủ trọ (mục 6.40): báo cáo một đánh giá, chủ trọ trả lời đánh giá, phân bố số sao, lọc hoặc sắp xếp theo số sao, ảnh trong đánh giá, bình chọn "hữu ích", tìm theo chữ trong nhận xét, lịch sử kiểm duyệt đánh giá, đánh giá ẩn danh. Với đánh giá phòng (mục 6.41): các mục vừa kể cũng chưa có ở đây, và thêm sao trên thẻ tin (bốn danh sách thẻ tin là trang tìm tin, tin đã lưu, tin dưới hồ sơ chủ trọ và tin của chủ trọ chưa có `reviewCount` và `ratingAverage`, nên thẻ chưa hiện được sao). Với chat (mục 6.39): sửa hoặc xóa tin nhắn, chặn một người, ảnh hoặc tệp trong tin nhắn, thông báo qua email hoặc đẩy, dấu "đã xem" cho bên kia, màn hình chat cho admin.
 * **Tô đậm phần chữ khớp trong ô chọn phường**: tô đậm chữ vừa gõ trong các dòng kết quả, để người gõ không dấu thấy vì sao một dòng khớp; cần ánh xạ vị trí chữ giữa bản có dấu và không dấu, nên cố ý bỏ qua lần này; sinh ra từ spec 0015 · needs a decision
 * **Trang phường riêng được lập chỉ mục**: `?wardCode=` đứng một mình có tiêu đề, mô tả, canonical riêng và vào sitemap, để tìm kiếm theo khu vực ("phòng trọ phường X"); cần đọc tên phường ở `generateMetadata` và tính lại giới hạn 300 lần một phút; #13 cố ý chỉ lập chỉ mục trang thường; sinh ra từ spec 0016 · needs a decision
 * **Kết quả tìm tin hiện được khi tắt JavaScript**: danh sách nằm trong khung chờ chỉ hiện khi có script, nên người tắt JavaScript chỉ thấy khung chờ (khoảng trống đã biết của #8, ghi ở `verify.md` của spec 0009); #13 giữ nguyên và cho bộ lọc cần JavaScript; sinh ra từ spec 0009 và 0016 · needs a decision

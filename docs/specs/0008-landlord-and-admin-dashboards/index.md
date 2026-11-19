@@ -7,6 +7,8 @@
 
 This feature gives each work area a real home page: `/landlord` for landlords and `/admin` for admins. Each page lists every management tool of the area as a card, including the tools that are not built yet. A card for a built tool opens its page, a card for an unbuilt tool is dimmed, says "Sắp có" in words, and cannot be opened. Cards can carry a small number read from an API that already exists (property count, listings showing, users, test revenue). One list of tools drives both the cards and the side menu, so a finished feature turns its card and its menu item on with one edit. After sign in, a landlord lands on `/landlord` and an admin on `/admin`. It adds no package, table, endpoint or environment variable.
 
+> **Amended 2026-11-20 by [0024](../0024-landlord-statistics/index.md)**: the landlord half of this dashboard is replaced by the landlord statistics screen. The tool cards of `/landlord` and the numbers on them (AC-2, AC-3, AC-7, AC-8, AC-10 and AC-11 as they apply to the landlord) go. What stays: the tool list and the side menu (AC-5, AC-12), the sign in redirect (AC-13), the account links (AC-14) and the whole admin half until #40 replaces it.
+
 ## Requirements
 
 Seeded from scope item #31 and refined with the engineer. Contract with the backend: `api-for-frontend.md` sections 2 (pagination), 5, 6.25, 6.29, 6.34, 6.38 and 7 ("Hiển thị theo quyền"). Patterns to follow: spec 0003 (shells, nav configs), spec 0004 (zones and item cards), spec 0005 (the gate and the sign in redirect), spec 0006 (`src/features/<name>` layout, `queryOptions` factories).
