@@ -1,7 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ReasonDialog } from "@/components/form/reason-dialog";
 import { Card } from "@/components/ui/card";
+import { authorName } from "@/features/reviews/text";
 import type { AdminReview, Uuid } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import {
@@ -9,12 +11,16 @@ import {
   LANDLORD_NO_REVIEWS_DESCRIPTION,
   LANDLORD_ZONE_FAILED_TITLE,
   LANDLORD_ZONE_TABLE_CAPTION,
+  NO_NAME,
+  reviewAbout,
   reviewsHeading,
 } from "../admin-reviews-text";
 import {
   ADMIN_REVIEWS_PAGE_SIZE,
   adminLandlordReviewsQuery,
 } from "../api/moderation";
+import { useReviewModeration } from "../hooks/use-review-moderation";
+import { LANDLORD_REVIEW_KIND } from "../landlord-kind";
 import {
   adminReviewsHref,
   clearFilters,
@@ -28,6 +34,7 @@ import { LandlordSelect } from "./landlord-select";
 import { ReviewCards } from "./review-cards";
 import { ReviewFilterBar } from "./review-filter-bar";
 import { ReviewListZone, type ReviewListWords } from "./review-list-zone";
+import { ReviewRowActions } from "./review-row-actions";
 import { ReviewTable } from "./review-table";
 
 const WORDS: ReviewListWords = {
@@ -39,7 +46,8 @@ const WORDS: ReviewListWords = {
 /**
  * The reviews of landlords (scope #36, `GET /moderation/reviews`): the first tab of the page. It
  * reads its own list, under its own keys, and draws it in the shared list zone, under its own
- * filters (the status, the landlord and the writer).
+ * filters (the status, the landlord and the writer). Each row has a "Ẩn" or "Gỡ ẩn" button that opens
+ * the one reason dialog of the zone.
  */
 export function LandlordReviewsZone({
   filters,
@@ -50,6 +58,7 @@ export function LandlordReviewsZone({
 }) {
   const api = useApi();
   const query = useQuery(adminLandlordReviewsQuery(api, { ...filters, page }));
+  const moderation = useReviewModeration(LANDLORD_REVIEW_KIND);
 
   const authorHref = (authorId: Uuid) =>
     adminReviewsHref({ ...filters, authorId }, 1);
@@ -58,6 +67,18 @@ export function LandlordReviewsZone({
   );
   const landlordOf = (review: AdminReview) => (
     <LandlordCell landlord={review.landlord} />
+  );
+  const rowActions = (review: AdminReview, size: "sm" | "lg") => (
+    <ReviewRowActions
+      review={review}
+      about={reviewAbout(
+        authorName(review.author.name),
+        review.landlord.name?.trim() || NO_NAME,
+      )}
+      size={size}
+      onHide={moderation.ask}
+      onUnhide={moderation.ask}
+    />
   );
 
   return (
@@ -88,6 +109,7 @@ export function LandlordReviewsZone({
               subjectHeader={COLUMN_LANDLORD}
               subject={landlordOf}
               author={authorOf}
+              actions={(review) => rowActions(review, "sm")}
             />
           )}
           renderCards={(rows) => (
@@ -96,10 +118,22 @@ export function LandlordReviewsZone({
               subjectHeader={COLUMN_LANDLORD}
               subject={landlordOf}
               author={authorOf}
+              actions={(review) => rowActions(review, "lg")}
             />
           )}
         />
       </Card>
+      <ReasonDialog
+        open={moderation.open}
+        onOpenChange={moderation.onOpenChange}
+        title={moderation.title}
+        description={moderation.description}
+        confirmLabel={moderation.confirmLabel}
+        tone={moderation.tone}
+        placeholder={moderation.placeholder}
+        onSubmit={moderation.submit}
+        onCloseAutoFocus={moderation.onCloseAutoFocus}
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { ApiClient } from "@/lib/api/client";
-import type { AdminReview, Page } from "@/lib/api/types";
+import type { AdminReview, Page, Uuid } from "@/lib/api/types";
 import { sameFilters, type LandlordFilters } from "../review-filter";
 import { adminLandlordReviewsListKey } from "./admin-reviews-keys";
 
@@ -54,3 +54,29 @@ export const adminLandlordReviewsQuery = (
         ? previous
         : undefined,
   });
+
+/**
+ * `POST /moderation/reviews/:id/hide` (`review:moderate`, 6.40): a `visible` review becomes
+ * `hidden_by_admin` and leaves the public list and the two numbers of the landlord at once. `:id` is
+ * the id of the review (from this list), not of the landlord. The body is only the reason (1 to 500
+ * characters). The answer is the whole moderation row after the change.
+ */
+export const hideLandlordReview = (api: ApiClient, id: Uuid, reason: string) =>
+  api.post<AdminReview>(`/moderation/reviews/${encodeURIComponent(id)}/hide`, {
+    reason,
+  });
+
+/**
+ * `POST /moderation/reviews/:id/unhide` (`review:moderate`, 6.40): a `hidden_by_admin` review
+ * becomes `visible` straight away, not a state that waits for the writer (a review has no step
+ * between). Same body and same answer as a hide.
+ */
+export const unhideLandlordReview = (
+  api: ApiClient,
+  id: Uuid,
+  reason: string,
+) =>
+  api.post<AdminReview>(
+    `/moderation/reviews/${encodeURIComponent(id)}/unhide`,
+    { reason },
+  );

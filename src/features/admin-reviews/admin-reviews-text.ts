@@ -48,6 +48,60 @@ export const STATUS_HIDDEN_BY_ADMIN = "Admin đã ẩn";
 
 export const hiddenReasonLine = (reason: string) => `Lý do: ${reason}`;
 
+// The buttons of a row. Every name says whose review it is and about what, so a screen reader that
+// lists the buttons of the page can tell them apart.
+
+export const HIDE_BUTTON = "Ẩn";
+
+export const UNHIDE_BUTTON = "Gỡ ẩn";
+
+/** Which review a button is about: "của Bạn Lan về Anh Minh". */
+export const reviewAbout = (author: string, subject: string) =>
+  `của ${author} về ${subject}`;
+
+export const hideButtonName = (about: string) => `Ẩn đánh giá ${about}`;
+
+export const unhideButtonName = (about: string) => `Gỡ ẩn đánh giá ${about}`;
+
+// The reason dialog of a hide and of an unhide of a landlord review. The sentence under the title
+// says what the action does. The unhide one says the review shows again at once: unlike a listing,
+// a review has no step in between (api 6.40).
+
+export const LANDLORD_HIDE_TITLE = "Ẩn đánh giá";
+
+export const LANDLORD_HIDE_CONFIRM = "Ẩn đánh giá";
+
+export const LANDLORD_HIDE_PLACEHOLDER = "Ví dụ: Nội dung xúc phạm cá nhân";
+
+export const landlordHideDescription = (author: string) =>
+  `Đánh giá của “${author}” sẽ biến khỏi hồ sơ công khai của chủ trọ và không còn tính vào điểm trung bình ngay. Người viết thấy lý do bạn nhập và chỉ còn xóa được đánh giá, không sửa được.`;
+
+export const LANDLORD_UNHIDE_TITLE = "Gỡ ẩn đánh giá";
+
+export const LANDLORD_UNHIDE_CONFIRM = "Gỡ ẩn đánh giá";
+
+export const LANDLORD_UNHIDE_PLACEHOLDER = "Ví dụ: Đã xem lại, nội dung hợp lệ";
+
+export const landlordUnhideDescription = (author: string) =>
+  `Đánh giá của “${author}” sẽ hiện lại ngay trên hồ sơ công khai của chủ trọ và tính lại vào điểm trung bình. Không cần ai bấm thêm.`;
+
+// The toasts after a write.
+
+export const landlordHiddenToast = (author: string) =>
+  `Đã ẩn đánh giá của “${author}”`;
+
+export const landlordUnhiddenToast = (author: string) =>
+  `Đã gỡ ẩn đánh giá của “${author}”. Đánh giá hiện lại ngay.`;
+
+// Another admin was first, or the writer deleted the review: the list was read again and these say
+// why. A delete by the writer wins over a hide (api 6.40), so a 404 means the writer was first.
+
+export const STATE_CHANGED_TOAST =
+  "Trạng thái của đánh giá này đã đổi do một thay đổi ở nơi khác. Danh sách đã được tải lại.";
+
+export const LANDLORD_GONE_TOAST =
+  "Người viết vừa xóa đánh giá này. Danh sách đã được tải lại.";
+
 /** The name of a landlord in a row opens their public profile, which opens in a new tab. */
 export const openLandlordName = (name: string) =>
   `${name} (mở hồ sơ công khai trong tab mới)`;
