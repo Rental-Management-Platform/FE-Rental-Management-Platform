@@ -6,13 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Path } from "react-hook-form";
 import { toast } from "sonner";
 import { FormField } from "@/components/form/form-field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ReadOnlyLocation } from "@/features/location-map/components/read-only-location";
 import { membershipKey } from "@/features/membership/api/membership-query";
 import { QuotaRefusalNotice } from "@/features/membership/components/quota-refusal-notice";
@@ -51,6 +44,7 @@ import {
 } from "../schemas/picked-photos";
 import { ListingForm, LISTING_FIELDS } from "./listing-form";
 import { PostPhotos } from "./post-photos";
+import { PropertyPicker } from "./property-picker";
 
 // The form's own paths in screen order. A message the backend sends for a field this form
 // lacks is shown as the form level message, and focus goes to the first field in this order.
@@ -309,24 +303,14 @@ export function PostListingForm({
             description={chosen?.fullAddress}
           >
             {({ field, aria }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger
-                  ref={field.ref}
-                  size="lg"
-                  className="w-full"
-                  onBlur={field.onBlur}
-                  {...aria}
-                >
-                  <SelectValue placeholder="Chọn nhà trọ" />
-                </SelectTrigger>
-                <SelectContent>
-                  {properties.map((property) => (
-                    <SelectItem key={property.id} value={property.id}>
-                      {property.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <PropertyPicker
+                ref={field.ref}
+                properties={properties}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                {...aria}
+              />
             )}
           </FormField>
           {/* Keyed by the property, so choosing another one closes the map. */}
