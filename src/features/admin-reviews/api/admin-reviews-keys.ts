@@ -1,4 +1,4 @@
-import type { LandlordFilters } from "../review-filter";
+import type { LandlordFilters, ListingFilters } from "../review-filter";
 
 /**
  * The cache keys of the review moderation page (scope #36). The session clears the cache when it
@@ -18,3 +18,11 @@ export const adminLandlordReviewsKey = [
 export const adminLandlordReviewsListKey = (
   params: LandlordFilters & { page: number; pageSize: number },
 ) => [...adminLandlordReviewsKey, "list", params] as const;
+
+/** Every page of the room reviews, whatever the filters. */
+export const adminListingReviewsKey = [...adminReviewsKey, "listing"] as const;
+
+/** One page of one set of filters of the room reviews. Same shape as the landlord one, its own branch. */
+export const adminListingReviewsListKey = (
+  params: ListingFilters & { page: number; pageSize: number },
+) => [...adminListingReviewsKey, "list", params] as const;

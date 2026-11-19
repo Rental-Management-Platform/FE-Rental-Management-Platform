@@ -19,10 +19,12 @@ import {
   AUTHOR_FILTER_LABEL,
   CLEAR_FILTERS,
   FILTERS_LABEL,
+  LISTING_FILTER_LABEL,
   STATUS_FILTER_LABEL,
   STATUS_HIDDEN_BY_ADMIN,
   STATUS_VISIBLE,
   removeAuthorFilterName,
+  removeListingFilterName,
 } from "../admin-reviews-text";
 import {
   adminReviewsHref,
@@ -39,20 +41,25 @@ const STATUS_OPTIONS: readonly { value: StatusFilter; label: string }[] = [
 ];
 
 /**
- * The filter zone above a list (scope #36): the status, the one filter that belongs to the tab
- * (`children`: the landlord select, or the listing chip) and the writer. The status select writes
- * the address at once and goes to page 1, so the filters are shared by sharing the link and Back
- * undoes a select. A writer is set by pressing a name in the table, so here it is a chip with the
- * name that takes the filter off. There is no text under any control. "Xóa bộ lọc" keeps the tab.
+ * The filter zone above a list (scope #36): the status, the one select that belongs to the tab
+ * (`children`: the landlord select on the landlord tab, nothing on the room tab), and the writer
+ * and the listing as chips. The status select writes the address at once and goes to page 1, so the
+ * filters are shared by sharing the link and Back undoes a select. A writer is set by pressing a
+ * name in the table and a listing by the small link under its title, so here each is a chip with
+ * the name that takes the filter off. There is no text under any control. "Xóa bộ lọc" keeps the
+ * tab.
  */
 export function ReviewFilterBar({
   filters,
   authorLabel,
+  listingLabel = "",
   children,
 }: {
   filters: ReviewFilters;
   /** The name of the writer the filter is set to. Ignored while no writer is set. */
   authorLabel: string;
+  /** The title of the listing the filter is set to. Ignored while no listing is set. */
+  listingLabel?: string;
   children?: ReactNode;
 }) {
   const router = useRouter();
@@ -101,6 +108,20 @@ export function ReviewFilterBar({
                 >
                   <span className="max-w-56 truncate">
                     {AUTHOR_FILTER_LABEL}: {authorLabel}
+                  </span>
+                  <XIcon data-icon="inline-end" aria-hidden="true" />
+                </Link>
+              </Button>
+            )}
+            {filters.tab === "listing" && filters.listingId !== null && (
+              <Button asChild variant="outline" size="lg">
+                <Link
+                  href={adminReviewsHref({ ...filters, listingId: null }, 1)}
+                  aria-label={removeListingFilterName(listingLabel)}
+                  scroll={false}
+                >
+                  <span className="max-w-56 truncate">
+                    {LISTING_FILTER_LABEL}: {listingLabel}
                   </span>
                   <XIcon data-icon="inline-end" aria-hidden="true" />
                 </Link>

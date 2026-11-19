@@ -572,3 +572,17 @@ export interface AdminReview {
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
 }
+// GET /moderation/listing-reviews, and the result of hide and unhide (6.41). `:id` of the two routes
+// is the id of the review. `listing.id` is the UUID of the listing and `listing.code` opens its
+// public page.
+export interface AdminListingReview {
+  id: Uuid;
+  status: ReviewStatus;
+  stars: number;
+  comment: string | null;
+  hiddenReason: string | null;
+  author: { id: Uuid; name: string | null };
+  listing: { id: Uuid; code: string; title: string };
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+}

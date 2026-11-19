@@ -1,6 +1,7 @@
+import { listingLabel } from "@/features/admin-listings/admin-listings-text";
 import { authorName } from "@/features/reviews/text";
-import type { AdminReview, Uuid } from "@/lib/api/types";
-import { SELECTED_AUTHOR } from "./admin-reviews-text";
+import type { AdminListingReview, AdminReview, Uuid } from "@/lib/api/types";
+import { SELECTED_AUTHOR, SELECTED_LISTING } from "./admin-reviews-text";
 
 /**
  * What a row of both lists holds in common, so one table and one set of blocks can draw either
@@ -30,4 +31,17 @@ export const filteredAuthorLabel = (
 ): string => {
   const row = rows?.find((candidate) => candidate.author.id === authorId);
   return row === undefined ? SELECTED_AUTHOR : authorName(row.author.name);
+};
+
+/**
+ * The title of the listing a filter is set to, cut when it is long. Same idea as the writer: the
+ * rows hold it, and when the filter leaves no row on the page, or the first read is still running,
+ * the page says only that a listing is chosen.
+ */
+export const filteredListingTitle = (
+  rows: readonly Pick<AdminListingReview, "listing">[] | undefined,
+  listingId: Uuid,
+): string => {
+  const row = rows?.find((candidate) => candidate.listing.id === listingId);
+  return row === undefined ? SELECTED_LISTING : listingLabel(row.listing);
 };
