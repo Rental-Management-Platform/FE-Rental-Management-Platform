@@ -60,7 +60,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 29 | Location pin on listing detail | Slice 6 | done |
 | 38 | My landlord numbers on the account page | Slice 6 | done |
 | 39 | Landlord statistics | Slice 7 | in-progress |
-| 40 | Admin overview statistics | Slice 7 | planned |
+| 40 | Admin overview statistics | Slice 7 | in-progress |
 | 26 | Revenue statistics | Slice 7 | planned |
 
 ## Các nhóm
@@ -72,7 +72,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 10 done, 1 dropped (#16).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33, #38). 10 done.
 * [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 2 done, 5 in-progress, 1 planned.
-* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31, #39 và #40). 1 done, 1 in-progress, 1 planned.
+* [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31, #39 và #40). 1 done, 2 in-progress.
 
 ## Các giai đoạn
 
@@ -105,6 +105,9 @@ Ngoài phạm vi lần này, giữ lại để kế hoạch còn trung thực.
 * **Kết quả tìm tin hiện được khi tắt JavaScript**: danh sách nằm trong khung chờ chỉ hiện khi có script, nên người tắt JavaScript chỉ thấy khung chờ (khoảng trống đã biết của #8, ghi ở `verify.md` của spec 0009); #13 giữ nguyên và cho bộ lọc cần JavaScript; sinh ra từ spec 0009 và 0016 · needs a decision
 * **Hộp thư hai cột trên máy tính**: danh sách cuộc trò chuyện bên trái và nội dung bên phải trên màn hình rộng, trong khi điện thoại vẫn là hai màn riêng (`/tin-nhan` và `/tin-nhan/[id]`); sinh ra từ #34 · needs a decision
 * **Tự biến liên kết trong tin nhắn thành bấm được**: tin chat hiện là chữ thô nên người dùng phải tự chép liên kết; muốn bấm được thì chỉ cho `http` và `https`, thêm `rel="noopener noreferrer"`, tuyệt đối không dùng HTML, và cần một quyết định riêng về an toàn; sinh ra từ spec 0012 · needs a decision
+* **Liên kết từ số tài khoản bị khóa sang danh sách người dùng đã lọc**: ở khối "Tài khoản" của tổng quan admin, số "bị khóa" bấm vào mở `/admin/users` đã lọc theo trạng thái khóa (hợp đồng nói các số này bằng `total` của `GET /users` với cùng bộ lọc); #40 cố ý chỉ cho dải "Cần xử lý" có liên kết; sinh ra từ spec 0025 · needs a decision
+* **Nút "Đọc lại" và giờ đọc ở tổng quan admin**: #40 giữ kết quả 5 phút và không đọc lại khi lấy lại tiêu điểm vì máy chủ chậm khoảng 3 giây; nếu admin cần số mới ngay trong 5 phút đó thì thêm nút kèm giờ đọc cạnh thanh khoảng ngày; sinh ra từ spec 0025 · needs a decision
+* **Ghi chú "Biểu đồ" trong `design.md`**: `design.md` chưa có luật nào cho biểu đồ; spec 0024 chốt một đường màu `primary` trên vùng nhạt, spec 0025 thêm đường thứ hai nét đứt màu `info` kèm chú thích, không hiệu ứng chuyển động, lưới lấy từ `border`; cần một ghi chú ngắn để trang thứ ba (#26) theo cùng kiểu; sinh ra từ spec 0024 và 0025 · needs a decision
 * **Backend đã bỏ khỏi kế hoạch, đừng làm**: duyệt tin trước khi hiện, VNPay, xác thực chủ trọ bằng giấy tờ, báo cáo tin xấu, liên hệ chủ trọ có giới hạn mỗi ngày, đẩy tin và tin nổi bật, kiểm tra tại chỗ, quảng cáo, dashboard thu chi, tìm quanh một địa điểm, đổi loại tài khoản.
 
 ## Legend
