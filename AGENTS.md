@@ -79,7 +79,7 @@ Stored in `docs/specs/`, one folder per decision: `docs/specs/NNNN-title/index.m
 
 MCP servers: figma (connected), next-devtools-mcp (recommended), shadcn (recommended)
 
-Declined: `emilkowalski/skills@ask-sonner`, `addyosmani/web-quality-skills@accessibility`
+Declined: `emilkowalski/skills@ask-sonner`, `addyosmani/web-quality-skills@accessibility`, `recharts` (no skill or MCP search, the chart rules are in `src/components/stats/AGENTS.md`)
 
 ## Context files
 
@@ -87,5 +87,8 @@ Declined: `emilkowalski/skills@ask-sonner`, `addyosmani/web-quality-skills@acces
 - [src/lib/AGENTS.md](src/lib/AGENTS.md): API client, session, form helpers, env and formatters
 - [src/app/dev/AGENTS.md](src/app/dev/AGENTS.md): developer only pages (`/dev/ui`, sample screens, session lab), a 404 in production
 - [src/features/reviews/AGENTS.md](src/features/reviews/AGENTS.md): the shared core of landlord reviews and room reviews, and how a subject plugs into it
+- [src/components/stats/AGENTS.md](src/components/stats/AGENTS.md): the shared pieces of the statistics screens (range bar, number card, change note, daily chart and its table)
+- [src/features/landlord-stats/AGENTS.md](src/features/landlord-stats/AGENTS.md): the landlord overview on `/landlord` (`GET /me/statistics`)
+- [src/features/admin-stats/AGENTS.md](src/features/admin-stats/AGENTS.md): the admin overview on `/admin` (`GET /statistics/overview`)
 
 _Drafted by /audit from the repo, worth a quick human pass. Edit freely: once a line stops matching this draft, later runs treat it as curated and will flag rather than overwrite it._
