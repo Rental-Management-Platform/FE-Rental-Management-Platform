@@ -47,9 +47,6 @@ export function OrderRowCards({
           </div>
           <p className="text-sm text-muted-foreground">
             Tạo ngày {formatDateTime(order.createdAt)}
-            {order.status === "paid" && order.startsAt && order.endsAt
-              ? ` · Kỳ gói ${formatDateTime(order.startsAt)} đến ${formatDateTime(order.endsAt)}`
-              : null}
           </p>
           <OrderRowActions order={order} size="lg" onCancel={onCancel} />
         </li>

@@ -37,7 +37,7 @@ export function ReviewCards<Row extends ReviewRow>({
             <StarRating value={review.stars} />
             <ReviewStatus review={review} />
           </div>
-          <ReviewComment comment={review.comment} />
+          <ReviewComment comment={review.comment} clamp />
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
             <dt className="text-muted-foreground">{COLUMN_AUTHOR}</dt>
             <dd className="min-w-0">{author(review)}</dd>

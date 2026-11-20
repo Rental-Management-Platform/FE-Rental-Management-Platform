@@ -75,6 +75,9 @@ export function LandlordReviewsZone({
         authorName(review.author.name),
         review.landlord.name?.trim() || NO_NAME,
       )}
+      author={authorName(review.author.name)}
+      subjectLabel={COLUMN_LANDLORD}
+      subject={review.landlord.name?.trim() || NO_NAME}
       size={size}
       onHide={moderation.ask}
       onUnhide={moderation.ask}

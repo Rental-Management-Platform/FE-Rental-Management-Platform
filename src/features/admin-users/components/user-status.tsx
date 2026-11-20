@@ -1,21 +1,17 @@
 import { CheckIcon, LockIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { AdminUserListItem } from "@/lib/api/types";
-import {
-  STATUS_ACTIVE,
-  STATUS_LOCKED,
-  lockedReasonLine,
-} from "../admin-users-text";
+import { STATUS_ACTIVE, STATUS_LOCKED } from "../admin-users-text";
 
 /**
- * The status of an account: words with an icon, never color alone. A locked account also shows
- * its whole `lockedReason`, wrapped inside the cell, because the reason is what an admin needs to
- * decide about an unlock. The reason is the text one admin typed, so it is shown as plain text.
+ * The status of an account: words with an icon, never color alone. It is only the badge. The
+ * reason an admin gave when locking is read in "Xem chi tiết" (`UserRowActions`), so a locked row
+ * is as tall as an active one.
  */
 export function UserStatus({
   user,
 }: {
-  user: Pick<AdminUserListItem, "status" | "lockedReason">;
+  user: Pick<AdminUserListItem, "status">;
 }) {
   if (user.status === "active") {
     return (
@@ -26,16 +22,9 @@ export function UserStatus({
     );
   }
   return (
-    <div className="flex flex-col items-start gap-1">
-      <Badge variant="destructive">
-        <LockIcon data-icon="inline-start" aria-hidden="true" />
-        {STATUS_LOCKED}
-      </Badge>
-      {user.lockedReason !== null && (
-        <p className="max-w-64 text-sm break-words whitespace-normal">
-          {lockedReasonLine(user.lockedReason)}
-        </p>
-      )}
-    </div>
+    <Badge variant="destructive">
+      <LockIcon data-icon="inline-start" aria-hidden="true" />
+      {STATUS_LOCKED}
+    </Badge>
   );
 }

@@ -5,7 +5,7 @@ import type { AdminUserListItem } from "@/lib/api/types";
 
 /** What one row offers to the person looking at it. */
 export interface RowActions {
-  /** The row is the viewer's own account: no button, only the words "Tài khoản của bạn". */
+  /** The row is the viewer's own account: no button, and "Xem chi tiết" says why. */
   mine: boolean;
   /** "Khóa", `user:lock`: an active account of another person. */
   lock: boolean;

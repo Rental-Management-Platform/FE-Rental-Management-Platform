@@ -42,7 +42,17 @@ export const STATUS_ACTIVE = "Đang hoạt động";
 
 export const STATUS_LOCKED = "Đã khóa";
 
-export const lockedReasonLine = (reason: string) => `Lý do: ${reason}`;
+// The dialog of "Xem chi tiết". A row shows only the short status; the reason an admin typed when
+// locking the account is read here, so no row grows taller than the others.
+
+export const DETAIL_TITLE = "Chi tiết người dùng";
+
+export const LOCK_REASON_LABEL = "Lý do khóa";
+
+export const NO_LOCK_REASON = "Không có lý do";
+
+export const MY_ACCOUNT_NOTE =
+  "Đây là tài khoản của bạn. Bạn không tự khóa hay thu hồi phiên của mình ở đây.";
 
 // The filter zone. The search box has a label and a placeholder and nothing under it.
 

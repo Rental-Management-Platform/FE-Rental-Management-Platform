@@ -1,3 +1,4 @@
+import { OrderDetail } from "@/features/order/components/order-detail";
 import { OrderStatusBadge } from "@/features/order/components/order-status-badge";
 import { priceLine } from "@/features/order/order-text";
 import type { AdminOrder } from "@/lib/api/types";
@@ -7,7 +8,7 @@ import { LandlordCell } from "./landlord-cell";
 /**
  * The list below `md` (scope #25): each order is a block that stacks. The blocks sit inside the
  * zone and are told apart by a hairline, never by a card of their own, because a card never sits
- * inside another card. It shows the same values as the table.
+ * inside another card. It shows the same values as the table, and "Xem chi tiết" holds the rest.
  */
 export function AdminOrderCards({
   rows,
@@ -40,10 +41,10 @@ export function AdminOrderCards({
           </div>
           <p className="text-sm text-muted-foreground">
             Tạo ngày {formatDateTime(order.createdAt)}
-            {order.status === "paid" && order.startsAt && order.endsAt
-              ? ` · Kỳ gói ${formatDateTime(order.startsAt)} đến ${formatDateTime(order.endsAt)}`
-              : null}
           </p>
+          <div>
+            <OrderDetail order={order} landlord={order.landlord} size="lg" />
+          </div>
         </li>
       ))}
     </ul>

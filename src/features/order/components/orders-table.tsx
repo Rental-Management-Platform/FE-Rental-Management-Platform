@@ -20,7 +20,7 @@ import { OrderStatusBadge } from "./order-status-badge";
 /**
  * The table of the history from `md` up (spec 0022, AC-15). It runs edge to edge in its zone. Every
  * value is the order's own field, in the order the API gave: the front end sorts nothing and
- * computes no end of a period. The period shows for a paid order only.
+ * computes no end of a period. The period of a paid order is read in "Xem chi tiết".
  */
 export function OrdersTable({
   rows,
@@ -40,7 +40,6 @@ export function OrdersTable({
           <TableHead>Gói</TableHead>
           <TableHead>Trạng thái</TableHead>
           <TableHead>Ngày tạo đơn</TableHead>
-          <TableHead>Kỳ gói</TableHead>
           <TableHead>Thao tác</TableHead>
         </TableRow>
       </TableHeader>
@@ -73,11 +72,6 @@ export function OrdersTable({
               <OrderStatusBadge status={order.status} />
             </TableCell>
             <TableCell>{formatDateTime(order.createdAt)}</TableCell>
-            <TableCell className="tabular-nums">
-              {order.status === "paid" && order.startsAt && order.endsAt
-                ? `${formatDateTime(order.startsAt)} đến ${formatDateTime(order.endsAt)}`
-                : null}
-            </TableCell>
             <TableCell>
               <OrderRowActions order={order} size="sm" onCancel={onCancel} />
             </TableCell>

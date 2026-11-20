@@ -55,6 +55,31 @@ export const CODE_LABEL = "Mã đơn";
 
 export const CREATED_LABEL = "Ngày tạo đơn";
 
+// The dialog of "Xem chi tiết" on a row of the history. A row shows the code, the plan, the status
+// and the day; the rest of the order is read here, so no row grows wider than the others.
+
+export const ORDER_DETAIL_TITLE = "Chi tiết đơn";
+
+export const DETAIL_PLAN_LABEL = "Gói";
+
+export const DETAIL_PRICE_LABEL = "Giá";
+
+export const DETAIL_LIMIT_LABEL = "Số tin";
+
+export const DETAIL_STATUS_LABEL = "Trạng thái";
+
+export const DETAIL_PAID_LABEL = "Thanh toán lúc";
+
+export const DETAIL_CANCELLED_LABEL = "Đã hủy lúc";
+
+export const DETAIL_PERIOD_LABEL = "Kỳ gói";
+
+export const DETAIL_LANDLORD_LABEL = "Chủ trọ";
+
+/** The period of a paid plan: "từ 01/11/2026 08:00 đến hết 01/12/2026 08:00". */
+export const periodSpan = (startsAt: IsoDateTime, endsAt: IsoDateTime) =>
+  `từ ${formatDateTime(startsAt)} đến hết ${formatDateTime(endsAt)}`;
+
 export const PAYMENT_TITLE = "Thanh toán";
 
 /** Said before the press, on every pending order (AC-4). */

@@ -7,6 +7,8 @@
 
 Spec này thêm hai danh sách vào khu chủ trọ: "Nhà trọ của tôi" và "Tin của tôi". Từ đó chủ trọ lọc tin theo trạng thái, ẩn, hiện, sửa và xóa tin, sửa và xóa nhà trọ. Biểu mẫu sửa nhà trọ dùng lại các ô của #6, #11 và #33 và chỉ gửi những gì đã đổi. Hai thẻ dashboard tương ứng được bật, và các việc mà spec cũ để lại cho #12 được xử lý luôn.
 
+
+> **Sửa ngày 2026-11-20 (không có spec riêng, theo yêu cầu của chủ dự án)**: dòng của "Nhà trọ của tôi" và "Tin của tôi" chỉ còn tên, trạng thái ngắn và các nút. Lý do admin ẩn tin, nguyên nhân tin chưa hiện với khách, câu "Liên hệ quản trị viên để tin được hiện lại" và câu "Hãy xóa các tin của nhà trọ này trước" (kèm đường dẫn "Tin của tôi") chuyển vào hộp "Xem chi tiết" của dòng (`RowDetail` trong `src/components/detail/`, nút biểu tượng ở cả bảng và khối trên điện thoại). Nút xóa của nhà trọ còn tin vẫn tắt, và trình đọc màn hình vẫn nghe được lý do qua `aria-describedby`. Thông báo về lần ghi gần nhất dưới dòng (`RowNotice`) không đổi.
 ## Requirements
 
 Seeded from scope item #12 and refined with the engineer. Contract with the backend: `api-for-frontend.md` mục 6.17 (nhà trọ), 6.21 đến 6.23 (tin của tôi, sửa và xóa, ẩn và hiện) và mục 7 ("Quản lý nhà trọ", "Đăng và quản lý tin"). Patterns to follow: spec 0006 (biểu mẫu tin, `ListingStatusBadge`, định dạng), spec 0007 (hộp xác nhận xóa với `useReturnFocus`), spec 0008 (danh sách công cụ của khu chủ trọ), spec 0011 (ghim vị trí và luật đổi phường), spec 0015 (ô chọn phường), spec 0017 (vùng phí và tiện ích), và #14 yêu thích (khóa nút, không đổi trước, focus về tiêu đề khi một hàng biến; chỉ có dòng trong scope, không có spec).

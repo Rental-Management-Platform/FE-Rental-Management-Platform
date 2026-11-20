@@ -63,7 +63,15 @@ export const STATUS_VISIBLE = "Đang hiện";
 
 export const STATUS_HIDDEN_BY_ADMIN = "Admin đã ẩn";
 
-export const hiddenReasonLine = (reason: string) => `Lý do: ${reason}`;
+// The dialog of "Xem chi tiết". A row shows only the short status and the first lines of the
+// comment; the whole comment and the reason an admin typed when hiding the review are read here, so
+// no row grows taller than the others.
+
+export const DETAIL_TITLE = "Chi tiết đánh giá";
+
+export const HIDDEN_REASON_LABEL = "Lý do ẩn";
+
+export const NO_REASON = "Không có lý do";
 
 // The buttons of a row. Every name says whose review it is and about what, so a screen reader that
 // lists the buttons of the page can tell them apart.

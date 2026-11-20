@@ -71,7 +71,7 @@ export const COLUMN_STATUS = "Trạng thái";
 
 export const COLUMN_CREATED = "Ngày tạo đơn";
 
-export const COLUMN_PERIOD = "Kỳ gói";
+export const COLUMN_ACTIONS = "Thao tác";
 
 export const STATUS_NAV_LABEL = "Lọc đơn theo trạng thái";
 

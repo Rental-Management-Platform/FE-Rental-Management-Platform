@@ -9,6 +9,8 @@ This spec adds the admin page `/admin/users`. An admin can find an account, lock
 
 > **Amended 2026-11-20 by [0025](../0025-admin-overview-statistics/index.md)**: a lock or an unlock (and the hide and unhide of listings and reviews that use the same dialog) marks `adminStatsKey` (`["admin-stats"]`) out of date, read again when the admin next opens `/admin`, in place of `dashboardKey`. The admin cards that showed the locked count are gone; the overview strip and the accounts zone show it now.
 
+
+> **Amended 2026-11-20 (no spec of its own, at the engineer's request)**: a row of the users table shows only the status badge. The reason an admin gave when locking, and the marker "Tài khoản của bạn" of the viewer's own row, are read in "Xem chi tiết" (`RowDetail`), which every row has next to its first button. The same rule applies to the listing and review moderation lists (#21, #36): the reason of a hide is in "Xem chi tiết", and a comment is cut to two lines on the row.
 ## Context
 
 > ⚠️ Premise note: scope item #20 is named "Admin shell and users" and says it defines the table and filter pattern. The shell and that pattern already exist: the admin frame came with #31, and the table, the filters kept in the address and the shared dialog came with #25, #22 and #23, which were built first. So this spec does not build a shell and does not invent a second table pattern. What #20 still has to define is the users page and the reason dialog. Also, the "Done when" line says a 403 `ACCOUNT_LOCKED` or a 401 sends the admin to sign in. The session layer already does that for every call that carries a token (`endReasonForTokenCall`), so the page adds nothing for it.

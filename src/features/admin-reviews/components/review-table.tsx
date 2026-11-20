@@ -66,7 +66,7 @@ export function ReviewTable<Row extends ReviewRow>({
               <StarRating value={review.stars} />
             </TableCell>
             <TableCell className="max-w-96 min-w-48 align-top whitespace-normal">
-              <ReviewComment comment={review.comment} />
+              <ReviewComment comment={review.comment} clamp />
             </TableCell>
             <TableCell className="max-w-48 align-top">
               {author(review)}

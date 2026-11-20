@@ -59,8 +59,9 @@ import { UsersTable } from "./users-table";
 const HEADING_ID = RESULTS_HEADING_ID;
 
 /**
- * "Người dùng" (scope #20, `GET /users`): every account with its type, its status and, for a
- * locked one, the reason, with a search box, a type filter, a status filter and the page links.
+ * "Người dùng" (scope #20, `GET /users`): every account with its type and its status, and a
+ * "Xem chi tiết" on each row that holds the rest, such as the reason of a lock, with a search box, a
+ * type filter, a status filter and the page links.
  * It runs in the browser, because the list needs a login, and sits behind the route gate of the
  * admin. The filters, the search text and the page are the query of the address, so the page reads
  * `useSearchParams` and its route keeps it inside a `<Suspense>` boundary.

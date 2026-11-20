@@ -16,6 +16,7 @@ import { listingPath } from "@/lib/listing-path";
 import { useCountdown } from "@/lib/use-countdown";
 import { editListingHref } from "../listing-filter";
 import type { RowUi } from "../row-ui";
+import { ListingRowDetail } from "./listing-row-detail";
 
 interface RowActionsProps {
   listing: OwnerListingSummary;
@@ -57,11 +58,9 @@ export function RowActions({
       }
     >
       <Can permission="listing:update">
-        {listing.status === "hidden_by_admin" ? (
-          <p className="max-w-48 text-sm whitespace-normal text-muted-foreground">
-            Liên hệ quản trị viên để tin được hiện lại.
-          </p>
-        ) : (
+        {/* A listing an admin hid has no toggle: the owner cannot show it again, and "Xem chi
+            tiết" says why and how to get it back. */}
+        {listing.status !== "hidden_by_admin" && (
           <Button
             type="button"
             variant="outline"
@@ -104,6 +103,7 @@ export function RowActions({
           </Link>
         </Button>
       )}
+      <ListingRowDetail listing={listing} size={size} />
       <Can permission="listing:delete">
         <Button
           type="button"

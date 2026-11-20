@@ -82,6 +82,9 @@ export function ListingReviewsZone({
         authorName(review.author.name),
         listingLabel(review.listing),
       )}
+      author={authorName(review.author.name)}
+      subjectLabel={COLUMN_LISTING}
+      subject={listingLabel(review.listing)}
       size={size}
       onHide={moderation.ask}
       onUnhide={moderation.ask}

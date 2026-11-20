@@ -15,8 +15,11 @@ interface ListingStatusBadgeProps {
   status: ListingStatus;
   /** From the same answer as `status`: a `visible` listing can still be held back from guests. */
   isPublic: boolean;
-  /** A table cell: the reason line under a held back listing is one short sentence. */
-  compact?: boolean;
+  /**
+   * Whether the sentence under a held back listing is drawn. A row of a list leaves it out (it is
+   * only the badge) and "Xem chi tiết" shows it; a page about one listing keeps it.
+   */
+  showReason?: boolean;
   /**
    * Why a held back listing is held back, read from the shared membership (`useHoldBackCause`).
    * `null` or absent when it is not known, and the reason line then names both causes.
@@ -33,7 +36,7 @@ interface ListingStatusBadgeProps {
 export function ListingStatusBadge({
   status,
   isPublic,
-  compact = false,
+  showReason = true,
   cause = null,
 }: ListingStatusBadgeProps) {
   if (status === "visible" && isPublic) {
@@ -51,19 +54,13 @@ export function ListingStatusBadge({
           <TriangleAlertIcon data-icon="inline-start" />
           Đang bị ẩn bớt khỏi khách
         </Badge>
-        <p
-          className={
-            compact
-              ? "max-w-56 text-sm whitespace-normal text-muted-foreground"
-              : "max-w-md text-sm text-muted-foreground"
-          }
-        >
-          {cause !== null
-            ? HOLD_BACK_LINE[cause]
-            : compact
-              ? "Khách chưa thấy tin này: vượt hạn mức hoặc hết dùng thử."
+        {showReason && (
+          <p className="max-w-md text-sm text-muted-foreground">
+            {cause !== null
+              ? HOLD_BACK_LINE[cause]
               : "Tin vẫn tính vào số tin đang hiện nhưng khách chưa thấy, vì vượt hạn mức hoặc hết dùng thử."}
-        </p>
+          </p>
+        )}
       </div>
     );
   }

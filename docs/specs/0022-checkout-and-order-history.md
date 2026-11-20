@@ -7,6 +7,8 @@
 
 This spec adds the two landlord pages that finish buying a plan. The order page at `/landlord/orders/[id]` shows what is being bought and lets the landlord confirm it with a test payment or cancel it. The history at `/landlord/orders` lists every order by status. After a test payment the same page turns into the paid result, and the status strip, the dashboard and the pricing page read fresh data. Today a press on "Mua" ends on the 404 page, and this spec removes that gap.
 
+
+> **Amended 2026-11-20 (no spec of its own, at the engineer's request)**: a row of the history (AC-15) no longer has the "Kỳ gói" column or the period text in the stacked block. Every row, whatever its status, gets "Xem chi tiết" with the plan, price, limit, status, the dates of creation, payment and cancel, and the period of a paid order. The buttons "Tiếp tục thanh toán" and "Hủy" are unchanged. The admin list of every landlord's orders (#25) follows the same rule and gains a "Thao tác" column with "Xem chi tiết" only.
 ## Context
 
 > ⚠️ Premise note: The scope says "hủy đơn đã trả báo `ORDER_STATE_INVALID`", but the page never shows a cancel button on a paid order, so that error can only reach a person through a second browser tab (paid in one tab, cancel pressed in the other). Test it with two tabs, not with a button. The test payment is only a click: no card data is read or sent, so no compliance scope applies.

@@ -1,23 +1,17 @@
 import { CheckIcon, ShieldAlertIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ReviewRow } from "../review-row";
-import {
-  STATUS_HIDDEN_BY_ADMIN,
-  STATUS_VISIBLE,
-  hiddenReasonLine,
-} from "../admin-reviews-text";
+import { STATUS_HIDDEN_BY_ADMIN, STATUS_VISIBLE } from "../admin-reviews-text";
 
 /**
- * The status of a review: words with an icon, never color alone. A review an admin hid also shows
- * its whole `hiddenReason`, wrapped inside the cell, because the reason is what an admin needs to
- * decide about an unhide. The reason is the text an admin typed, so it is shown as plain text. It is
- * only set while the status is `hidden_by_admin` (api 6.40), so it is never shown for a review that
- * shows.
+ * The status of a review: words with an icon, never color alone. It is only the badge. The reason
+ * an admin gave when hiding is read in "Xem chi tiết" (`ReviewRowActions`), so a hidden row is as
+ * tall as a visible one.
  */
 export function ReviewStatus({
   review,
 }: {
-  review: Pick<ReviewRow, "status" | "hiddenReason">;
+  review: Pick<ReviewRow, "status">;
 }) {
   if (review.status === "visible") {
     return (
@@ -28,16 +22,9 @@ export function ReviewStatus({
     );
   }
   return (
-    <div className="flex flex-col items-start gap-1">
-      <Badge variant="destructive">
-        <ShieldAlertIcon data-icon="inline-start" aria-hidden="true" />
-        {STATUS_HIDDEN_BY_ADMIN}
-      </Badge>
-      {review.hiddenReason !== null && (
-        <p className="max-w-64 text-sm break-words whitespace-normal">
-          {hiddenReasonLine(review.hiddenReason)}
-        </p>
-      )}
-    </div>
+    <Badge variant="destructive">
+      <ShieldAlertIcon data-icon="inline-start" aria-hidden="true" />
+      {STATUS_HIDDEN_BY_ADMIN}
+    </Badge>
   );
 }

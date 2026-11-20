@@ -7,6 +7,8 @@
 
 This spec adds a status strip at the top of "Tin của tôi" and "Đăng tin mới". It tells a landlord whether they are on a trial, on a plan, or out of both, and how many listings they show out of how many they may. It also turns the two refusals (trial ended, limit reached) into calm warnings with a way out, at the row and in the post form, instead of a bare line or a red error. One shared read of `GET /me/membership` feeds the strip, the "why is this listing hidden" line and the dashboard cards, and it is read again after every write that can change the count. The "Mua gói" button points at `/bang-gia` through one constant, a route that #18 creates.
 
+
+> **Amended 2026-11-20 (no spec of its own, at the engineer's request)**: the sentence under the status of a held back listing in a row of "Tin của tôi" (AC-10) no longer sits on the row. The row shows only the badge, and "Xem chi tiết" shows the status with its cause, read from the same shared membership. Pages about one listing (edit, created) keep the sentence.
 ## Context
 
 The backend gates posting and showing a listing by the landlord's membership (a plan, a trial, or neither) and says so with two 403 codes, `MEMBERSHIP_REQUIRED` and `LISTING_QUOTA_REACHED`. The contract (`api-for-frontend.md`, section 6.25 and section 7 step 0 and step 6) asks the front end to show the state before the landlord hits a wall, to treat the two refusals as messages and not as system errors, and never to work out days or limits itself.

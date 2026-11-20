@@ -50,7 +50,16 @@ export const STATUS_HIDDEN_BY_OWNER = "Chủ trọ đã ẩn";
 
 export const STATUS_HIDDEN_BY_ADMIN = "Admin đã ẩn";
 
-export const moderationReasonLine = (reason: string) => `Lý do: ${reason}`;
+// The dialog of "Xem chi tiết". A row shows only the short status; the reason an admin typed when
+// hiding the listing, and the full address, are read here, so no row grows taller than the others.
+
+export const DETAIL_TITLE = "Chi tiết tin";
+
+export const ADDRESS_LABEL = "Địa chỉ";
+
+export const MODERATION_REASON_LABEL = "Lý do ẩn";
+
+export const NO_REASON = "Không có lý do";
 
 // The filter zone. The search box has a label and a placeholder and nothing under it.
 
