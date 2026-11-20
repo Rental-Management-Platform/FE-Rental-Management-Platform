@@ -95,7 +95,14 @@ quyết định khi xây (không có spec): địa chỉ `/admin/orders`; trang 
 
 Trước đây #26 nằm ở Slice 5. Từ 2026-11-20 nó chuyển sang Slice 7 cùng #39 và #40 (ở [dashboard](dashboard.md)), vì ba trang dùng chung một cách vẽ biểu đồ và một ô chọn khoảng ngày, chốt ở #39.
 
-### 26. Revenue statistics · needs a decision
+### 26. Revenue statistics
 Trang doanh thu từ `GET /orders/revenue`: ô tổng, doanh thu theo gói, biểu đồ theo ngày hoặc tháng. Chuỗi trả về thưa nên tự điền 0 cho ngày hay tháng trống. Ghi chú vì sao con số có thể khác ô tổng ở màn đơn (ngày trả so với ngày tạo). Dùng lại cách vẽ biểu đồ và ô chọn khoảng ngày đã chốt ở #39, nên làm sau #39 và #40.
 **Done when:** chọn khoảng ngày và cách gom thì biểu đồ và bảng cập nhật, ngày trống là 0, ba tổng khớp nhau, nhãn thanh toán thử và ghi chú về hai loại ngày hiển thị.
-- [ ] Design it (spec): `/architect revenue statistics`
+- [x] Design it (spec): `/architect revenue statistics`
+- [ ] Build it: `/develop revenue statistics`
+  - [x] M1 Sợi chỉ mỏng: trang `/admin/revenue` và mục "Doanh thu" trong menu, truy vấn `["admin-revenue", {from, to, groupBy}]` luôn gửi rõ từ ngày, đến ngày và cách gom, ô kiểm quyền `order:report`, khung chờ, thanh khoảng ngày dùng chung, hai thẻ tổng kèm ghi chú thanh toán thử và hai loại ngày, biểu đồ doanh thu theo ngày với bảng chữ và dòng "Tổng", kiểm trên trang thật với backend demo (AC-1 đến AC-6, AC-7 phần doanh thu theo ngày, AC-8, AC-9, AC-11)
+  - [ ] M2 Đủ cách xem: công tắc "Theo ngày" và "Theo tháng" trong địa chỉ, điền tháng trống, nhãn `MM/yyyy` và ghi chú tháng đầu và cuối, tab "Đơn đã trả", khối "Theo gói" có thanh và dòng "Tổng", các thuộc tính tùy chọn của biểu đồ và bảng dùng chung, kiểm lại `/landlord` và `/admin` (AC-2, AC-3, AC-7 đến AC-11, AC-15)
+  - [ ] M3 Trạng thái và lỗi: lỗi (mạng và 5xx, 429, 400, 403), ô kiểm quyền, "Đang cập nhật số liệu", khoảng không có đơn nào (AC-1, AC-4, AC-12, AC-13)
+  - [ ] M4 Hoàn thiện: kiểm ở 320, 390, 768 và 1280 px, thứ tự tiêu đề, bàn phím, ghi chú vào spec 0024 và 0025, `npm run check` và `npm run build` (AC-14 đến AC-16)
+- [ ] Verify it: `/check verify revenue statistics`
+spec [0026](../specs/0026-revenue-statistics/index.md) · Chọn: một trang `/admin/revenue` từ một lần gọi `GET /orders/revenue` cho mỗi cách xem, luôn gửi rõ từ ngày, đến ngày và cách gom vì API hiểu không gửi ngày là toàn bộ thời gian; khoảng ngày và `groupBy=month` nằm trong địa chỉ, mặc định là 30 ngày gần nhất theo ngày, giới hạn 366 ngày như hai trang thống kê kia; hai thẻ tổng kèm một ghi chú về ngày trả khác ngày tạo, biểu đồ hai tab (doanh thu và số đơn đã trả) với bảng chữ, ngày hay tháng trống được điền 0, khối theo gói có thanh so với gói lớn nhất; ba tổng là cùng một số của API và trang không cộng gì; mọi số tiền ghi là thanh toán thử; trục tiền hiện số đầy đủ trên trục rộng hơn; kết quả tươi 1 phút và đọc lại khi lấy lại tiêu điểm; `/admin` vẫn không có số tiền; ô chọn khoảng ngày, thẻ số, biểu đồ và bảng dùng chung chỉ thêm vài thuộc tính tùy chọn (`grain`, `yAxisWidth`, `yFloor`, cột có định dạng và dòng cuối của bảng). Code in `src/features/admin-revenue/`, `src/components/stats/`, `src/app/(admin)/admin/revenue/page.tsx`.
