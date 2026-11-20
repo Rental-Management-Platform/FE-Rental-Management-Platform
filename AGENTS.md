@@ -90,5 +90,6 @@ Declined: `emilkowalski/skills@ask-sonner`, `addyosmani/web-quality-skills@acces
 - [src/components/stats/AGENTS.md](src/components/stats/AGENTS.md): the shared pieces of the statistics screens (range bar, number card, change note, daily chart and its table)
 - [src/features/landlord-stats/AGENTS.md](src/features/landlord-stats/AGENTS.md): the landlord overview on `/landlord` (`GET /me/statistics`)
 - [src/features/admin-stats/AGENTS.md](src/features/admin-stats/AGENTS.md): the admin overview on `/admin` (`GET /statistics/overview`)
+- [src/features/admin-revenue/AGENTS.md](src/features/admin-revenue/AGENTS.md): the revenue page on `/admin/revenue` (`GET /orders/revenue`)
 
 _Drafted by /audit from the repo, worth a quick human pass. Edit freely: once a line stops matching this draft, later runs treat it as curated and will flag rather than overwrite it._

@@ -16,7 +16,7 @@ The admin overview on `/admin` ([spec 0025](../../../docs/specs/0025-admin-overv
 - An admin lock, unlock, hide or unhide marks `adminStatsKey` out of date (`use-lock-flow.ts`, `use-moderation-flow.ts`, `use-review-moderation.ts`), and the overview reads again when the admin opens `/admin`. Do the same for any new write that changes an overview number.
 - What ignores the range (the strip and the three state zones) sits above `RangeBar`, and what follows it sits below. When a range fails, the part below becomes one failure state and the part above stays from the kept answer.
 - A strip row is a link only when the session holds the permission of the matching `ADMIN_TOOLS` entry (`moderation` or `reviews`), read from that entry and not typed again.
-- These counts include hidden rows and locked accounts, so never set them beside a landlord's own numbers as one figure. The page shows no money until #26.
+- These counts include hidden rows and locked accounts, so never set them beside a landlord's own numbers as one figure. The page shows no money: the money numbers are on `/admin/revenue` (`src/features/admin-revenue/`).
 - No arithmetic on the answer: never add the two lines of a tab, the two review cards or the ward rows.
 
 _Drafted by /sync from the introducing change, worth a quick human pass._
