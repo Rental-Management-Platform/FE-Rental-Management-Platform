@@ -46,7 +46,8 @@ export const getAdminStats = (
  * of the range before stays on screen as placeholder data while a new range loads
  * (`isPlaceholderData`). The rest is the project default: it reads again when the screen mounts
  * and the answer is out of date, keeps the entry for the default `gcTime`, and retries once for a
- * network error or a 5xx.
+ * network error or a gateway error (502, 503, 504), as `shouldRetryQuery` decides. A plain 500 is
+ * not retried.
  */
 export const adminStatsQuery = (api: ApiClient, range: DateRange | null) =>
   queryOptions({

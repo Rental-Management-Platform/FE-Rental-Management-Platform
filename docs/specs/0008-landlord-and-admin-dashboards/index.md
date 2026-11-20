@@ -9,6 +9,8 @@ This feature gives each work area a real home page: `/landlord` for landlords an
 
 > **Amended 2026-11-20 by [0024](../0024-landlord-statistics/index.md)**: the landlord half of this dashboard is replaced by the landlord statistics screen. The tool cards of `/landlord` and the numbers on them (AC-2, AC-3, AC-7, AC-8, AC-10 and AC-11 as they apply to the landlord) go. What stays: the tool list and the side menu (AC-5, AC-12), the sign in redirect (AC-13), the account links (AC-14) and the whole admin half until #40 replaces it.
 
+> **Amended 2026-11-20 by [0025](../0025-admin-overview-statistics/index.md)**: the admin half of this dashboard is replaced by the admin overview statistics screen. The tool cards of `/admin`, their number sources, `ToolGrid`, `describeStat` and the whole of `src/features/dashboard` are deleted. In `workspace-tools.ts` the `stat`, `group` and `description` fields of `Tool`, `StatKey`, `ToolGroup`, `groupTools` and `visibleTools` are gone too, since nothing else read them; `ADMIN_NAV` and `LANDLORD_NAV` are unchanged. What stays: the tool list that draws the side menu (AC-5, AC-12), the sign in redirect (AC-13) and the account links (AC-14). The side menu is now the only way into the tools of both areas.
+
 ## Requirements
 
 Seeded from scope item #31 and refined with the engineer. Contract with the backend: `api-for-frontend.md` sections 2 (pagination), 5, 6.25, 6.29, 6.34, 6.38 and 7 ("Hiển thị theo quyền"). Patterns to follow: spec 0003 (shells, nav configs), spec 0004 (zones and item cards), spec 0005 (the gate and the sign in redirect), spec 0006 (`src/features/<name>` layout, `queryOptions` factories).

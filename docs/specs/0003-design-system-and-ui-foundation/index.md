@@ -9,6 +9,8 @@ The first two milestones (M1 and M2) draw the design tokens (named values for co
 
 > **Amended 2026-11-20 by [0024](../0024-landlord-statistics/index.md)**: the shared components gain `chart` (shadcn, on recharts, with `react-is`) and the shared statistics pieces in `src/components/stats/`. Edits after adding the generated file: the dark selector of the chart styles is gone (no dark theme), the focus ring is drawn on the chart box when its surface takes keyboard focus, the tooltip uses the `popover` tokens, and the tooltip number goes through `formatCount`.
 
+> **Amended 2026-11-20 by [0025](../0025-admin-overview-statistics/index.md)**: the "dashboard cards" section of `/dev/ui` is removed together with the code it showed (`src/features/dashboard`, the admin tool cards), and `src/app/dev/ui/page.tsx` no longer mounts it. `TrendAreaChart` and `TrendChart` in `src/components/stats/` take one or two lines (`lines`) in place of the single series props; the second line is `info`, dashed, with a legend.
+
 ## Requirements
 
 Seeded from the scope row for #4 and refined with the engineer. Contract for the data and sessions: spec 0001 (stack, routes, shells) and spec 0002 (session hooks, `describeError`, `formatWait`, `useCountdown`).

@@ -16,7 +16,6 @@ import { CanDemo } from "./can-demo";
 import { ColorsSection } from "./colors";
 import { ControlsSection } from "./controls";
 import { ChatSection } from "./chat";
-import { DashboardCardsSection } from "./dashboard-cards";
 import { DataDisplaySection } from "./data-display";
 import { DatePickerSection } from "./date-picker-section";
 import { FavoritesSection } from "./favorites";
@@ -295,7 +294,6 @@ export default function DevUiPage() {
       <SearchFiltersSection />
       <FeedbackSection />
       <StatesSection />
-      <DashboardCardsSection />
       <FormDemo />
       <ToastDemo />
       <OverlaysSection />

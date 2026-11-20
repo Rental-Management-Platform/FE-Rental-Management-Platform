@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { dashboardKey } from "@/features/dashboard/api/stats";
+import { adminStatsKey } from "@/features/admin-stats/api/admin-stats";
 import type { ModerationListing, Page } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import { useReturnFocus } from "@/lib/use-return-focus";
@@ -64,8 +64,9 @@ const dialogWords = (listing: ModerationListing | null) => {
  *
  * A hide and an unhide write, then the row takes the answer (the whole moderation row after the
  * change) and the list is read again before the dialog closes, so a status filter drops a row that
- * no longer fits and the total is the server's. The `dashboardKey` entries are marked out of date
- * too, so the hidden listings number on the dashboard card stays right. Another admin or the
+ * no longer fits and the total is the server's. The `adminStatsKey` entries are marked out of date
+ * too (read again when the admin opens `/admin`, not now), so the "Cần xử lý" strip and the hidden
+ * by admin row of the overview stay right. Another admin or the
  * landlord who was first (409 `LISTING_STATE_INVALID`) or a listing that is gone (404
  * `LISTING_NOT_FOUND`) closes the dialog and says so in a toast, because the list is the truth
  * now. Every other failure is thrown to `ReasonDialog`, which shows it inside and keeps what was
@@ -100,7 +101,7 @@ export function useModerationFlow() {
   // The list is the truth after a write: read it again and wait for it, so the dialog closes on
   // rows that already show the new state.
   const refresh = async () => {
-    void queryClient.invalidateQueries({ queryKey: dashboardKey });
+    void queryClient.invalidateQueries({ queryKey: adminStatsKey });
     await queryClient.invalidateQueries({ queryKey: adminListingsKey });
   };
 

@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { dashboardKey } from "@/features/dashboard/api/stats";
+import { adminStatsKey } from "@/features/admin-stats/api/admin-stats";
 import type { AdminUserListItem } from "@/lib/api/types";
 import { useApi } from "@/lib/session/auth-provider";
 import { useReturnFocus } from "@/lib/use-return-focus";
@@ -63,8 +63,8 @@ const dialogWords = (user: AdminUserListItem | null) => {
  *
  * A lock and an unlock write, then the list is read again before the dialog closes, so the row
  * already shows its new status and the reason the list returned (the answer of the write has no
- * `lockedReason`). The `dashboardKey` entries are marked out of date too, so the locked accounts
- * number on the dashboard card stays right. Another admin who was first (409 `ACCOUNT_ALREADY_LOCKED`
+ * `lockedReason`). The `adminStatsKey` entries are marked out of date too (read again when the admin
+ * opens `/admin`, not now), so the locked accounts number of the overview stays right. Another admin who was first (409 `ACCOUNT_ALREADY_LOCKED`
  * or `ACCOUNT_NOT_LOCKED`) or an account that is gone (404 `USER_NOT_FOUND`) closes the dialog and
  * says so in a toast, because the list is the truth now. Every other failure is thrown to
  * `ReasonDialog`, which shows it inside and keeps what was typed.
@@ -98,7 +98,7 @@ export function useLockFlow() {
   // The list is the truth after a write: read it again and wait for it, so the dialog closes on
   // rows that already show the new state.
   const refresh = async () => {
-    void queryClient.invalidateQueries({ queryKey: dashboardKey });
+    void queryClient.invalidateQueries({ queryKey: adminStatsKey });
     await queryClient.invalidateQueries({ queryKey: adminUsersKey });
   };
 
