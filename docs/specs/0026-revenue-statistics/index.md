@@ -1,7 +1,7 @@
 # 0026. Revenue statistics page for admins
 
 **Date**: 2026-11-20
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

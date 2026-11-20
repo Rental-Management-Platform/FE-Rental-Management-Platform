@@ -61,7 +61,7 @@ _Đây là gợi ý để việc xây có thứ tự, không phải bắt buộc
 | 38 | My landlord numbers on the account page | Slice 6 | done |
 | 39 | Landlord statistics | Slice 7 | in-progress |
 | 40 | Admin overview statistics | Slice 7 | done |
-| 26 | Revenue statistics | Slice 7 | in-progress |
+| 26 | Revenue statistics | Slice 7 | done |
 
 ## Các nhóm
 
@@ -71,7 +71,7 @@ Mỗi nhóm có file riêng. Số là số định danh, còn thứ tự xây l�
 * [Account](account.md): đăng ký, đăng nhập, khôi phục mật khẩu, hồ sơ (#5, #27, #28). 3 done.
 * [Public](public.md): khách và người tìm trọ, kể cả nhắn tin với chủ trọ, đánh giá chủ trọ, đánh giá phòng và bảng giá (#8, #9, #13, #14, #34, #15, #35, #37, #16, #18, #29). 10 done, 1 dropped (#16).
 * [Landlord](landlord.md): nhà trọ, tin, gói và đơn của chủ trọ (#6, #7, #10, #11, #12, #17, #19, #32, #33, #38). 10 done.
-* [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 7 done, 1 in-progress.
+* [Admin](admin.md): khu quản trị (#20 đến #26, và #36). 8 done.
 * [Dashboard](dashboard.md): trang tổng quan của khu chủ trọ và khu admin (#31, #39 và #40). 2 done, 1 in-progress.
 
 ## Các giai đoạn
