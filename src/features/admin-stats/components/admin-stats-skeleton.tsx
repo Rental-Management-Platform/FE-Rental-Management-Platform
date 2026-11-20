@@ -2,7 +2,11 @@ import { LOADING_TEXT } from "@/components/stats/stats-text";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const STATE_ZONES = [0, 1, 2];
-const CARDS = [0, 1, 2, 3];
+// The two groups of number cards: four registration numbers, then seven interest numbers.
+const CARD_GROUPS = [
+  [0, 1, 2, 3],
+  [0, 1, 2, 3, 4, 5, 6],
+];
 
 /**
  * The part above the range bar while no answer has ever been kept: the strip and the three state
@@ -32,13 +36,15 @@ export function BelowBarSkeleton() {
       <span role="status" className="sr-only">
         {LOADING_TEXT}
       </span>
-      <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {CARDS.map((card) => (
-          <li key={card} className="min-w-0">
-            <Skeleton className="h-32 w-full rounded-xl" />
-          </li>
-        ))}
-      </ul>
+      {CARD_GROUPS.map((cards, group) => (
+        <ul key={group} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {cards.map((card) => (
+            <li key={card} className="min-w-0">
+              <Skeleton className="h-32 w-full rounded-xl" />
+            </li>
+          ))}
+        </ul>
+      ))}
       <Skeleton className="h-[26rem] w-full rounded-xl" />
       <Skeleton className="h-96 w-full rounded-xl" />
     </div>

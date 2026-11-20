@@ -4,7 +4,12 @@ import { MetricCard } from "@/components/stats/metric-card";
 import { previousLine } from "@/components/stats/stats-text";
 import type { AdminOverview, Metric } from "@/lib/api/types";
 import { formatCount } from "@/lib/format";
-import { VIEWS_SINCE_NOTE } from "../admin-stats-text";
+import {
+  ENGAGEMENT_GROUP_NOTE,
+  ENGAGEMENT_GROUP_TITLE,
+  REGISTRATION_GROUP_TITLE,
+  VIEWS_SINCE_NOTE,
+} from "../admin-stats-text";
 
 interface Card {
   label: string;
@@ -16,19 +21,65 @@ interface Card {
 interface CardGroup {
   /** The `h2` of the group. */
   title: string;
+  /** A quiet line under the heading, for the whole group. */
+  note?: string;
   cards: readonly Card[];
 }
 
 // The cards of the range in screen order (spec 0025, AC-9). Every number is a field of the answer
-// and every percent was worked out by the API: nothing is divided or added here.
+// and every percent was worked out by the API: nothing is divided or added here. The two review
+// cards are two different things and are never added together.
 const GROUPS: readonly CardGroup[] = [
   {
-    title: "Mức quan tâm",
+    title: REGISTRATION_GROUP_TITLE,
+    cards: [
+      {
+        label: "Đăng ký mới",
+        metric: ({ accounts }) => accounts.registered.total,
+      },
+      {
+        label: "Chủ trọ mới",
+        metric: ({ accounts }) => accounts.registered.landlords,
+      },
+      {
+        label: "Người tìm trọ mới",
+        metric: ({ accounts }) => accounts.registered.tenants,
+      },
+      { label: "Tin mới", metric: ({ listings }) => listings.created },
+    ],
+  },
+  {
+    title: ENGAGEMENT_GROUP_TITLE,
+    note: ENGAGEMENT_GROUP_NOTE,
     cards: [
       {
         label: "Lượt xem",
         metric: ({ engagement }) => engagement.views,
         note: VIEWS_SINCE_NOTE,
+      },
+      {
+        label: "Cuộc trò chuyện mới",
+        metric: ({ engagement }) => engagement.conversations,
+      },
+      {
+        label: "Tin nhắn mới",
+        metric: ({ engagement }) => engagement.messages,
+      },
+      {
+        label: "Đánh giá chủ trọ mới",
+        metric: ({ engagement }) => engagement.landlordReviews,
+      },
+      {
+        label: "Đánh giá phòng mới",
+        metric: ({ engagement }) => engagement.roomReviews,
+      },
+      {
+        label: "Lượt theo dõi mới",
+        metric: ({ engagement }) => engagement.follows,
+      },
+      {
+        label: "Lượt lưu mới",
+        metric: ({ engagement }) => engagement.favorites,
       },
     ],
   },
@@ -44,9 +95,14 @@ function CardGroupView({
   const headingId = useId();
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-3">
-      <h2 id={headingId} className="text-base font-semibold">
-        {group.title}
-      </h2>
+      <div className="flex flex-col gap-1">
+        <h2 id={headingId} className="text-base font-semibold">
+          {group.title}
+        </h2>
+        {group.note !== undefined && (
+          <p className="text-sm text-muted-foreground">{group.note}</p>
+        )}
+      </div>
       <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {group.cards.map(({ label, metric, note }) => {
           const value = metric(overview);
@@ -70,7 +126,7 @@ function CardGroupView({
 }
 
 /**
- * The number cards of the range, in groups under the range bar (spec 0025, AC-9): each period
+ * The number cards of the range, in two groups under the range bar (spec 0025, AC-9): each period
  * number with how it changed and the period before. No card shows a total since the start,
  * because the API gives none.
  */

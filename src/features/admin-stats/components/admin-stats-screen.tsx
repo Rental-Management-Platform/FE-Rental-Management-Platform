@@ -17,6 +17,7 @@ import {
 import { DailyChartZone } from "./daily-chart-zone";
 import { PeriodCards } from "./period-cards";
 import { ToHandleStrip } from "./to-handle-strip";
+import { WardsZone } from "./wards-zone";
 
 /**
  * The body of `/admin` (spec 0025): the overview of the platform for a range kept in the address.
@@ -102,6 +103,7 @@ function BelowBar({
       </p>
       <PeriodCards overview={overview} />
       <DailyChartZone overview={overview} />
+      <WardsZone overview={overview} />
     </div>
   );
 }

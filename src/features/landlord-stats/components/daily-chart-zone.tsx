@@ -40,8 +40,7 @@ function MetricChart({
   return (
     <TrendChart
       points={points}
-      name={metric.tabLabel}
-      unit={metric.unit}
+      lines={[{ key: "value", name: metric.tabLabel, unit: metric.unit }]}
       label={chartLabel(metric, statistics.period, total)}
     />
   );

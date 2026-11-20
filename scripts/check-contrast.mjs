@@ -120,6 +120,10 @@ export const PAIRS = [
   // needs 3:1, and `primary` on `card` already holds 4.5:1 as text above; the pair is listed
   // so the chart cannot lose its contrast without the check saying so.
   ...controlOn("primary", ["card"]),
+  // The second line of the admin overview chart is `info`, dashed, on `card` (spec 0025, AC-14).
+  // It is a graphic too, so 3:1. The area under the first line is at most a 12% tint of `primary`,
+  // so the `info` line crossing it holds far more than 3:1 and needs no second pair.
+  ...controlOn("info", ["card"]),
   // The warning pin of the location map (a saved point out of place, spec 0011) is
   // `warning-foreground` with a `card` outline. The normal pin is `primary` on `card`, which the
   // `textOn("primary")` pairs above already hold to 4.5:1.
