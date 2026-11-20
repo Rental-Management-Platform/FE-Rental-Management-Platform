@@ -206,7 +206,7 @@ Every AC appears in at least one task and every task names an AC.
 
 ## Follow-up
 
-- [ ] #26 (revenue) reuses the range bar and the chart and brings back the money numbers (paid orders and revenue, test payments) that leave `/admin` here. It decides whether it groups by day or by month.
+- [x] #26 (revenue) reuses the range bar and the chart and brings back the money numbers (paid orders and revenue, test payments) that leave `/admin` here. It decides whether it groups by day or by month. Done 2026-11-20 on the revenue page only (spec 0026, `/admin/revenue`, groups by day or by month); `/admin` stays without money.
 - [ ] A link from the "Bị khóa" figure of the accounts zone to `/admin/users` filtered to locked accounts would be cheap (the contract says the numbers equal the totals of `GET /users` with that filter). Left out here because only the strip links; add it if admins ask.
 - [ ] `design.md` has no chart rules. Add a short "Charts" note now that two lines exist (the `primary` line on a light area, the dashed `info` line, no animation, grid from `border`). Spec 0024 asked for this once #40 settled the colours.
 - [ ] `/scope` should move the row of #40 to the ready to build shape. `/sync` should record `src/features/admin-stats/`, the lifted `src/components/stats/` pieces and the removed `src/features/dashboard/` in the nested `AGENTS.md` files.

@@ -208,7 +208,7 @@ Every AC appears in at least one task and every task names an AC.
 ## Follow-up
 
 - [ ] #40 (admin overview) reuses `src/components/stats/` and adds `AdminOverview` to `types.ts`. It decides how many series colours the chart needs (`--chart-1` and more) and how the ten daily columns are shown. When it ships, the admin cards, `ToolGrid`, `describeStat` and the `stat` field of `Tool` can all be deleted.
-- [ ] #26 (revenue) reuses the range bar and the chart, and decides whether it groups by day or by month (the range bar has no `groupBy`).
+- [x] #26 (revenue) reuses the range bar and the chart, and decides whether it groups by day or by month (the range bar has no `groupBy`). Done 2026-11-20 (spec 0026): the page groups by day or by month with a switch of its own beside the unchanged range bar, and the shared chart and table gain optional props with today's defaults (`grain`, `yAxisWidth`, `yFloor`, a `format` for each column and a footer row), and the number card gains `muted`.
 - [ ] `/scope` should move the row of #39 to the ready to build shape and note that the landlord half of #31 is replaced (the scope row already says so). `/sync` should record the new shared folder and `refreshToken` in the nested `AGENTS.md` files.
 - [ ] `DatePicker` has no `min` or `max` and offers only days from last year to three years ahead. If a range before that is ever needed, give it two props, a change owned by the feature that needs it.
 - [ ] Specs 0003 to 0017 still list a `/dev/ui` milestone, and `design.md` points to `/dev/ui/screens` as examples. This spec follows the engineer's rule of 2026-11-12 (no new `/dev/ui` section) and does not edit them.
