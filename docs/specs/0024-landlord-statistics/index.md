@@ -1,7 +1,7 @@
 # 0024. Landlord statistics on the landlord overview
 
 **Date**: 2026-11-20
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
