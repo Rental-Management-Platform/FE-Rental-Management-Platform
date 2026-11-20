@@ -67,3 +67,33 @@ export const wardsTableCaption = (period: AdminOverview["period"]) =>
 export const TO_HANDLE_TITLE = "Cần xử lý";
 export const NONE_TEXT = "Không có";
 export const ALL_CLEAR_TEXT = "Không có gì cần xử lý";
+
+// The three zones of the state of the platform now, above the range bar (AC-6, AC-7 and AC-8).
+// Numbers of the moment: they have no arrow and do not change with the range.
+export const ACCOUNTS_ZONE_TITLE = "Tài khoản";
+export const ACCOUNTS_TOTAL_LABEL = "Tổng";
+export const ACCOUNT_ADMIN_LABEL = "Quản trị viên";
+export const ACCOUNT_LANDLORD_LABEL = "Chủ trọ";
+export const ACCOUNT_TENANT_LABEL = "Người tìm trọ";
+
+/** The quiet line under an account count: "12 đang hoạt động, 1 bị khóa". Both are fields of the answer. */
+export const accountsQuietLine = (active: number, locked: number) =>
+  `${formatCount(active)} đang hoạt động, ${formatCount(locked)} bị khóa`;
+
+export const LANDLORDS_ZONE_TITLE = "Chủ trọ";
+export const LANDLORD_ON_PLAN_LABEL = "Đang có gói";
+export const LANDLORD_ON_TRIAL_LABEL = "Đang dùng thử";
+export const LANDLORD_TRIAL_EXPIRED_LABEL = "Hết dùng thử, chưa có gói";
+export const landlordsTotalLine = (total: number) =>
+  `Tổng ${formatCount(total)} chủ trọ`;
+
+export const LISTINGS_ZONE_TITLE = "Tin đăng";
+export const LISTING_PUBLIC_LABEL = "Đang hiện công khai";
+export const LISTING_NOT_PUBLIC_LABEL = "Hiện nhưng khách không thấy";
+/** Why a listing can be visible yet not public (api-for-frontend.md, 6.43). */
+export const LISTING_NOT_PUBLIC_NOTE =
+  "Chủ trọ bị khóa, hết dùng thử và hết gói, hoặc vượt hạn mức.";
+export const LISTING_OWNER_HIDDEN_LABEL = "Chủ trọ ẩn";
+export const LISTING_ADMIN_HIDDEN_LABEL = "Quản trị viên ẩn";
+export const listingsTotalLine = (total: number) =>
+  `Tổng ${formatCount(total)} tin`;

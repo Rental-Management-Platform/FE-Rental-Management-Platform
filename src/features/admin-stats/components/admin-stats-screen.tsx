@@ -14,7 +14,10 @@ import {
   AdminStatsSkeleton,
   BelowBarSkeleton,
 } from "./admin-stats-skeleton";
+import { AccountsZone } from "./accounts-zone";
 import { DailyChartZone } from "./daily-chart-zone";
+import { LandlordsZone } from "./landlords-zone";
+import { ListingsZone } from "./listings-zone";
 import { PeriodCards } from "./period-cards";
 import { ToHandleStrip } from "./to-handle-strip";
 import { WardsZone } from "./wards-zone";
@@ -80,6 +83,11 @@ function AboveBar({
   return (
     <div className="flex flex-col gap-6">
       <ToHandleStrip toHandle={overview.toHandle} session={session} />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <AccountsZone accounts={overview.accounts} />
+        <LandlordsZone landlords={overview.landlords} />
+        <ListingsZone listings={overview.listings} />
+      </div>
     </div>
   );
 }
