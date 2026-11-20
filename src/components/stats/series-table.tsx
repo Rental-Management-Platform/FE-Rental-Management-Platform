@@ -1,5 +1,6 @@
 import type { DateOnly } from "@/lib/api/types";
-import { formatCount, formatDateOnly } from "@/lib/format";
+import { formatCount, formatDateOnly, formatMonthYear } from "@/lib/format";
+import type { Grain } from "./trend-lines";
 
 export interface SeriesColumn<K extends string> {
   key: K;
@@ -21,6 +22,8 @@ interface SeriesTableProps<K extends string> {
   rows: readonly ({ date: DateOnly } & Record<K, number>)[];
   /** A last row such as "Tổng". Its numbers come from the answer, never from a sum made here. */
   footer?: SeriesFooter<K>;
+  /** One row per day (the default) or per month, which names the first column and the region. */
+  grain?: Grain;
 }
 
 /**
@@ -35,11 +38,15 @@ export function SeriesTable<K extends string>({
   columns,
   rows,
   footer,
+  grain = "day",
 }: SeriesTableProps<K>) {
+  const byMonth = grain === "month";
   return (
     <div
       role="region"
-      aria-label="Bảng số liệu theo ngày"
+      aria-label={
+        byMonth ? "Bảng số liệu theo tháng" : "Bảng số liệu theo ngày"
+      }
       tabIndex={0}
       className="max-h-80 overflow-auto rounded-lg border outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
@@ -51,7 +58,7 @@ export function SeriesTable<K extends string>({
               scope="col"
               className="sticky top-0 h-10 border-b bg-muted px-3 text-left font-medium whitespace-nowrap text-foreground"
             >
-              Ngày
+              {byMonth ? "Tháng" : "Ngày"}
             </th>
             {columns.map((column) => (
               <th
@@ -71,7 +78,7 @@ export function SeriesTable<K extends string>({
                 scope="row"
                 className="px-3 py-2 text-left font-normal whitespace-nowrap"
               >
-                {formatDateOnly(row.date)}
+                {byMonth ? formatMonthYear(row.date) : formatDateOnly(row.date)}
               </th>
               {columns.map((column) => (
                 <td

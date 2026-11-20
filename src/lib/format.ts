@@ -70,6 +70,10 @@ export const formatDateOnly = (date: DateOnly) =>
 export const formatDayMonth = (date: DateOnly) =>
   `${date.slice(8, 10)}/${date.slice(5, 7)}`;
 
+/** The month and year of a date without a time: "2026-11-01" becomes "11/2026". */
+export const formatMonthYear = (date: DateOnly) =>
+  `${date.slice(5, 7)}/${date.slice(0, 4)}`;
+
 /** "0901234567" becomes "0901 234 567". Any other shape is shown as it came. */
 export const formatPhone = (phone: string) =>
   phone.replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3");

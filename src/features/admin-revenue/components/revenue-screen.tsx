@@ -8,6 +8,8 @@ import { useSession } from "@/lib/session/auth-provider";
 import { useAdminRevenue } from "../hooks/use-admin-revenue";
 import { ERROR_TITLE, FORBIDDEN_MESSAGE } from "../revenue-text";
 import type { ShownRevenue } from "../revenue-view";
+import { GroupSwitch } from "./group-switch";
+import { PlansZone } from "./plans-zone";
 import { RevenueChartZone } from "./revenue-chart-zone";
 import { RevenueScreenSkeleton, RevenueSkeleton } from "./revenue-skeleton";
 import { RevenueTotals } from "./revenue-totals";
@@ -23,7 +25,8 @@ import { RevenueTotals } from "./revenue-totals";
  */
 export function RevenueScreen() {
   const session = useSession();
-  const { range, setRange, query, allowed, shown, busy } = useAdminRevenue();
+  const { range, setRange, groupBy, setGroupBy, query, allowed, shown, busy } =
+    useAdminRevenue();
 
   // The route gate only shows its children to a signed in person, so this is a safety net.
   if (session.status !== "user") return <RevenueScreenSkeleton />;
@@ -33,7 +36,15 @@ export function RevenueScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <RangeBar range={range} onChange={setRange} />
+      {/* The grouping switch sits beside the range bar when the row fits and under it when not.
+          The range bar grows into the room that is left, so its custom range panel keeps the
+          width it has on the other statistics screens. */}
+      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+        <div className="min-w-0 grow basis-[28rem]">
+          <RangeBar range={range} onChange={setRange} />
+        </div>
+        <GroupSwitch groupBy={groupBy} onChange={setGroupBy} />
+      </div>
       {shown !== undefined ? (
         <RevenueBody shown={shown} busy={busy} />
       ) : query.isError ? (
@@ -66,6 +77,7 @@ function RevenueBody({ shown, busy }: { shown: ShownRevenue; busy: boolean }) {
       </p>
       <RevenueTotals answer={shown.answer} />
       <RevenueChartZone shown={shown} />
+      <PlansZone answer={shown.answer} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRangeInAddress } from "@/components/stats/use-range-in-address";
 import { useShownAnswer } from "@/components/stats/use-shown-answer";
 import { todayInVietnam, type DateRange } from "@/lib/date-range";
@@ -11,6 +11,7 @@ import { adminRevenueQuery } from "../api/admin-revenue";
 import {
   answeredView,
   effectiveRange,
+  parseGroupBy,
   revenueHref,
   type GroupBy,
   type RevenueRequest,
@@ -36,9 +37,9 @@ export function useAdminRevenue() {
   const session = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { range } = useRangeInAddress();
-  // By day until the switch of the grouping is built (milestone M2).
-  const groupBy: GroupBy = "day";
+  const groupBy = parseGroupBy(searchParams.get("groupBy"));
 
   const request: RevenueRequest = {
     ...effectiveRange(range, todayInVietnam(new Date())),
@@ -55,14 +56,18 @@ export function useAdminRevenue() {
       ? undefined
       : { answer: data, view: answeredView(data, request) };
 
-  // A new view replaces the address and stays where the page is, keeping the other part of the view.
+  // A new view replaces the address and stays where the page is, keeping the other part of the
+  // view: a change of range keeps the grouping and a change of grouping keeps the range.
   const setRange = (next: DateRange | null) =>
     router.replace(revenueHref(pathname, next, groupBy), { scroll: false });
+  const setGroupBy = (next: GroupBy) =>
+    router.replace(revenueHref(pathname, range, next), { scroll: false });
 
   return {
     range,
     groupBy,
     setRange,
+    setGroupBy,
     query,
     allowed,
     shown,

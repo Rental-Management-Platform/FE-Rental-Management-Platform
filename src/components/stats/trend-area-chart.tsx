@@ -8,12 +8,18 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import type { DateOnly } from "@/lib/api/types";
-import { formatCount, formatDateOnly, formatDayMonth } from "@/lib/format";
+import {
+  formatCount,
+  formatDateOnly,
+  formatDayMonth,
+  formatMonthYear,
+} from "@/lib/format";
 import { TREND_CHART_HEIGHT } from "./trend-chart-height";
 import {
   lineStyle,
   type ChartLine,
   type ChartLines,
+  type Grain,
   type TrendPoint,
 } from "./trend-lines";
 import { Y_FLOOR, yAxisScale } from "./y-axis";
@@ -29,6 +35,8 @@ export interface TrendAreaChartProps {
   yAxisWidth?: number;
   /** The least the Y axis reaches: 4, or more for a larger unit such as money. */
   yFloor?: number;
+  /** One point per day (the default, `dd/MM` on the axis) or per month (`MM/yyyy`, dated the first). */
+  grain?: Grain;
 }
 
 const DEFAULT_Y_AXIS_WIDTH = 44;
@@ -75,9 +83,13 @@ export function TrendAreaChart({
   label,
   yAxisWidth = DEFAULT_Y_AXIS_WIDTH,
   yFloor = Y_FLOOR,
+  grain = "day",
 }: TrendAreaChartProps) {
   const drawn: readonly ChartLine[] = lines;
   const single = points.length === 1;
+  // A month point is dated the first of the month, so a month reads "11/2026" and a day "16/11/2026".
+  const periodText = grain === "month" ? formatMonthYear : formatDateOnly;
+  const tickText = grain === "month" ? formatMonthYear : formatDayMonth;
   // The largest point of either line, not a sum: it only decides where the axis ends.
   const { top, ticks } = yAxisScale(
     Math.max(
@@ -105,8 +117,8 @@ export function TrendAreaChart({
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          minTickGap={24}
-          tickFormatter={formatDayMonth}
+          minTickGap={grain === "month" ? 8 : 24}
+          tickFormatter={tickText}
         />
         <YAxis
           width={yAxisWidth}
@@ -126,7 +138,7 @@ export function TrendAreaChart({
                 hideIndicator
                 formatter={(value, _name, item) => (
                   <span className="font-medium text-foreground">
-                    {formatDateOnly(dayOf(item.payload))}:{" "}
+                    {periodText(dayOf(item.payload))}:{" "}
                     {formatCount(Number(value))} {lines[0].unit}
                   </span>
                 )}
@@ -135,7 +147,7 @@ export function TrendAreaChart({
               <ChartTooltipContent
                 hideIndicator
                 labelFormatter={(_label, payload) =>
-                  formatDateOnly(dayOf(payload[0]?.payload))
+                  periodText(dayOf(payload[0]?.payload))
                 }
                 formatter={(value, name) => (
                   <span className="font-medium text-foreground">

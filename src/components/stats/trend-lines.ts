@@ -13,6 +13,12 @@ export interface ChartLine {
   unit: string;
 }
 
+/**
+ * What one point of a chart stands for: a day, or a month (dated the first of the month). It sets
+ * how the X axis and the tooltip write the date, and how the text table names its first column.
+ */
+export type Grain = "day" | "month";
+
 /** A chart has one or two lines, never more. */
 export type ChartLines = readonly [ChartLine] | readonly [ChartLine, ChartLine];
 

@@ -4,6 +4,7 @@
 // ends its title with "(thanh toán thử)", because `paid` only means the landlord pressed confirm.
 import { rangeText } from "@/components/stats/stats-text";
 import type { RevenueResponse } from "@/lib/api/types";
+import { formatCount } from "@/lib/format";
 import type { RevenueTab } from "./revenue-chart-metrics";
 import type { GroupBy, RevenueRequest } from "./revenue-view";
 
@@ -36,6 +37,17 @@ export const TOTAL_ROW_LABEL = "Tổng";
 /** The first and the last month hold only the days inside the range, so the page says so once. */
 export const MONTH_NOTE =
   "Tháng đầu và tháng cuối chỉ tính các ngày trong khoảng đã chọn.";
+
+// The grouping switch (AC-3).
+export const GROUP_SWITCH_LABEL = "Cách gom số liệu";
+export const BY_DAY_LABEL = "Theo ngày";
+export const BY_MONTH_LABEL = "Theo tháng";
+
+// The list by plan (AC-10).
+export const PLANS_ZONE_TITLE = "Doanh thu theo gói (thanh toán thử)";
+export const PLANS_EMPTY_TEXT = "Chưa có đơn nào được trả trong khoảng này";
+/** "20 đơn": the quiet line of a plan row and of its "Tổng" row. */
+export const ordersLine = (count: number) => `${formatCount(count)} đơn`;
 
 /**
  * What a screen reader hears for the chart of a tab: what it shows, the range, then the total of

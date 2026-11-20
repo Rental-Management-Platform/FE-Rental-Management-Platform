@@ -4,12 +4,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 // The heights are those of the drawn blocks (measured from 320 to 1280 px), so the page does not
 // grow or shrink when the answer arrives. The totals block is as tall as its date note is long:
 // three lines on a phone, two on a tablet, one from `xl`, where the cards are side by side. The
-// chart zone has 44 px buttons below `md`, and its title takes two lines at 345 px and below. Each
+// chart zone has 44 px buttons below `md`, and its title takes two lines at 344 px and below. The
+// plan zone is measured with four plans and its total row, so it is taller or shorter by about
+// 4.3 rem for each plan more or less, and its title takes two lines at 332 px and below. Each
 // class is written whole, because Tailwind reads class names from the source and cannot find one
 // that is joined from pieces.
 const TOTALS_HEIGHT = "h-[19.75rem] sm:h-[11.625rem] xl:h-[10.375rem]";
 const CHART_HEIGHT =
-  "h-[26.9375rem] max-[345px]:h-[28.4375rem] md:h-[26.6875rem]";
+  "h-[29.9375rem] max-[344px]:h-[31.4375rem] md:h-[29.6875rem]";
+const PLANS_HEIGHT = "h-[28.8rem] max-[332px]:h-[30.3rem]";
 
 /**
  * The first load of everything under the range bar: one block per part, each with a fixed minimum
@@ -23,6 +26,7 @@ export function RevenueSkeleton() {
       </span>
       <Skeleton className={`${TOTALS_HEIGHT} w-full rounded-xl`} />
       <Skeleton className={`${CHART_HEIGHT} w-full rounded-xl`} />
+      <Skeleton className={`${PLANS_HEIGHT} w-full rounded-xl`} />
     </div>
   );
 }
