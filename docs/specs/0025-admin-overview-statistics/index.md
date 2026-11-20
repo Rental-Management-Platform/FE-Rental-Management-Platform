@@ -1,7 +1,7 @@
 # 0025. Admin overview statistics on the admin overview
 
 **Date**: 2026-11-20
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
