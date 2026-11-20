@@ -27,9 +27,15 @@ export interface YAxisScale {
   ticks: number[];
 }
 
-/** The ticks of the Y axis for the largest value in the series. */
-export function yAxisScale(largest: number): YAxisScale {
-  const max = Math.max(Y_FLOOR, Math.ceil(largest));
+/**
+ * The ticks of the Y axis for the largest value in the series. `floor` is the least the axis
+ * reaches, 4 unless a screen with another unit asks for more (the revenue page asks for 100.000).
+ */
+export function yAxisScale(
+  largest: number,
+  floor: number = Y_FLOOR,
+): YAxisScale {
+  const max = Math.max(floor, Math.ceil(largest));
   const step = stepFor(max);
   const top = Math.ceil(max / step) * step;
   return {

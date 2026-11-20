@@ -13,6 +13,8 @@ interface MetricCardProps {
   change: ChangeNote | null;
   /** Quiet lines under the number: "Kỳ trước: 96", the total since the start, a note. */
   lines?: readonly ReactNode[];
+  /** A zero is drawn in the muted colour, so a card with nothing in it does not shout. */
+  muted?: boolean;
   className?: string;
 }
 
@@ -26,13 +28,21 @@ export function MetricCard({
   value,
   change,
   lines = [],
+  muted = false,
   className,
 }: MetricCardProps) {
   return (
     <Card className={cn("h-full", className)}>
       <CardContent className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-3xl font-semibold text-card-foreground">{value}</p>
+        <p
+          className={cn(
+            "text-3xl font-semibold",
+            muted ? "text-muted-foreground" : "text-card-foreground",
+          )}
+        >
+          {value}
+        </p>
         {change !== null && <ChangeNoteView note={change} />}
         {lines.map((line, index) => (
           <p key={index} className="text-sm text-muted-foreground">

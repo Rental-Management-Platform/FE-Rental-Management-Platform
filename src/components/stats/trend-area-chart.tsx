@@ -16,7 +16,7 @@ import {
   type ChartLines,
   type TrendPoint,
 } from "./trend-lines";
-import { yAxisScale } from "./y-axis";
+import { Y_FLOOR, yAxisScale } from "./y-axis";
 
 export interface TrendAreaChartProps {
   /** One row per day: the `date` and one number for each line, under its `key`. */
@@ -25,7 +25,13 @@ export interface TrendAreaChartProps {
   lines: ChartLines;
   /** What the chart is, for a screen reader: what it shows, the range and the total of each line. */
   label: string;
+  /** The width of the Y axis in pixels: 44 fits a count, a money axis written in full needs more. */
+  yAxisWidth?: number;
+  /** The least the Y axis reaches: 4, or more for a larger unit such as money. */
+  yFloor?: number;
 }
+
+const DEFAULT_Y_AXIS_WIDTH = 44;
 
 // The number of a line on a day. Rows are loosely typed (any line key), so a field that is not a
 // number reads as 0 instead of being cast.
@@ -63,7 +69,13 @@ const configOf = (lines: readonly ChartLine[]): ChartConfig =>
  * and the count of each line. A range of one day draws a dot per line, because an area or a line
  * of one point is invisible.
  */
-export function TrendAreaChart({ points, lines, label }: TrendAreaChartProps) {
+export function TrendAreaChart({
+  points,
+  lines,
+  label,
+  yAxisWidth = DEFAULT_Y_AXIS_WIDTH,
+  yFloor = Y_FLOOR,
+}: TrendAreaChartProps) {
   const drawn: readonly ChartLine[] = lines;
   const single = points.length === 1;
   // The largest point of either line, not a sum: it only decides where the axis ends.
@@ -74,6 +86,7 @@ export function TrendAreaChart({ points, lines, label }: TrendAreaChartProps) {
         drawn.map((line) => valueOf(point, line.key)),
       ),
     ),
+    yFloor,
   );
   return (
     <ChartContainer
@@ -96,7 +109,7 @@ export function TrendAreaChart({ points, lines, label }: TrendAreaChartProps) {
           tickFormatter={formatDayMonth}
         />
         <YAxis
-          width={44}
+          width={yAxisWidth}
           tickLine={false}
           axisLine={false}
           allowDecimals={false}
