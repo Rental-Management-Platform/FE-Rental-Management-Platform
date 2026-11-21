@@ -1,0 +1,13 @@
+# An allowlist: everything is left out except what `next build` needs. A new file (such as a
+# .env.production with a password) can never end up in the image by accident.
+*
+
+!package.json
+!package-lock.json
+!next.config.ts
+!tsconfig.json
+!src
+!public
+# The developer pages under src/app/dev import scripts/check-contrast.mjs, and `next build`
+# compiles them even though they are a 404 in production.
+!scripts

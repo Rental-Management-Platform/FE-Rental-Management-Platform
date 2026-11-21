@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Docker: the example for compose.yaml is committed, the real .env is not
+!.env.docker.example

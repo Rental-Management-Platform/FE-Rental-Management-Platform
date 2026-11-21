@@ -1,0 +1,62 @@
+# The frontend next to the backend on one server (docs/guild/huong-dan-docker-cho-fe.md).
+# The backend compose must be running first: it creates the `rental_edge` network.
+# Variables come from the `.env` next to this file (copy .env.docker.example, chmod 600).
+
+name: rental-fe
+
+services:
+  web:
+    image: rental-web:${WEB_TAG:-local}
+    build:
+      context: .
+      # `next build` reads the ward catalog from the API, so the build must reach it. On the server
+      # the backend publishes 127.0.0.1:3000, and the host network is the way to reach it.
+      network: ${BUILD_NETWORK:-host}
+      args:
+        NEXT_PUBLIC_API_URL: /api/v1
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:?SITE_URL is required, the public address of the site, such as https://example.com}
+        API_URL: ${BUILD_API_URL:-http://127.0.0.1:3000/api/v1}
+        MEDIA_ORIGIN: http://api:3000
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:3001:3000" # loopback only, nginx proxies to it. Never drop 127.0.0.1
+    environment:
+      # Read by the server at run time: the API container on the `rental_edge` network.
+      API_URL: http://api:3000/api/v1
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    networks:
+      - rental_edge
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+      # Image optimizer and page cache. The folder belongs to the `node` user (uid 1000).
+      - /app/.next/cache:uid=1000,gid=1000
+    mem_limit: 512m
+    pids_limit: 256
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/healthz').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  rental_edge:
+    external: true

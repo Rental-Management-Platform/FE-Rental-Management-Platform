@@ -35,6 +35,20 @@ npm run contrast  # WCAG contrast of the token pairs in src/app/globals.css (par
 npm run format  # Prettier write (also: lint, typecheck, format:check)
 ```
 
+## Docker
+
+The frontend ships as one container next to the backend on a shared server (`Dockerfile`, `compose.yaml`, variables in `.env.docker.example`). The requirements come from [docs/guild/huong-dan-docker-cho-fe.md](docs/guild/huong-dan-docker-cho-fe.md); the image is built with `output: "standalone"` and runs as the `node` user on a read only root.
+
+```bash
+cp .env.docker.example .env   # set SITE_URL, then: docker compose up -d --build
+```
+
+- The browser calls the API by the path `/api/v1` (`NEXT_PUBLIC_API_URL`); the server calls `API_URL=http://api:3000/api/v1` on the `rental_edge` network, read at run time. Only `SITE_URL` (canonical links, share cards, sitemap) ties an image to a domain.
+- `next build` reads the ward catalog, so the API must answer while the image builds (`BUILD_API_URL`, `BUILD_NETWORK` in `.env.docker.example`). A build with the API down fails on purpose (spec 0016).
+- No route under `/api/` (nginx sends all of it to the backend), and `/healthz` stays: the compose `healthcheck` calls it. A path that matches the bot rules in section 5 of the guide gets its connection closed.
+- `.dockerignore` is an allowlist. A new top level file or folder that `next build` needs (a root config, a folder that `src` imports) must be added there, or the image build fails with a module not found.
+- Photos: in proxy mode the image optimizer fetches `/api/v1/media/public/*` from the Next server itself, so `next.config.ts` rewrites that one path to `MEDIA_ORIGIN` (default `http://api:3000`, baked at build).
+
 ## Specs
 
 Stored in `docs/specs/`, one folder per decision: `docs/specs/NNNN-title/index.md`.

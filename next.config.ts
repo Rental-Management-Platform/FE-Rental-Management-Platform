@@ -27,7 +27,23 @@ if (!isProxyMode && !URL.canParse(publicApiAddress)) {
 
 const apiUrl = isProxyMode ? null : new URL(publicApiAddress);
 
+// In proxy mode the image optimizer fetches a photo such as /api/v1/media/public/<uuid>.png from
+// this very server, through its own router, never through the proxy in front of it (nginx in
+// Docker, see Dockerfile). Without a rewrite that request is a 404 and every photo breaks. The
+// rewrite points that one path at the API. It is read when `next build` runs and baked into the
+// build, so it is a build argument, not a runtime variable. The default is the API container on
+// the Docker network (docs/guild/huong-dan-docker-cho-fe.md, section 3).
+const mediaOrigin = process.env.MEDIA_ORIGIN || "http://api:3000";
+
+if (isProxyMode && !URL.canParse(mediaOrigin)) {
+  throw new Error(
+    `MEDIA_ORIGIN must be an absolute http(s) URL such as http://api:3000, got "${mediaOrigin}".`,
+  );
+}
+
 const nextConfig: NextConfig = {
+  // A self contained server in .next/standalone, so the Docker image needs no node_modules.
+  output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
   experimental: {
@@ -59,6 +75,13 @@ const nextConfig: NextConfig = {
     : {
         localPatterns: [{ pathname: MEDIA_PATHNAME, search: "" }],
       },
+  async rewrites() {
+    if (!isProxyMode) return [];
+    const route = MEDIA_PATHNAME.replace("**", ":file");
+    return [
+      { source: route, destination: `${new URL(mediaOrigin).origin}${route}` },
+    ];
+  },
   async headers() {
     return [
       {
