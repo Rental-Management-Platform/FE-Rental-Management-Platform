@@ -30,6 +30,7 @@ import {
   TILE_MAX_ZOOM,
   TILE_URL,
 } from "../config";
+import { useActivityEpoch } from "../hooks/use-activity-epoch";
 import type { Pin, ViewRequest } from "../pin";
 
 // The Leaflet piece of the location map (spec 0011). It is the default export of a module that
@@ -97,6 +98,8 @@ export default function LocationMap({
   );
   const icon = useMemo(() => pinIcon(warning), [warning]);
   const tileHandlers = useTileFailure(onTilesFailed);
+  // `null` while the page is hidden behind another one (see `useActivityEpoch`).
+  const epoch = useActivityEpoch();
 
   // The opening view (AC-5). Leaflet reads these once, so a later change moves nothing: later
   // moves come through `view`.
@@ -120,66 +123,69 @@ export default function LocationMap({
         heightClassName,
       )}
     >
-      <MapContainer
-        {...start}
-        className={cn("size-full", FOCUS_RING)}
-        attributionControl={false}
-        // The wheel scrolls the page and a double click never places a surprise pin (AC-3, AC-15).
-        scrollWheelZoom={false}
-        doubleClickZoom={false}
-        // One finger scrolls the page and two fingers move and zoom the map. The marker still
-        // drags with one finger, and a tap still places the pin (AC-15).
-        dragging={!coarse}
-        touchZoom
-        zoomAnimation={!reduceMotion}
-        fadeAnimation={!reduceMotion}
-        markerZoomAnimation={!reduceMotion}
-      >
-        <TileLayer
-          url={TILE_URL}
-          maxZoom={TILE_MAX_ZOOM}
-          attribution={ATTRIBUTION_HTML}
-          eventHandlers={tileHandlers}
-        />
-        <AttributionControl prefix={false} position="bottomright" />
-        <MapSetup label={label} />
-        <ViewController view={view} reduceMotion={reduceMotion} />
-        {!readOnly && wardBounds && (
-          <Rectangle
-            bounds={toLatLngBounds(wardBounds)}
-            interactive={false}
-            pathOptions={{
-              weight: 2,
-              dashArray: "6 4",
-              className: "stroke-primary fill-primary/10",
-            }}
+      {epoch !== null && (
+        <MapContainer
+          key={epoch}
+          {...start}
+          className={cn("size-full", FOCUS_RING)}
+          attributionControl={false}
+          // The wheel scrolls the page and a double click never places a surprise pin (AC-3, AC-15).
+          scrollWheelZoom={false}
+          doubleClickZoom={false}
+          // One finger scrolls the page and two fingers move and zoom the map. The marker still
+          // drags with one finger, and a tap still places the pin (AC-15).
+          dragging={!coarse}
+          touchZoom
+          zoomAnimation={!reduceMotion}
+          fadeAnimation={!reduceMotion}
+          markerZoomAnimation={!reduceMotion}
+        >
+          <TileLayer
+            url={TILE_URL}
+            maxZoom={TILE_MAX_ZOOM}
+            attribution={ATTRIBUTION_HTML}
+            eventHandlers={tileHandlers}
           />
-        )}
-        {!readOnly && onPick && <ClickToPick onPick={onPick} />}
-        {pin && (
-          <Marker
-            position={[pin.latitude, pin.longitude]}
-            icon={icon}
-            title={MARKER_TITLE}
-            draggable={!readOnly}
-            keyboard={!readOnly}
-            eventHandlers={{
-              dragend: (event) => {
-                const marker = event.target as LeafletMarker;
-                const { lat, lng } = marker.getLatLng();
-                const accepted = onPick?.(
-                  { latitude: lat, longitude: lng },
-                  "drag",
-                );
-                // A drag that ends where no pin may be goes back to where it was.
-                if (accepted === false) {
-                  marker.setLatLng([pin.latitude, pin.longitude]);
-                }
-              },
-            }}
-          />
-        )}
-      </MapContainer>
+          <AttributionControl prefix={false} position="bottomright" />
+          <MapSetup label={label} />
+          <ViewController view={view} reduceMotion={reduceMotion} />
+          {!readOnly && wardBounds && (
+            <Rectangle
+              bounds={toLatLngBounds(wardBounds)}
+              interactive={false}
+              pathOptions={{
+                weight: 2,
+                dashArray: "6 4",
+                className: "stroke-primary fill-primary/10",
+              }}
+            />
+          )}
+          {!readOnly && onPick && <ClickToPick onPick={onPick} />}
+          {pin && (
+            <Marker
+              position={[pin.latitude, pin.longitude]}
+              icon={icon}
+              title={MARKER_TITLE}
+              draggable={!readOnly}
+              keyboard={!readOnly}
+              eventHandlers={{
+                dragend: (event) => {
+                  const marker = event.target as LeafletMarker;
+                  const { lat, lng } = marker.getLatLng();
+                  const accepted = onPick?.(
+                    { latitude: lat, longitude: lng },
+                    "drag",
+                  );
+                  // A drag that ends where no pin may be goes back to where it was.
+                  if (accepted === false) {
+                    marker.setLatLng([pin.latitude, pin.longitude]);
+                  }
+                },
+              }}
+            />
+          )}
+        </MapContainer>
+      )}
     </div>
   );
 }
