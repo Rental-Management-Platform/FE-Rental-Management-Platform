@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { env } from "@/lib/env";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_THEME_COLOR } from "@/lib/site";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -20,7 +20,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
+  // iPhone: opened from the home screen, the page runs without the Safari bars.
+  appleWebApp: { capable: true, title: SITE_NAME, statusBarStyle: "default" },
 };
+
+// Colors the browser bar in a tab and the status bar once the site is installed.
+export const viewport: Viewport = { themeColor: SITE_THEME_COLOR };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
