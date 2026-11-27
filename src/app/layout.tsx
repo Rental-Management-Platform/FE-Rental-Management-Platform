@@ -30,6 +30,15 @@ export const viewport: Viewport = { themeColor: SITE_THEME_COLOR };
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="vi" className={`${inter.variable} h-full antialiased`}>
+      {/* The manifest link must be a direct child of <head>: a phone ignores it anywhere else and
+          then makes only a browser shortcut, with the address bar on top. The Metadata API cannot
+          promise that. A page that reads `searchParams` in `generateMetadata` (the home page, a
+          listing) has its whole metadata streamed into <body> after the shell, and the link
+          generated from `manifest.ts` goes with it. This copy is in the shell. The streamed one
+          stays and is ignored, the first manifest link of the document wins. */}
+      <head>
+        <link rel="manifest" href="/manifest.webmanifest" />
+      </head>
       <body className="flex min-h-full flex-col">
         <Providers>{children}</Providers>
       </body>
